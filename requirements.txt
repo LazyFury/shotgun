@@ -1,0 +1,9 @@
+-i https://pypi.tuna.tsinghua.edu.cn/simple
+asgiref==3.7.2; python_version >= '3.7'
+django==4.2.7; python_version >= '3.8'
+mysqlclient==2.2.0; python_version >= '3.8'
+pillow==10.1.0; python_version >= '3.8'
+pypng==0.20220715.0
+qrcode[pil]==7.4.2; python_version >= '3.7'
+sqlparse==0.4.4; python_version >= '3.5'
+typing-extensions==4.8.0; python_version >= '3.8'
