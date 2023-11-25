@@ -3,7 +3,6 @@ from django.db import models
 from datetime import timedelta, datetime
 import uuid
 from backend import settings
-from core.api import Api
 from core.models import BaseModel
 
 

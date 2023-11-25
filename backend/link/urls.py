@@ -1,6 +1,4 @@
-from email import message
 from typing import Any
-from django.http import HttpRequest
 from django.urls import path
 from .views import jump, qecodeGenerate, home
 from .models import Link, VisitorIP
