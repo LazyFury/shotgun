@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d50fde04585479a3288b67c14972a884b9e06a9fce75a58e6992bbe381ea9b97"
+            "sha256": "b416c3196bebc5555c5610031c3493d1d88982c3d4a17db8aef233a15db84e91"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -32,6 +32,15 @@
             "index": "pip_conf_index_global",
             "markers": "python_version >= '3.8'",
             "version": "==4.2.7"
+        },
+        "django-ipware": {
+            "hashes": [
+                "sha256:5595aa3819d6c82c2a09a307dfe58f3d40bff3e098c2e8508118195ac3270465",
+                "sha256:c656805c824449b5171e6f851f6369000fe204ec03ac9977110a9b0aff4825b6"
+            ],
+            "index": "pip_conf_index_global",
+            "markers": "python_version >= '3.8'",
+            "version": "==6.0.0"
         },
         "mysqlclient": {
             "hashes": [
@@ -121,6 +130,14 @@
                 "sha256:739c433ba96f078315de54c0db975aee537cbc3e1d0ae4ed9aab0ca1e427e2c1"
             ],
             "version": "==0.20220715.0"
+        },
+        "python-ipware": {
+            "hashes": [
+                "sha256:802858aa13308d572876d1883edae0eae380fe70a51fdefcb46c8a2099240862",
+                "sha256:a52757123c718342f74b16ab2d9d4a531888d69d10b8197c073164635df0a13b"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==2.0.0"
         },
         "qrcode": {
             "extras": [

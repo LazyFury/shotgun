@@ -7,6 +7,7 @@ from backend import settings
 from datetime import datetime
 from link.models import Link
 from .models import QRCode
+from ipware import get_client_ip
 
 
 # Create your views here.
@@ -16,7 +17,8 @@ def jump(request: HttpRequest, path: str):
         return render(request, "404.html", status=404)
     else:
         link.clickCount += 1
-        link.add_visitor_ip(request.META.get("REMOTE_ADDR"))
+        client_ip, _ = get_client_ip(request)
+        link.add_visitor_ip(client_ip or request.META.get("REMOTE_ADDR"))
         link.save()
     return redirect(link.url)
 
@@ -55,9 +57,9 @@ def genShortUrl(request: HttpRequest):
     else:
         found = Link.objects.filter(url=url).first()
         if found is not None:
-            return JsonResponse(found.to_dict())
+            return JsonResponse(found.to_json())
         short = Link.objects.create(url=url)
-        return JsonResponse(short.to_dict())
+        return JsonResponse(short.to_json())
 
 
 def getShortUrl(request: HttpRequest, pk: int):
@@ -65,7 +67,7 @@ def getShortUrl(request: HttpRequest, pk: int):
         return render(request, "404.html", status=404)
     else:
         short = Link.objects.filter(pk=pk).first()
-        return JsonResponse(short.to_dict() if short is not None else {})
+        return JsonResponse(short.to_json() if short is not None else {})
 
 
 def home(request: HttpRequest):

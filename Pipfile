@@ -9,6 +9,7 @@ mysqlclient = "*"
 pillow = "*"
 qrcode = {extras = ["pil"], version = "*"}
 uwsgi = "*"
+django-ipware = "*"
 
 [dev-packages]
 

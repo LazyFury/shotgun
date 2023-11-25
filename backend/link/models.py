@@ -25,19 +25,6 @@ class VisitorIP(BaseModel):
         verbose_name = "短链访客IP记录"
         verbose_name_plural = "短链访客IP记录"
 
-    def to_json(self):
-        return {
-            "id": self.pk,
-            "ip": self.ip,
-            "created_at": self.created_at,
-            "link": self.link.to_dict() if self.link else {},
-            "uuid": self.uuid,
-        }
-
-
-class VisitorIPApi(Api):
-    model: Any = VisitorIP
-
 
 # Create your models here.
 class Link(BaseModel):
@@ -87,15 +74,9 @@ class Link(BaseModel):
     def add_visitor_ip(self, ip):
         VisitorIP.objects.create(ip=ip, link=self)
 
-    def to_dict(self):
+    def extra_json(self):
         return {
-            "id": self.pk,
-            "uuid": self.uuid,
-            "url": self.url,
-            "description": self.description,
-            "sortUrl": settings.HOST + "j/" + self.sortUrl,
-            "visitorCount": self.visitor_count(),
-            "visitorIps": [ip.ip for ip in self.visitor_ips()],
+            "short_url": settings.SITE_URL + "/j/" + self.sortUrl,
         }
 
 
