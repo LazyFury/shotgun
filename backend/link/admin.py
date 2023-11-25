@@ -1,6 +1,4 @@
-from typing import Any
 from django.contrib import admin
-from django.forms import ValidationError
 from django.http.request import HttpRequest
 from .models import Link, WXQRCode, QRCode, VisitorIP
 from django.utils.html import format_html

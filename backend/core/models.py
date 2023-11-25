@@ -10,6 +10,9 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+    def to_json(self):
+        return {"uuid": self.uuid}
+
 
 class UserModel(AbstractUser, BaseModel):
     bio = models.TextField(max_length=500, blank=True)

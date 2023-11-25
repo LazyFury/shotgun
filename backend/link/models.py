@@ -1,10 +1,8 @@
-from multiprocessing import managers
-from typing import Any, Self
+from typing import Any
 from django.db import models
 from datetime import timedelta, datetime
 import uuid
 from backend import settings
-from config import wx
 from core.api import Api
 from core.models import BaseModel
 
@@ -22,12 +20,19 @@ class VisitorIP(BaseModel):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    appid = wx.APPID  # testing
-
     class Meta:
         ordering = ["-created_at"]
         verbose_name = "短链访客IP记录"
         verbose_name_plural = "短链访客IP记录"
+
+    def to_json(self):
+        return {
+            "id": self.pk,
+            "ip": self.ip,
+            "created_at": self.created_at,
+            "link": self.link.to_dict() if self.link else {},
+            "uuid": self.uuid,
+        }
 
 
 class VisitorIPApi(Api):
@@ -35,7 +40,7 @@ class VisitorIPApi(Api):
 
 
 # Create your models here.
-class Link(models.Model):
+class Link(BaseModel):
     """# 短链接
 
     Args:
@@ -85,6 +90,7 @@ class Link(models.Model):
     def to_dict(self):
         return {
             "id": self.pk,
+            "uuid": self.uuid,
             "url": self.url,
             "description": self.description,
             "sortUrl": settings.HOST + "j/" + self.sortUrl,

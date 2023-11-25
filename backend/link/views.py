@@ -1,8 +1,5 @@
 from hashlib import md5
-import json
-from math import fabs
 import os
-import uuid
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 import qrcode
@@ -10,7 +7,6 @@ from backend import settings
 from datetime import datetime
 from link.models import Link
 from .models import QRCode
-from django.core import serializers
 
 
 # Create your views here.
