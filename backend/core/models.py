@@ -3,18 +3,21 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
-from django.http import HttpRequest, QueryDict
-
 
 # Create your models here.
 class BaseModel(models.Model):
+    id = models.AutoField(primary_key=True, editable=False)
     uuid = models.UUIDField(primary_key=False, default=uuid.uuid4, editable=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False, editable=False)
 
     class Meta:
         abstract = True
 
-    def to_json(self, **kwargs):
-        return self.sample_to_json(**kwargs)
+    def to_json(self, *args, **kwargs):
+        return self.sample_to_json(*args, **kwargs)
 
     def loop_all_self_attr(
         self, with_foreign=True, with_related=False, related_serializer=False
@@ -29,12 +32,27 @@ class BaseModel(models.Model):
                 if key == "_state":
                     continue
                 yield key, getattr(self, key)
-
+        print(self.foreignKeys())
         for fKey in self.foreignKeys():
             if hasattr(self, fKey.name) and with_foreign is True:
                 foreign = getattr(self, fKey.name)
+                print("foreign", fKey.name, foreign)
                 if hasattr(foreign, "to_json"):
-                    yield fKey.name, getattr(self, fKey.name).to_json()
+                    yield (
+                        fKey.name,
+                        getattr(self, fKey.name).to_json(
+                            with_foreign=True,
+                            related_serializer=False,
+                            with_related=True,
+                        ),
+                    )
+                else:
+                    yield (
+                        fKey.name,
+                        getattr(self, fKey.name).__str__()
+                        if getattr(self, fKey.name) is not None
+                        else {},
+                    )
             # related
             if fKey.related_model is not None and with_related is True:
                 related = fKey.related_model
@@ -66,6 +84,11 @@ class BaseModel(models.Model):
     def foreignKeys(self):
         return [f for f in self._meta.get_fields() if f.is_relation]
 
+    def exclude_json_keys(self):
+        return [
+            "uuid",
+        ]
+
     def sample_to_json(
         self,
         with_foreign=True,
@@ -95,7 +118,9 @@ class BaseModel(models.Model):
                     result[key] = value
                 else:
                     warn("key %s is exists" % key)
-
+        for key in self.exclude_json_keys():
+            if result.keys().__contains__(key):
+                del result[key]
         return result
 
 

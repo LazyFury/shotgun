@@ -136,9 +136,12 @@ class Api:
                     "errors": validator.errors,
                 }
             )
-        obj = self.model.objects.create(**request.POST.dict())
-        if obj is None:
-            return JsonResponse({"error": "create error"})
+        try:
+            dict = request.POST.dict()
+            del dict["id"]
+            obj = self.model.objects.create(**dict)
+        except Exception as e:
+            return JsonResponse({"error": str(e)})
         return JsonResponse(
             {
                 "status": "success",
@@ -177,9 +180,10 @@ class Api:
             return JsonResponse({"error": "not found"})
         for key in request.POST.dict():
             setattr(obj, key, request.POST.dict()[key])
-        if obj.save() is False:
-            return JsonResponse({"error": "update error"})
-
+        try:
+            obj.save()
+        except Exception as e:
+            return JsonResponse({"error": str(e)})
         return JsonResponse(
             {
                 "status": "success",

@@ -7,9 +7,11 @@ name = "pip_conf_index_global"
 django = "*"
 mysqlclient = "*"
 pillow = "*"
-qrcode = {extras = ["pil"], version = "*"}
+qrcode = {extras = ["pil"] }
 uwsgi = "*"
 django-ipware = "*"
+requests = "*"
+pycryptodome = "*"
 
 [dev-packages]
 

@@ -1,0 +1,28 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}" />
+{% endblock %}
+
+{% block coltype %}
+
+{% endblock %}
+
+{% block bodyclass %}
+  {{ block.super }}
+{% endblock %}
+
+{% block "nav-breadcrumbs" %}
+{% endblock %}
+
+{% comment %} {% block nav-sidebar %}
+{% endblock %} {% endcomment %}
+
+{% block content %}
+  <div id="content-main"></div>
+{% endblock %}
+
+{% block sidebar %}
+
+{% endblock %}

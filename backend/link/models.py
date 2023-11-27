@@ -24,6 +24,9 @@ class VisitorIP(BaseModel):
         verbose_name = "短链访客IP记录"
         verbose_name_plural = "短链访客IP记录"
 
+    def to_json(self, **kwargs):
+        return self.sample_to_json(related_serializer=False)
+
 
 # Create your models here.
 class Link(BaseModel):

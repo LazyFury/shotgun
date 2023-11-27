@@ -10,13 +10,17 @@ from .form import QRCodeForm
 class LinkAdmin(admin.ModelAdmin):
     list_display = [
         "url",
-        "description",
+        "description_preview",
         "sortUrl_preview",
         "visitor_count",
         "posted_by",
         "created_at",
         "updated_at",
     ]
+    list_per_page = 10
+    
+    def description_preview(self, obj):
+        return obj.description[:16] + "..."
 
     def sortUrl_preview(self, obj):
         return format_html(
@@ -24,29 +28,6 @@ class LinkAdmin(admin.ModelAdmin):
             % (
                 obj.sortUrl,
                 obj.sortUrl,
-            )
-        )
-
-
-@admin.register(WXQRCode)
-class WXQRCodeAdmin(admin.ModelAdmin):
-    list_display = [
-        "type",
-        "user",
-        "uuid",
-        "qrcode_preview",
-        "timeout",
-        "remind",
-        "desc",
-        "status",
-    ]
-
-    def qrcode_preview(self, obj):
-        return format_html(
-            '<img src="%s" width="32px" /><a href="%s" style="margin-left:10px" target="_blank">查看</a>'
-            % (
-                obj.qrcode.url,
-                obj.qrcode.url,
             )
         )
 

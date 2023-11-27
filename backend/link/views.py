@@ -74,3 +74,40 @@ def home(request: HttpRequest):
     if request.method == "POST":
         return genShortUrl(request)
     return render(request, "home.html")
+
+
+def uploadImage(request: HttpRequest):
+    if request.method == "POST":
+        file = request.FILES.get("file")
+        if file is None:
+            return JsonResponse({"code": 400, "msg": "未上传文件"})
+        else:
+            file_name = file.name
+            file_size = file.size
+            file_type = file.content_type
+            时间目录_下划线 = datetime.now().strftime("%y_%m_%d/")
+            file_path = settings.UPLOAD_DIR + 时间目录_下划线 + file_name
+            if file_size > 1024 * 1024 * 10:
+                return JsonResponse({"code": 400, "msg": "文件过大"})
+            if file_type not in ["image/png", "image/jpeg", "image/gif"]:
+                return JsonResponse({"code": 400, "msg": "文件格式不支持"})
+            if os.path.exists(file_path):
+                return JsonResponse({"code": 400, "msg": "文件已存在","path":file_path})
+            else:
+                with open(file_path, "wb") as f:
+                    for chunk in file.chunks():
+                        f.write(chunk)
+                return JsonResponse(
+                    {
+                        "code": 200,
+                        "msg": "上传成功",
+                        "data": {
+                            "name": file_name,
+                            "size": file_size,
+                            "type": file_type,
+                            "path": file_path,
+                        },
+                    }
+                )
+    else:
+        return render(request, "uploadImage.html")
