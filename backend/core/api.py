@@ -1,3 +1,4 @@
+import enum
 from typing import Iterable
 from django.http import HttpRequest, JsonResponse
 from django.urls import path
@@ -43,6 +44,39 @@ class Rule:
     def __init__(self, **kwargs):
         for key in kwargs:
             setattr(self, key, kwargs[key])
+
+
+class ApiJsonResponse(JsonResponse):
+    def __init__(self, data, message="", code=200, **kwargs):
+        super().__init__(
+            {"message": message, "code": code, "data": data}, **kwargs, safe=False
+        )
+        self["Access-Control-Allow-Origin"] = "*"
+        self["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
+        self["Access-Control-Max-Age"] = "1000"
+        self["Access-Control-Allow-Headers"] = "*"
+
+
+class ApiErrorCode(enum.Enum):
+    SUCCESS = 200, "成功"
+    ERROR = 400, "失败"
+    AUTH_ERROR = 401, "认证失败"
+    AUTH_EXPIRED = 402, "认证过期"
+    NOT_FOUND = 404, "资源不存在"
+    
+    USER_NOT_EXIST = 1001, "用户不存在"
+    USER_EXIST = 1002, "用户已存在"
+    USER_PASSWORD_ERROR = 1003, "密码错误"
+    USER_PASSWORD_NOT_MATCH = 1004, "密码不匹配"
+    
+    USER_NOT_LOGIN = 1005, "用户未登录"
+    USER_NOT_AUTH = 1006, "用户未认证"
+
+
+
+class ApiException(Exception):
+    code = 400
+    message = "api exception"
 
 
 class Api:
@@ -208,18 +242,18 @@ class Api:
         arr = []
         for obj in objs:
             arr.append(obj.to_json())
-        return JsonResponse(
+        return ApiJsonResponse(
             {
-                "status": "success",
-                "code": 200,
                 "pageable": {
                     "page": page,
                     "size": size,
                     "total": self.model.objects.count(),
                     "totalPage": self.model.objects.count() // size + 1,
                 },
-                "data": arr,
-            }
+                "list": arr,
+            },
+            code=200,
+            message="获取成功",
         )
 
     def get_one(self, request: HttpRequest, id: int):

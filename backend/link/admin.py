@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.http.request import HttpRequest
-from .models import Link, WXQRCode, QRCode, VisitorIP
+from .models import Link, QRCode, VisitorIP
 from django.utils.html import format_html
 from .form import QRCodeForm
 

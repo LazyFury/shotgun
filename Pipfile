@@ -12,6 +12,7 @@ uwsgi = "*"
 django-ipware = "*"
 requests = "*"
 pycryptodome = "*"
+web3 = "*"
 
 [dev-packages]
 
