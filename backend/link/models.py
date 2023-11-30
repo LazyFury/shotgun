@@ -28,62 +28,9 @@ class VisitorIP(BaseModel):
         return self.sample_to_json(related_serializer=False)
 
 
-# Create your models here.
-class Link(BaseModel):
-    """# 短链接
-
-    Args:
-        models (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-
-    url = models.URLField(max_length=2000, unique=True)
-    description = models.TextField(blank=True)
-    posted_by = models.ForeignKey(
-        "core.UserModel", null=True, blank=True, on_delete=models.CASCADE
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    sortUrl = models.CharField(max_length=10, blank=True, unique=True)
-    clickCount = models.IntegerField(default=0, editable=False)  # //deprecated
-
-    def __str__(self):
-        return self.url
-
-    class Meta:
-        ordering = ["-created_at"]
-        verbose_name = "短链"
-        verbose_name_plural = "短链"
-
-    def save(self, *args, **kwargs):
-        if self.sortUrl == "":
-            # gen random sore url
-            import random
-            import string
-
-            letters = string.ascii_letters + string.digits
-            self.sortUrl = "".join(random.choice(letters) for i in range(6))
-        super(Link, self).save(*args, **kwargs)
-
-    def visitor_ips(self):
-        return VisitorIP.objects.filter(link=self)
-
-    def visitor_count(self):
-        return self.visitor_ips().count()
-
-    def add_visitor_ip(self, ip):
-        VisitorIP.objects.create(ip=ip, link=self)
-
-    def extra_json(self):
-        return {
-            "short_url": settings.SITE_URL + "/j/" + self.sortUrl,
-        }
-
 
 # 微信永久二维码 需要上传一张好友码 群码，超时时间，设置提醒方式
-class WXQRCode(models.Model):
+class WXQRCode(BaseModel):
     user = models.ForeignKey(
         "core.UserModel", null=False, blank=False, on_delete=models.CASCADE
     )
@@ -134,7 +81,7 @@ class WXQRCode(models.Model):
         verbose_name_plural = "微信二维码"
 
 
-class QRCode(models.Model):
+class QRCode(BaseModel):
     class QRCodeType(models.TextChoices):
         URL = "URL", "超链接"
         TEXT = "TEXT", "文本"
@@ -145,11 +92,10 @@ class QRCode(models.Model):
 
     originUrl = models.URLField(max_length=2000, blank=True, null=True)
     short = models.ForeignKey(
-        Link,
+        "link.Link",
         null=True,
         blank=True,
         on_delete=models.CASCADE,
-        related_name="short_qrcode_set",
     )
     text = models.TextField(blank=True)
 
@@ -178,3 +124,63 @@ class QRCode(models.Model):
         ordering = ["-id"]
         verbose_name = "二维码"
         verbose_name_plural = "二维码"
+
+
+
+# Create your models here.
+class Link(BaseModel):
+    """# 短链接
+
+    Args:
+        models (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    url = models.URLField(max_length=2000, unique=True)
+    description = models.TextField(blank=True)
+    posted_by = models.ForeignKey(
+        "core.UserModel", null=True, blank=True, on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    sortUrl = models.CharField(max_length=10, blank=True, unique=True)
+    clickCount = models.IntegerField(default=0, editable=False)  # //deprecated
+
+    def __str__(self):
+        return self.url
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "短链"
+        verbose_name_plural = "短链"
+
+    def save(self, *args, **kwargs):
+        if self.sortUrl == "":
+            # gen random sore url
+            import random
+            import string
+
+            letters = string.ascii_letters + string.digits
+            self.sortUrl = "".join(random.choice(letters) for i in range(6))
+        super(Link, self).save(*args, **kwargs)
+
+    def visitor_ips(self):
+        return VisitorIP.objects.filter(link=self)
+
+    def visitor_count(self):
+        return self.visitor_ips().count()
+
+    def add_visitor_ip(self, ip):
+        VisitorIP.objects.create(ip=ip, link=self)
+
+    def extra_json(self):
+        qrcode_set = QRCode.objects.filter(short=self).values("image", "text", "type")
+        arr =[]
+        for qrcode in qrcode_set:
+            arr.append(qrcode)
+        return {
+            "short_url": settings.SITE_URL + "/j/" + self.sortUrl,
+            "qrcode_set":arr,
+        }

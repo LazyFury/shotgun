@@ -13,6 +13,7 @@ django-ipware = "*"
 requests = "*"
 pycryptodome = "*"
 web3 = "*"
+tronpy = "*"
 
 [dev-packages]
 

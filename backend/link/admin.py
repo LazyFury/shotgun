@@ -41,7 +41,7 @@ class QRCodeAdmin(admin.ModelAdmin):
         "ip",
     ]
     form = QRCodeForm
-    readonly_fields = ["image", "originUrl", "type", "text", "short", "wx", "ip"]
+    # readonly_fields = ["image", "originUrl", "type", "text", "short", "wx", "ip"]
 
     def type_display(self, obj: QRCode):
         return QRCode.QRCodeType(obj.type).label
@@ -57,8 +57,8 @@ class QRCodeAdmin(admin.ModelAdmin):
             )
         )
 
-    def has_add_permission(self, request: HttpRequest) -> bool:
-        return False
+    # def has_add_permission(self, request: HttpRequest) -> bool:
+    #     return False
 
 
 @admin.register(VisitorIP)

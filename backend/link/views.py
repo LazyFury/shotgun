@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 import qrcode
 from backend import settings
 from datetime import datetime
+from core.api import ApiErrorCode, ApiJsonResponse
 from link.models import Link
 from .models import QRCode
 from ipware import get_client_ip
@@ -57,9 +58,9 @@ def genShortUrl(request: HttpRequest):
     else:
         found = Link.objects.filter(url=url).first()
         if found is not None:
-            return JsonResponse(found.to_json())
+            return ApiJsonResponse(found.to_json(),code=ApiErrorCode.ERROR,message="找到已存在的记录")
         short = Link.objects.create(url=url)
-        return JsonResponse(short.to_json())
+        return ApiJsonResponse(short.to_json())
 
 
 def getShortUrl(request: HttpRequest, pk: int):
@@ -67,7 +68,7 @@ def getShortUrl(request: HttpRequest, pk: int):
         return render(request, "404.html", status=404)
     else:
         short = Link.objects.filter(pk=pk).first()
-        return JsonResponse(short.to_json() if short is not None else {})
+        return ApiJsonResponse(short.to_json() if short is not None else {})
 
 
 def home(request: HttpRequest):

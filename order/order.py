@@ -3,9 +3,12 @@ from web3 import Web3
 
 web3 = Web3(
     # Web3.HTTPProvider("https://mainnet.infura.io/v3/ebb5d64c93c34767845272fdaf4b21ab")
-    Web3.HTTPProvider("https://bsc-dataseed.binance.org/")
+    # Web3.HTTPProvider("https://bsc-dataseed.binance.org/")
+    # Web3.HTTPProvider("https://api.trongrid.io")
+    # tron 
+    Web3.HTTPProvider("https://api.trongrid.io")
 )
-hash_code = "0xdf99af2cf4e4f2c5e185755bab36d68ad4afd78821de1e8ac6e7a73034966782"
+hash_code = "b257aedf5e38bf4da96290ac6fad346721a20133002d2ca66d41bf96c58fde08"
 while True:
     print("Waiting for transaction...")
     result = web3.eth.get_transaction_receipt(hash_code) # type: ignore

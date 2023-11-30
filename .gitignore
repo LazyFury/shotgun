@@ -4,3 +4,4 @@ mysql/
 **/__pycache__/
 backend/uploads/
 .DS_Store
+.ruff_cache/

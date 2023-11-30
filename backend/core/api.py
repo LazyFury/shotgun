@@ -44,19 +44,8 @@ class Rule:
     def __init__(self, **kwargs):
         for key in kwargs:
             setattr(self, key, kwargs[key])
-
-
-class ApiJsonResponse(JsonResponse):
-    def __init__(self, data, message="", code=200, **kwargs):
-        super().__init__(
-            {"message": message, "code": code, "data": data}, **kwargs, safe=False
-        )
-        self["Access-Control-Allow-Origin"] = "*"
-        self["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
-        self["Access-Control-Max-Age"] = "1000"
-        self["Access-Control-Allow-Headers"] = "*"
-
-
+            
+            
 class ApiErrorCode(enum.Enum):
     SUCCESS = 200, "成功"
     ERROR = 400, "失败"
@@ -71,6 +60,19 @@ class ApiErrorCode(enum.Enum):
     
     USER_NOT_LOGIN = 1005, "用户未登录"
     USER_NOT_AUTH = 1006, "用户未认证"
+
+class ApiJsonResponse(JsonResponse):
+    def __init__(self, data, message="", code=ApiErrorCode.SUCCESS,httpCode=200, **kwargs):
+        super().__init__(
+            {"message": message or code.value[1], "code": code.value[0], "data": data}, **kwargs, safe=False
+        )
+        self["Access-Control-Allow-Origin"] = "*"
+        self["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
+        self["Access-Control-Max-Age"] = "1000"
+        self["Access-Control-Allow-Headers"] = "*"
+        self.status_code = httpCode
+
+
 
 
 
@@ -252,7 +254,6 @@ class Api:
                 },
                 "list": arr,
             },
-            code=200,
             message="获取成功",
         )
 
