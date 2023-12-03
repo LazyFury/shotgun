@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import include, path
 
 from core.views import logout
+from core.api import apiUrls
 
 handler404 = "core.views.handler404"
 
@@ -25,4 +26,4 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("link.urls")),
     path("logout", logout),
-]
+] + apiUrls

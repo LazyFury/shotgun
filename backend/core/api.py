@@ -1,6 +1,6 @@
 import enum
 from typing import Iterable
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
 from .models import BaseModel, UserModel
 
@@ -64,7 +64,14 @@ class ApiErrorCode(enum.Enum):
 class ApiJsonResponse(JsonResponse):
     def __init__(self, data, message="", code=ApiErrorCode.SUCCESS,httpCode=200, **kwargs):
         super().__init__(
-            {"message": message or code.value[1], "code": code.value[0], "data": data}, **kwargs, safe=False
+            {
+                "message": message or code.value[1], 
+                "code": code.value[0], 
+                "data": data
+            },
+            safe=False,
+            json_dumps_params={"ensure_ascii": False, "indent": 0},
+            **kwargs,
         )
         self["Access-Control-Allow-Origin"] = "*"
         self["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
@@ -73,13 +80,34 @@ class ApiJsonResponse(JsonResponse):
         self.status_code = httpCode
 
 
+def def_wrapper(func):
+    def inner(*args, **kwargs):
+        print("def_wrapper")
+        return func(*args, **kwargs)
 
+    return inner
 
 
 class ApiException(Exception):
     code = 400
     message = "api exception"
 
+apiUrls = []
+
+def Get(url,doc=""):
+    print("work on init", doc,url)
+    def wrapper(func):
+        print("work on wrapper")
+        def inner(*args, **kwargs):
+            print("work on inner")
+            return func(*args, **kwargs)
+        apiUrls.append(path(url, inner, name=func.__name__))
+        return inner
+    return wrapper
+
+@Get("api/rr")
+def rr(request: HttpRequest):
+    return HttpResponse("hello world")
 
 class Api:
     """# 生成API
@@ -91,6 +119,7 @@ class Api:
     model: BaseModel
 
     rules: Iterable[Rule] = []
+
 
     class Validator:
         is_valid = True
@@ -228,7 +257,7 @@ class Api:
                 "data": obj.to_json(),
             }
         )
-
+        
     def pageApi(self, request: HttpRequest, **kwargs):
         if request.method != "GET":
             return JsonResponse({"error": "only support GET"})

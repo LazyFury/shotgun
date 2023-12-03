@@ -3,7 +3,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
-
 # Create your models here.
 class BaseModel(models.Model):
     id = models.AutoField(primary_key=True, editable=False)
@@ -86,7 +85,7 @@ class BaseModel(models.Model):
 
     def exclude_json_keys(self):
         return [
-            "uuid",
+            "uuid","is_deleted","password"
         ]
 
     def sample_to_json(
