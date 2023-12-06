@@ -28,64 +28,10 @@ class VisitorIP(BaseModel):
         return self.sample_to_json(related_serializer=False)
 
 
-
-# 微信永久二维码 需要上传一张好友码 群码，超时时间，设置提醒方式
-class WXQRCode(BaseModel):
-    user = models.ForeignKey(
-        "core.UserModel", null=False, blank=False, on_delete=models.CASCADE
-    )
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-
-    # 二维码类型
-    TYPE = (
-        (1, "微信好友"),
-        (2, "微信群"),
-    )
-    # 提醒方式
-    REMIND = (
-        (1, "微信提醒"),
-        (2, "邮件提醒"),
-    )
-    # 二维码
-    qrcode = models.ImageField(
-        upload_to="%s/qrcode/wx/" % settings.UPLOAD_DIR, null=False, blank=False
-    )
-    # 二维码类型
-    type = models.IntegerField(choices=TYPE, default=1)
-    # 超时时间
-    timeout = models.DateTimeField(
-        default=datetime.now() + timedelta(days=7),  # type: ignore
-        help_text="默认 7 天过期",
-        blank=True,
-        null=True,
-    )  # type: ignore # 7天后过期
-    # 提醒方式
-    remind = models.IntegerField(choices=REMIND, default=1)
-    # 二维码描述
-    desc = models.CharField(max_length=400, blank=True)
-    # 二维码链接
-    # link = models.URLField(max_length=2000, blank=True)
-    # 二维码状态
-    status = models.BooleanField(default=True)
-    # 二维码创建时间
-    created_at = models.DateTimeField(auto_now_add=True)
-    # 二维码更新时间
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return self.desc
-
-    class Meta:
-        ordering = ["-created_at"]
-        verbose_name = "微信二维码"
-        verbose_name_plural = "微信二维码"
-
-
 class QRCode(BaseModel):
     class QRCodeType(models.TextChoices):
         URL = "URL", "超链接"
         TEXT = "TEXT", "文本"
-        WX = "WX", "微信二维码"
 
         def __str__(self):
             return self.value
@@ -104,13 +50,7 @@ class QRCode(BaseModel):
         blank=True,
         editable=False,
     )
-    wx = models.ForeignKey(
-        WXQRCode,
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name="wx_qrcode_set",
-    )
+
     type = models.CharField(
         choices=QRCodeType.choices,
         max_length=10,

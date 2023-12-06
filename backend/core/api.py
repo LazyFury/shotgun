@@ -93,12 +93,14 @@ class ApiException(Exception):
     message = "api exception"
 
 apiUrls = []
-
-def Get(url,doc=""):
+print("app init")
+def Get(url,doc="",authMiddleware=lambda :True):
     print("work on init", doc,url)
     def wrapper(func):
         print("work on wrapper")
         def inner(*args, **kwargs):
+            if authMiddleware() is False:
+                return JsonResponse({"error": "auth error"})
             print("work on inner")
             return func(*args, **kwargs)
         apiUrls.append(path(url, inner, name=func.__name__))

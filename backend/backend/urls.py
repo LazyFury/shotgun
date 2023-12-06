@@ -27,3 +27,5 @@ urlpatterns = [
     path("", include("link.urls")),
     path("logout", logout),
 ] + apiUrls
+
+print("all set`")

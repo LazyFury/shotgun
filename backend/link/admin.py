@@ -9,7 +9,7 @@ from .form import QRCodeForm
 @admin.register(Link)
 class LinkAdmin(admin.ModelAdmin):
     list_display = [
-        "url",
+        "url_cut",
         "description_preview",
         "sortUrl_preview",
         "visitor_count",
@@ -18,6 +18,9 @@ class LinkAdmin(admin.ModelAdmin):
         "updated_at",
     ]
     list_per_page = 10
+    
+    def url_cut(self, obj):
+        return obj.url[:16] + "..."
     
     def description_preview(self, obj):
         return obj.description[:16] + "..."
@@ -35,13 +38,17 @@ class LinkAdmin(admin.ModelAdmin):
 @admin.register(QRCode)
 class QRCodeAdmin(admin.ModelAdmin):
     list_display = [
-        "originUrl",
+        "originUrl_cut",
         "image_preview",
         "type_display",
         "ip",
     ]
     form = QRCodeForm
     # readonly_fields = ["image", "originUrl", "type", "text", "short", "wx", "ip"]
+
+    def originUrl_cut(self, obj: QRCode):
+        url = obj.originUrl if obj.originUrl is not None else ""
+        return url[:32] + "..."
 
     def type_display(self, obj: QRCode):
         return QRCode.QRCodeType(obj.type).label
@@ -65,10 +72,13 @@ class QRCodeAdmin(admin.ModelAdmin):
 class VisitorIPAdmin(admin.ModelAdmin):
     list_display = [
         "ip",
-        "link",
+        "link_url_cut",
         "created_at",
     ]
     readonly_fields = ["ip", "link", "created_at"]
+    
+    def link_url_cut(self, obj):
+        return obj.link.url[:16] + "..."
 
     def has_add_permission(self, request: HttpRequest) -> bool:
         return False
