@@ -7,3 +7,4 @@ backend/uploads/
 .ruff_cache/
 
 *.sqlite3
+
