@@ -1,9 +1,16 @@
+from ast import Str
+import datetime
 from logging import warn
+import string
+import time
+from tokenize import String
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
+from django.forms import DateField, DateTimeField
 
-from regex import F
+from backend import settings
+
 
 # Create your models here.
 class BaseModel(models.Model):
@@ -32,7 +39,13 @@ class BaseModel(models.Model):
             if hasattr(self, key):
                 if key == "_state":
                     continue
-                yield key, getattr(self, key)
+                res = getattr(self, key)
+                # test type res
+                print(res,isinstance(res,datetime.datetime))
+                
+                if isinstance(res, datetime.datetime):
+                    res = res.astimezone(settings.tz).strftime(settings.DATETIME_FORMAT)
+                yield key, res
         # print(self.foreignKeys())
         for fKey in self.foreignKeys():
             if hasattr(self, fKey.name) and with_foreign is True:
@@ -48,11 +61,10 @@ class BaseModel(models.Model):
                         ),
                     )
                 else:
+                    res = getattr(self, fKey.name) 
                     yield (
                         fKey.name,
-                        getattr(self, fKey.name).__str__()
-                        if getattr(self, fKey.name) is not None
-                        else {},
+                        res,
                     )
             # related
             if fKey.related_model is not None and with_related is True:

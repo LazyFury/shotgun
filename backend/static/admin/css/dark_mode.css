@@ -2,7 +2,7 @@
     :root {
         --primary: #222;
         --primary-fg: #f7f7f7;
-        --secondary: rgb(41, 182, 123);
+        --secondary: rgb(60, 152, 114);
 
     
         --body-fg: #eeeeee;
@@ -13,7 +13,7 @@
         --breadcrumbs-link-fg: #e0e0e0;
         --breadcrumbs-bg: var(--primary);
     
-        --link-fg: rgb(87, 248, 170);
+        --link-fg: rgb(60, 152, 114);
         --link-hover-color: #4ac1f7;
         --link-selected-fg: #6f94c6;
     
@@ -38,7 +38,7 @@
 html[data-theme="dark"] {
     --primary: #222;
 
-    --secondary: rgb(41, 182, 123);
+    --secondary: rgb(37, 134, 93);
     --primary-fg: #f7f7f7;
 
     --body-fg: #eeeeee;
@@ -49,7 +49,7 @@ html[data-theme="dark"] {
     --breadcrumbs-link-fg: #e0e0e0;
     --breadcrumbs-bg: var(--primary);
 
-    --link-fg: rgb(87, 248, 170);
+    --link-fg: rgb(58, 165, 113);
     --link-hover-color: #4ac1f7;
     --link-selected-fg: #6f94c6;
 

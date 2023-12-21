@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+from pytz import timezone
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 print(BASE_DIR)
@@ -83,6 +85,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        "TIME_ZONE": "UTC"
     }
 }
 
@@ -112,6 +115,9 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "zh-hans"
 
 TIME_ZONE = "Asia/Shanghai"
+
+tz = timezone(TIME_ZONE)
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 USE_I18N = True
 

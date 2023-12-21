@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 import qrcode
 from backend import settings
 from datetime import datetime
-from core.api import ApiErrorCode, ApiJsonResponse
+from core.api import ApiErrorCode, ApiJsonResponse, errorHandler
 from link.models import Link
 from .models import QRCode
 from ipware import get_client_ip
@@ -112,3 +112,46 @@ def uploadImage(request: HttpRequest):
                 )
     else:
         return render(request, "uploadImage.html")
+    
+@errorHandler(json=True)
+def genMpMiniQrcode(req:HttpRequest):
+    path = req.GET.get("path") or req.POST.get("path")
+    if path is None:
+        return ApiJsonResponse({},code=ApiErrorCode.ERROR,message="参数不全")
+    else:
+        from libs.mp import mpminiClient
+        client = mpminiClient
+        res = client.getUnlimited(path)
+        if isinstance(res,bytes):
+            return HttpResponse(res,content_type="image/jpeg")
+        return ApiJsonResponse(res,code=ApiErrorCode.ERROR,message="错误")
+
+@errorHandler()
+def sendMpMiniSubscribe(req:HttpRequest):
+    openid = "o_Xd46zcfoDwZtgpvNrfgllW3t5M"
+    template_id = "Tccl_H5D_tkVrSAFkRqui-T-AiNj2fOAapENUktA2a4"
+    page = ""
+    data = {
+        "character_string1":{
+            "value":"xhdks9767"
+        },
+        "name2":{
+            "value":"测试"
+        },
+        "date4":{
+            "value":"2021-10-10"
+        },
+        "thing6":{
+            "value":"测试"
+        },
+        "thing10":{
+            "value":"测试"
+        },
+    }
+    if openid is None or template_id is None or data is None:
+        return ApiJsonResponse({},code=ApiErrorCode.ERROR,message="参数不全")
+    else:
+        from libs.mp import mpminiClient
+        client = mpminiClient
+        res = client.sendSubscribeMessage(openid,template_id,page,data)
+        return ApiJsonResponse(res,code=ApiErrorCode.SUCCESS,message="发送成功")

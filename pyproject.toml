@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "shortcut"
+version = "0.1.0"
+description = ""
+authors = ["suke <suke971219@gmail.com>"]
+readme = "README.md"
+
+# mirror 
+# https://pypi.tuna.tsinghua.edu.cn/simple
+[[tool.poetry.source]]
+name = "tuna"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+priority = "primary"
+
+
+[[tool.poetry.source]]
+name = "PyPI"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^5.0"
+pillow = "^10.1.0"
+qrcode = {extras = ["pil"], version = "^7.4.2"}
+uwsgi = "^2.0.23"
+django-ipware = "^6.0.3"
+requests = "^2.31.0"
+better-exceptions = "^0.3.3"
+web3 = "^6.12.0"
+mysqlclient = "2.1.0"
+pytz = "^2023.3.post1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

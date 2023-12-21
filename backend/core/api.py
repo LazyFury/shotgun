@@ -5,6 +5,23 @@ from django.urls import path
 from .models import BaseModel, UserModel
 
 
+def errorHandler(json=True):
+    """api 错误处理
+
+    Args:
+        json (bool, optional): _description_. Defaults to True.
+    """
+    def wrapper(func):
+        def inner(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if json is False:
+                    raise e
+                return ApiJsonResponse({} if not hasattr(e,'data') else getattr(e,'data'), code=ApiErrorCode.ERROR,message=str(e) or "error")
+        return inner
+    return wrapper
+
 def preAuth(func, role="user"):
     def inner(*args, **kwargs):
         print("preAuth")
