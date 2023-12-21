@@ -129,22 +129,19 @@ def genMpMiniQrcode(req:HttpRequest):
 @errorHandler()
 def sendMpMiniSubscribe(req:HttpRequest):
     openid = "o_Xd46zcfoDwZtgpvNrfgllW3t5M"
-    template_id = "Tccl_H5D_tkVrSAFkRqui-T-AiNj2fOAapENUktA2a4"
+    template_id = "RkVsEkuCOr43g9tSPes9rJTw2PUpbUV0eCDLQqAxNUI"
     page = ""
     data = {
-        "character_string1":{
+        "character_string2":{
             "value":"xhdks9767"
         },
-        "name2":{
+        "phrase1":{
             "value":"测试"
         },
-        "date4":{
+        "time3":{
             "value":"2021-10-10"
         },
-        "thing6":{
-            "value":"测试"
-        },
-        "thing10":{
+        "thing5":{
             "value":"测试"
         },
     }

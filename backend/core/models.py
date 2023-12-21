@@ -41,8 +41,6 @@ class BaseModel(models.Model):
                     continue
                 res = getattr(self, key)
                 # test type res
-                print(res,isinstance(res,datetime.datetime))
-                
                 if isinstance(res, datetime.datetime):
                     res = res.astimezone(settings.tz).strftime(settings.DATETIME_FORMAT)
                 yield key, res
