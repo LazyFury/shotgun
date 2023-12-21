@@ -5,3 +5,5 @@ mysql/
 backend/uploads/
 .DS_Store
 .ruff_cache/
+
+sqlite3
