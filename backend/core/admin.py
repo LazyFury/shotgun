@@ -22,15 +22,13 @@ class UserInviteCodeAdmin(admin.ModelAdmin):
 
 @admin.register(UserInviteRelate)
 class UserInviteRelateAdmin(admin.ModelAdmin):
-    list_display = ("invite_user_unique_id", "__str__","code", "user","belong", "created_at")
+    list_display = ("code","invite_user_unique_id", "__str__", "user","belong", "created_at")
     list_display_links = ("code", "user","belong")
     list_filter = ("user", "belong","invite")
     # 按时间搜索
     date_hierarchy = "created_at"
 
     search_fields = ("user__username", "belong__username","invite__code")
-    
-    
     
     def code(self, obj):
         return obj.invite.code

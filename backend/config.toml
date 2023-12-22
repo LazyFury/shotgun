@@ -1,0 +1,7 @@
+[minimp]
+APPID='minimp'
+SECRET='minimp'
+
+[timezone]
+timezone='Asia/Shanghai'
+datetime_format='%Y-%m-%d %H:%M:%S'

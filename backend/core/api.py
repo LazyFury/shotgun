@@ -1,7 +1,11 @@
 import enum
-from typing import Iterable
+import inspect
+from typing import Any, Iterable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
+from regex import R
+
+from core.libs.utils import queryDictToDict
 from .models import BaseModel, UserModel
 
 
@@ -12,14 +16,17 @@ def errorHandler(json=True):
         json (bool, optional): _description_. Defaults to True.
     """
     def wrapper(func):
-        def inner(*args, **kwargs):
+        print("errorHandler",func.__name__)
+        def err_inner(*args, **kwargs):
+            print("errorHandler inner")
             try:
+                print("working fine....")
                 return func(*args, **kwargs)
             except Exception as e:
                 if json is False:
                     raise e
                 return ApiJsonResponse({} if not hasattr(e,'data') else getattr(e,'data'), code=ApiErrorCode.ERROR,message=str(e) or "error")
-        return inner
+        return err_inner
     return wrapper
 
 def preAuth(func, role="user"):
@@ -111,22 +118,51 @@ class ApiException(Exception):
 
 apiUrls = []
 print("app init")
-def Get(url,doc="",authMiddleware=lambda :True):
-    print("work on init", doc,url)
+urls = []
+def Route(url,doc="",middlewares=[]):
+    """_summary_
+
+    Args:
+        url (_type_): _description_
+        doc (str, optional): _description_. Defaults to "" \n
+        middlewares 中间件数组，每个中间件应该返回一个元组，第一个元素为是否继续执行，第二个元素为返回值
+
+    Returns:
+        _type_: _description_
+    """
     def wrapper(func):
-        print("work on wrapper")
+        print("[Route] %s " % (url,))
         def inner(*args, **kwargs):
-            if authMiddleware() is False:
-                return JsonResponse({"error": "auth error"})
+            for middleware in middlewares:
+                next,res = middleware(*args, **kwargs)
+                if next is False:
+                    return res
             print("work on inner")
             return func(*args, **kwargs)
         apiUrls.append(path(url, inner, name=func.__name__))
+        urls.append({
+            "url":url,
+            "doc":doc,
+        })
         return inner
     return wrapper
 
+def Get(url,doc=""):
+    def isGetMethod(request:HttpRequest)->(bool,HttpResponse):
+        if request.method == "GET":
+            return True,None
+        return False,ApiJsonResponse({},code=ApiErrorCode.ERROR,message="only support GET")
+    return Route(url,doc,middlewares=[isGetMethod])
+    
 @Get("api/rr")
 def rr(request: HttpRequest):
-    return HttpResponse("hello world")
+    return ApiJsonResponse({"name": "rr"})  
+
+@Get("api")
+def api(request: HttpRequest):
+    return ApiJsonResponse({"name": "api",
+                            "routes":urls
+                            })
 
 class Api:
     """# 生成API
@@ -277,6 +313,17 @@ class Api:
             }
         )
         
+    def defaultQuery(self, **kwargs):
+        """### 默认查询
+
+        Args:
+            request (HttpRequest): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        return self.model.objects.all().order_by("-id")
+        
     def pageApi(self, request: HttpRequest, **kwargs):
         if request.method != "GET":
             return JsonResponse({"error": "only support GET"})
@@ -286,19 +333,24 @@ class Api:
         page, size = request.GET.get("page", 1), request.GET.get("size", 10)
         page = int(page)
         size = int(size)
-        objs = self.model.objects.all().order_by("-id")[
+        objs = self.defaultQuery().filter(**queryDictToDict(request.GET))
+        count = objs.count()
+        objs = objs[
             (page - 1) * size : (page) * size
         ]
         arr = []
         for obj in objs:
-            arr.append(obj.to_json())
+            if hasattr(obj, "to_json"):
+                arr.append(obj.to_json())
+            else:
+                arr.append(obj)
         return ApiJsonResponse(
             {
                 "pageable": {
                     "page": page,
                     "size": size,
-                    "total": self.model.objects.count(),
-                    "totalPage": self.model.objects.count() // size + 1,
+                    "total": count,
+                    "totalPage": count // size + 1,
                 },
                 "list": arr,
             },
@@ -339,12 +391,19 @@ class Api:
     @property
     def urls(self):
         return self.get_urls(), "api", self.model.__name__.lower()
+    
+    @property
+    def routeName(self):
+        return self.model.__name__.lower()
 
-    def get_urls(self):
-        return [
-            path("create", self.createApi, name="getShortUrl"),
-            path("", self.pageApi, name="pageApi"),
-            path("<int:id>", self.get_one, name="get_one"),
-            path("<int:id>/delete", self.deleteApi, name="deleteApi"),
-            path("update", self.updateApi, name="updateApi"),
-        ]
+    def __init__(self, *args: Any, **kwds: Any) -> Any:
+        self.registerRoute()
+    
+    def registerRoute(self):
+        baseUrl = 'api/' + self.routeName
+        Route(baseUrl)(self.pageApi)
+        Route(baseUrl + '/create')(self.createApi)
+        Route(baseUrl + '/<int:id>')(self.get_one)
+        Route(baseUrl + '/<int:id>/delete')(self.deleteApi)
+        Route(baseUrl + '/update')(self.updateApi)
+    

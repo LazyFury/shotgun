@@ -1,15 +1,10 @@
-from ast import Str
 import datetime
 from logging import warn
-import string
-import time
-from tokenize import String
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
-from django.forms import DateField, DateTimeField
 
-from backend import settings
+from core.libs.utils.time import toLocalTime
 
 
 # Create your models here.
@@ -42,13 +37,14 @@ class BaseModel(models.Model):
                 res = getattr(self, key)
                 # test type res
                 if isinstance(res, datetime.datetime):
-                    res = res.astimezone(settings.tz).strftime(settings.DATETIME_FORMAT)
+                    res = toLocalTime(res)
                 yield key, res
         # print(self.foreignKeys())
         for fKey in self.foreignKeys():
             if hasattr(self, fKey.name) and with_foreign is True:
                 foreign = getattr(self, fKey.name)
                 # print("foreign", fKey.name, foreign)
+                # one to one
                 if hasattr(foreign, "to_json"):
                     yield (
                         fKey.name,
@@ -59,12 +55,13 @@ class BaseModel(models.Model):
                         ),
                     )
                 else:
-                    res = getattr(self, fKey.name) 
-                    yield (
-                        fKey.name,
-                        res,
-                    )
-            # related
+                    # res = getattr(self, fKey.name) 
+                    # yield (
+                    #     fKey.name,
+                    #     res.__str__() if res is not None else None,
+                    # )
+                    pass
+            # related one to many
             if fKey.related_model is not None and with_related is True:
                 related = fKey.related_model
                 # print(self.__class__.__name__, fKey.name, related.__class__.__name__)
@@ -141,7 +138,12 @@ class UserModel(AbstractUser, BaseModel):
 
     def __str__(self):
         return self.username
-
+    
+    def extra_json(self):
+        return {
+            "belong_username": UserInviteRelate.objects.filter(user=self).first().belong.username if UserInviteRelate.objects.filter(user=self).first() is not None else None,
+        }
+        
     class Meta:
         verbose_name = "User"
         verbose_name_plural = "Users"

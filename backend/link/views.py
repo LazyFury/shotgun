@@ -119,7 +119,7 @@ def genMpMiniQrcode(req:HttpRequest):
     if path is None:
         return ApiJsonResponse({},code=ApiErrorCode.ERROR,message="参数不全")
     else:
-        from libs.mp import mpminiClient
+        from core.libs.mp import mpminiClient
         client = mpminiClient
         res = client.getUnlimited(path)
         if isinstance(res,bytes):
@@ -148,7 +148,18 @@ def sendMpMiniSubscribe(req:HttpRequest):
     if openid is None or template_id is None or data is None:
         return ApiJsonResponse({},code=ApiErrorCode.ERROR,message="参数不全")
     else:
-        from libs.mp import mpminiClient
+        from core.libs.mp import mpminiClient
         client = mpminiClient
         res = client.sendSubscribeMessage(openid,template_id,page,data)
         return ApiJsonResponse(res,code=ApiErrorCode.SUCCESS,message="发送成功")
+
+
+def getRandomString(request: HttpRequest):
+    length = request.GET.get("length") or request.POST.get("length")
+    if length is None:
+        length = 12
+    def getRandomString(length):
+        import random
+        letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        return "".join(random.choice(letters) for i in range(length))
+    return ApiJsonResponse({"val":getRandomString(int(length))})

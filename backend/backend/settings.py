@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+from better_exceptions.integrations.django import skip_errors_filter
 from pytz import timezone
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -53,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "better_exceptions.integrations.django.BetterExceptionsMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -85,7 +86,6 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-        "TIME_ZONE": "UTC"
     }
 }
 
@@ -116,7 +116,6 @@ LANGUAGE_CODE = "zh-hans"
 
 TIME_ZONE = "Asia/Shanghai"
 
-tz = timezone(TIME_ZONE)
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 USE_I18N = True
@@ -134,3 +133,40 @@ STATICFILES_DIRS = [BASE_DIR / "./static", ("uploads", BASE_DIR / "./uploads")]
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            # "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
+            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            "datefmt": DATETIME_FORMAT,
+        },
+    },
+    "filters":{
+        "skip_errors":{
+            "()":"django.utils.log.CallbackFilter",
+            'callback':skip_errors_filter
+        }
+    },
+    "handlers": {
+        'console': {
+            'level': 'INFO',
+            # without the 'filters' key, Django will log errors twice:
+            # one time from better-exceptions and one time from Django.
+            # with the 'skip_errors' filter, we remove the repeat log
+            # from Django, which is unformatted.
+            'filters': ['skip_errors'],
+            'class': 'logging.StreamHandler',
+        }
+    },
+    "loggers": {
+        'django': {
+            'handlers': [
+                'console',
+            ],
+        }
+    },
+}

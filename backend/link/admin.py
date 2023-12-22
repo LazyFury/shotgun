@@ -34,7 +34,6 @@ class LinkAdmin(admin.ModelAdmin):
             )
         )
 
-
 @admin.register(QRCode)
 class QRCodeAdmin(admin.ModelAdmin):
     list_display = [

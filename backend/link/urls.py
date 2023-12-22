@@ -1,9 +1,9 @@
 from django.urls import path
 
-from libs.utils import func1
+from core.libs.utils import func1
+from .api import *;
 
-from .views import genMpMiniQrcode, jump, qecodeGenerate, home, sendMpMiniSubscribe
-from .api import urls as api_urls
+from .views import genMpMiniQrcode, getRandomString, jump, qecodeGenerate, home, sendMpMiniSubscribe
 
 urlpatterns = [
     path("j/<str:path>", jump, name="jump"),
@@ -11,6 +11,7 @@ urlpatterns = [
     path("", home),
     path('wxmini/send',sendMpMiniSubscribe),
     path('wxmini/qr',genMpMiniQrcode),
-] + api_urls
+    path('api/random',getRandomString)
+]
 
 func1()

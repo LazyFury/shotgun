@@ -1,9 +1,8 @@
 from django.http import HttpRequest
+from core import models
 from core.api import Rule, Api
 from .models import Link, VisitorIP
 from typing import Any
-from django.urls import path
-
 from core.models import UserModel
 
 
@@ -25,6 +24,9 @@ class LinkApi(Api):
     @property
     def urls(self):
         return self.get_urls() + [], "link", "link"
+    
+    def defaultQuery(self, **kwargs):
+        return super().defaultQuery(**kwargs).order_by("-posted_by__is_active")
 
 
 def noAuth(func: Any):
@@ -50,8 +52,4 @@ visitorIp = VisitorIPApi()
 userApi = UserApi()
 
 
-urls = [
-    path("api/ip/", visitorIp.urls),  # type: ignore
-    path("api/link/", linkApi.urls),  # type: ignore
-    path("api/user/", userApi.urls),  # type: ignore
-]
+

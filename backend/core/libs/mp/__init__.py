@@ -1,10 +1,8 @@
 
 import datetime
-from email import message
-import json
 import requests
 
-from config import minimp
+from core.config import minimp
 
 
 class WxException(Exception):
