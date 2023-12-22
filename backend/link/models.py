@@ -123,4 +123,5 @@ class Link(BaseModel):
         return {
             "short_url": settings.SITE_URL + "/j/" + self.sortUrl,
             "qrcode_set":arr,
+            "posted_by__username": self.posted_by.username if self.posted_by is not None else "未知",
         }

@@ -2,6 +2,7 @@
 from pathlib import Path
 
 from pytz import timezone
+from requests import get
 
 
 
@@ -26,6 +27,19 @@ config = readTomlConfig()
 print("read from config.toml ..." + config.__str__())
 
 
-TIME_ZONE = config["timezone"]["timezone"]
-DATETIME_FORMAT = config["timezone"]["datetime_format"]
+
+def get(domain,default=""):  # noqa: F811
+    keys = domain.split(".")
+    target = config
+    for key in keys:
+        if key in target:
+            target = target[key]
+        else:
+            return default
+    return target
+        
+
+TIME_ZONE = get("timezone.timezone")
+print("TIME_ZONE", TIME_ZONE)
+DATETIME_FORMAT = get("timezone.datetime_format")
 tz = timezone(TIME_ZONE)

@@ -25,6 +25,7 @@ handler404 = "core.views.handler404"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("link.urls")),
+    path("dtk/api", include("dtk.urls")),
     path("logout", logout),
 ] + apiUrls
 

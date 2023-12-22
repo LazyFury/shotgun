@@ -84,6 +84,7 @@ class ApiErrorCode(enum.Enum):
     
     USER_NOT_LOGIN = 1005, "用户未登录"
     USER_NOT_AUTH = 1006, "用户未认证"
+    TOKEN_INVALID = 1007, "token无效"
 
 class ApiJsonResponse(JsonResponse):
     def __init__(self, data, message="", code=ApiErrorCode.SUCCESS,httpCode=200, **kwargs):
@@ -102,7 +103,11 @@ class ApiJsonResponse(JsonResponse):
         self["Access-Control-Max-Age"] = "1000"
         self["Access-Control-Allow-Headers"] = "*"
         self.status_code = httpCode
-
+        
+    def error(code=ApiErrorCode.ERROR,message="错误",data=None,**kwargs):
+        return ApiJsonResponse(data,code=code,message=message,httpCode=400,**kwargs)
+    def success(data=None,message="成功",**kwargs):
+        return ApiJsonResponse(data,code=ApiErrorCode.SUCCESS,message=message,httpCode=200,**kwargs)
 
 def def_wrapper(func):
     def inner(*args, **kwargs):
@@ -322,7 +327,7 @@ class Api:
         Returns:
             _type_: _description_
         """
-        return self.model.objects.all().order_by("-id")
+        return self.model.objects.all().order_by("-created_at")
         
     def pageApi(self, request: HttpRequest, **kwargs):
         if request.method != "GET":

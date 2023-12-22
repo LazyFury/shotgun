@@ -60,7 +60,11 @@ class BaseModel(models.Model):
                     #     fKey.name,
                     #     res.__str__() if res is not None else None,
                     # )
-                    pass
+                    # 可能是被别的对象引用或者 None ，被别的对象引用的话，这里是一个 RelatedManager 对象,不适合自动处理
+                    yield (
+                        fKey.name,
+                        None
+                    )
             # related one to many
             if fKey.related_model is not None and with_related is True:
                 related = fKey.related_model

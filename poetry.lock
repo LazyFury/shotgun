@@ -1798,6 +1798,21 @@ url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 reference = "tuna"
 
 [[package]]
+name = "simple-cache"
+version = "0.35"
+description = "A simple caching utility in Python 3"
+optional = false
+python-versions = "*"
+files = [
+    {file = "simple_cache-0.35.zip", hash = "sha256:070809009eb3abe55b8d55bec5c009a642291b53313e40dd1e15e1389038ee25"},
+]
+
+[package.source]
+type = "legacy"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+reference = "tuna"
+
+[[package]]
 name = "sqlparse"
 version = "0.4.4"
 description = "A non-validating SQL parser."
@@ -2155,4 +2170,4 @@ reference = "tuna"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "58e26cc98f24226451d6e2a439fe1c5097476fa910e8d109f8a96c26e79d6228"
+content-hash = "d196ea40883c5b7eed89776350b6b513e860fc1d06021305ad8011ce69df0779"

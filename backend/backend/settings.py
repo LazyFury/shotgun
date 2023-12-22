@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core",
     "link",
+    "dtk"
 ]
 
 AUTH_USER_MODEL = "core.UserModel"
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "better_exceptions.integrations.django.BetterExceptionsMiddleware",
+    "core.libs.middleware.APITokenAuthMiddleware"
 ]
 
 ROOT_URLCONF = "backend.urls"

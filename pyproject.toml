@@ -30,6 +30,7 @@ mysqlclient = "2.1.0"
 pytz = "^2023.3.post1"
 python-dotenv = "^1.0.0"
 toml = "^0.10.2"
+simple-cache = "^0.35"
 
 
 [build-system]
