@@ -1,5 +1,6 @@
 import enum
 import inspect
+import re
 from typing import Any, Iterable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
@@ -106,8 +107,11 @@ class ApiJsonResponse(JsonResponse):
         
     def error(code=ApiErrorCode.ERROR,message="错误",data=None,**kwargs):
         return ApiJsonResponse(data,code=code,message=message,httpCode=400,**kwargs)
+    
     def success(data=None,message="成功",**kwargs):
         return ApiJsonResponse(data,code=ApiErrorCode.SUCCESS,message=message,httpCode=200,**kwargs)
+
+
 
 def def_wrapper(func):
     def inner(*args, **kwargs):
@@ -115,6 +119,8 @@ def def_wrapper(func):
         return func(*args, **kwargs)
 
     return inner
+
+
 
 
 class ApiException(Exception):
@@ -165,9 +171,10 @@ def rr(request: HttpRequest):
 
 @Get("api")
 def api(request: HttpRequest):
-    return ApiJsonResponse({"name": "api",
-                            "routes":urls
-                            })
+    return ApiJsonResponse({
+        "name": "api",
+        "routes":urls
+    })
 
 class Api:
     """# 生成API
@@ -318,7 +325,7 @@ class Api:
             }
         )
         
-    def defaultQuery(self, **kwargs):
+    def defaultQuery(self,request: HttpRequest):
         """### 默认查询
 
         Args:
@@ -327,7 +334,20 @@ class Api:
         Returns:
             _type_: _description_
         """
-        return self.model.objects.all().order_by("-created_at")
+        
+        model_fields = self.model._meta.get_fields()
+        valid_fields = {}
+        input_fields = request.GET.dict()
+        
+        # 忽略不在模型中的字段，前端在查询时可能会传入一些不在模型中的字段，这些字段应该被忽略
+        for field in model_fields:
+            for key in input_fields:
+                if not re.match(f'{field.name}__\w+',key):
+                    pass
+                else:
+                    valid_fields[key] = input_fields[key]
+                    
+        return self.model.objects.all().filter(**valid_fields).order_by("-created_at")
         
     def pageApi(self, request: HttpRequest, **kwargs):
         if request.method != "GET":
@@ -338,7 +358,7 @@ class Api:
         page, size = request.GET.get("page", 1), request.GET.get("size", 10)
         page = int(page)
         size = int(size)
-        objs = self.defaultQuery().filter(**queryDictToDict(request.GET))
+        objs = self.defaultQuery(request=request)
         count = objs.count()
         objs = objs[
             (page - 1) * size : (page) * size

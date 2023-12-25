@@ -14,13 +14,14 @@ class DtkClient():
     version = config.get("dtk.version")
     appKey =  config.get("dtk.appKey")
     appSerect = config.get("dtk.appSecret")
+    cache_file = config.cacheFile("dtk.cache")
     
     
     def request(self, api, params,method='GET',fullUrl="",**kwargs):
         url = self.baseUrl + api
         if fullUrl is not None and fullUrl != "":
             url = fullUrl
-        cache_file = "dtk.cache"
+        cache_file = self.cache_file
 
         uniqueStr = md5((method + url + json.dumps(params)).encode('utf-8')).hexdigest()
         cached =  simple_cache.load_key( cache_file,uniqueStr)

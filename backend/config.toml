@@ -11,3 +11,6 @@ apiUrl='https://openapi.dataoke.com/api/'
 appKey='5dc6fcef48989'
 appSerect='17eda35413998548b3fdebd31e6d2c51'
 version='v1.2.0'
+
+[cache]
+dir='cache'

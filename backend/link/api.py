@@ -26,7 +26,7 @@ class LinkApi(Api):
         return self.get_urls() + [], "link", "link"
     
     def defaultQuery(self, **kwargs):
-        return super().defaultQuery(**kwargs).order_by("-posted_by__is_active")
+        return super().defaultQuery(**kwargs) #.order_by("-posted_by__is_active")
 
 
 def noAuth(func: Any):
