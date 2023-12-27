@@ -10,3 +10,6 @@ backend/uploads/
 
 *.cache 
 cache/
+
+package.zip
+package

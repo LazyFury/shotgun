@@ -155,7 +155,7 @@ def rr(request: HttpRequest):
 def api(request: HttpRequest):
     return ApiJsonResponse({
         "name": "api",
-        "routes":urls
+        "connect": "success",
     })
 
 class Api:
