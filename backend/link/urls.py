@@ -1,6 +1,5 @@
 from django.urls import path
 
-from core.libs.utils import func1
 from .api import *;
 
 from .views import genMpMiniQrcode, getRandomString, jump, qecodeGenerate, home, sendMpMiniSubscribe
@@ -13,5 +12,3 @@ urlpatterns = [
     path('wxmini/qr',genMpMiniQrcode),
     path('api/random',getRandomString)
 ]
-
-func1()

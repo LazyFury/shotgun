@@ -1,14 +1,11 @@
 import enum
-import inspect
+from functools import wraps
 import re
 from typing import Any, Iterable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.urls import path
-from regex import R
 
-from core.libs.utils import queryDictToDict
-from .models import BaseModel, UserModel
-
+from core.models import BaseModel
 
 def errorHandler(json=True):
     """api 错误处理
@@ -18,6 +15,8 @@ def errorHandler(json=True):
     """
     def wrapper(func):
         print("errorHandler",func.__name__)
+        
+        @wraps(func)
         def err_inner(*args, **kwargs):
             print("errorHandler inner")
             try:
@@ -29,28 +28,6 @@ def errorHandler(json=True):
                 return ApiJsonResponse({} if not hasattr(e,'data') else getattr(e,'data'), code=ApiErrorCode.ERROR,message=str(e) or "error")
         return err_inner
     return wrapper
-
-def preAuth(func, role="user"):
-    def inner(*args, **kwargs):
-        print("preAuth")
-        # get request
-        req: HttpRequest = None  # type: ignore
-        for arg in args:
-            if isinstance(arg, HttpRequest):
-                req = arg
-                break
-        if req is None:
-            return JsonResponse({"error": "not found request"})
-        if req.user.pk is None:
-            return JsonResponse({"error": "not normal login"})
-        user = UserModel.objects.get(id=req.user.pk)
-        if user.is_authenticated is False:
-            return JsonResponse({"error": "not login"})
-        if user.groups.filter(name=role).exists() is False:
-            return JsonResponse({"error": "not auth"})
-        return func(*args, **kwargs)
-
-    return inner
 
 
 class Rule:
@@ -130,6 +107,8 @@ class ApiException(Exception):
 apiUrls = []
 print("app init")
 urls = []
+
+
 def Route(url,doc="",middlewares=[]):
     """_summary_
 
@@ -143,6 +122,8 @@ def Route(url,doc="",middlewares=[]):
     """
     def wrapper(func):
         print("[Route] %s " % (url,))
+        
+        @wraps(func)
         def inner(*args, **kwargs):
             for middleware in middlewares:
                 next,res = middleware(*args, **kwargs)
@@ -150,6 +131,7 @@ def Route(url,doc="",middlewares=[]):
                     return res
             print("work on inner")
             return func(*args, **kwargs)
+        
         apiUrls.append(path(url, inner, name=func.__name__))
         urls.append({
             "url":url,
@@ -346,7 +328,6 @@ class Api:
                     pass
                 else:
                     valid_fields[key] = input_fields[key]
-                    
         return self.model.objects.all().filter(**valid_fields).order_by("-created_at")
         
     def pageApi(self, request: HttpRequest, **kwargs):
@@ -426,7 +407,7 @@ class Api:
     
     def registerRoute(self):
         baseUrl = 'api/' + self.routeName
-        Route(baseUrl)(self.pageApi)
+        Get(baseUrl)(self.pageApi)
         Route(baseUrl + '/create')(self.createApi)
         Route(baseUrl + '/<int:id>')(self.get_one)
         Route(baseUrl + '/<int:id>/delete')(self.deleteApi)

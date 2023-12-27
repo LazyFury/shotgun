@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from core import route
 
 from core.views import logout
 from core.api import apiUrls
@@ -27,6 +28,6 @@ urlpatterns = [
     path("", include("link.urls")),
     path("dtk/api", include("dtk.urls")),
     path("logout", logout),
-] + apiUrls
+] + apiUrls + route.route.urls
 
 print("all set`")
