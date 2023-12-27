@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-5^$mn&msaulu@p1_9ai-)7mnxop3w@u4twhz2-z*&u8pn&382q
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+CSRF_TRUSTED_ORIGINS = ["http://s.lazyfury.fun"]
 
 # Application definition
 
