@@ -158,6 +158,16 @@ def api(request: HttpRequest):
         "connect": "success",
     })
 
+@Get("api/test")
+def test(request: HttpRequest):
+    def randomStr(length=10):
+        import random
+        import string
+        return ''.join(random.sample(string.ascii_letters + string.digits, length))
+    return ApiJsonResponse({
+        str(k) +"message" :randomStr() for k in range(100)
+    })
+
 class Api:
     """# 生成API
 

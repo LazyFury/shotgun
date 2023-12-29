@@ -1,4 +1,0 @@
-mysql
-.git
-.ruff_cache
-**/node_modules

@@ -27,7 +27,7 @@ def RatelimitMiddleware(get_response):
             if request.path.startswith('/api/'):
                 count = simple_cache.load_key(cache_file,'count') or 0
                 print("count", count)
-                if count > 60:
+                if count > 1200:
                     return ApiJsonResponse.error(ApiErrorCode.ERROR, "每秒请求数超过50次")
                 simple_cache.save_key(cache_file,'count', count+1, 1)
             return get_response(request)

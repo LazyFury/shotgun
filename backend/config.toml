@@ -14,3 +14,8 @@ version='v1.2.0'
 
 [cache]
 dir='cache'
+
+[app]
+DEBUG=true
+SECRET_KEY="tI_inQ#O!Qb(x=!W$:E?,F.1_#p&b!'sOKuwy7VXym%1*r<;URdzM`Ds$sSv2QW"
+CSRF_TRUSTED_ORIGINS=["http://django.lazyfury.fun","http://127.0.0.1:8000"]
