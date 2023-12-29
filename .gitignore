@@ -1,6 +1,5 @@
 # for django 
 mysql/
-**/migrations/
 **/__pycache__/
 backend/uploads/
 .DS_Store
