@@ -1,15 +1,14 @@
 
 import datetime
 import requests
-
-from core.config import minimp
+from core import config
 
 
 class WxException(Exception):
     raw = ''
     msg = ''
     
-    def __init__(self,msg, raw):
+    def __init__(self,msg, raw=None):
         self.msg = msg
         self.raw = raw
         
@@ -34,9 +33,20 @@ class MpMiniClient:
     memcache = {}
         
     def getAccessToken(self):
+        """获取 access_token
+
+        Raises:
+            WxException: _description_
+            WxException: _description_
+
+        Returns:
+            _type_: _description_
+        """
         if 'access_token' in self.memcache and 'expire' in self.memcache and self.memcache['expire'] > datetime.datetime.now().timestamp():
             print('get access_token from memcache')
             return self.memcache['access_token'], self.memcache['expire']
+        if self.appkey is None or self.appSerect is None:
+            raise WxException("appkey 或 appSerect 未设置")
         
         url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + self.appkey + '&secret=' + self.appSerect
         res = requests.get(url)
@@ -49,8 +59,29 @@ class MpMiniClient:
         self.memcache['expire'] = datetime.datetime.now().timestamp() + expire
         return access_token, expire
     
+    
+    
+    
     def sendSubscribeMessage(self, openid, template_id, page, data):
+        """发布订阅消息
+
+        Args:
+            openid (_type_): _description_
+            template_id (_type_): _description_
+            page (_type_): _description_
+            data (_type_): _description_
+
+        Raises:
+            WxException: _description_
+
+        Returns:
+            _type_: _description_
+        """
         access_token, expire = self.getAccessToken()
+        if access_token is None:
+            raise WxException("获取 access_token 失败")
+        if expire < datetime.datetime.now().timestamp():
+            raise WxException("access_token 过期")
         url = 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=' + access_token
         data = {
             'touser': openid,
@@ -81,4 +112,4 @@ class MpMiniClient:
             return res.content
         return res.json()
     
-mpminiClient = MpMiniClient(minimp.APPID,minimp.SECRET)
+mpminiClient = MpMiniClient(config.get('minimp.appid'),config.get("minimp.screct"))

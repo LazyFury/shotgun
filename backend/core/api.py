@@ -1,11 +1,10 @@
-import enum
 from functools import wraps
 import re
 from typing import Any, Iterable
-from django.http import HttpRequest, HttpResponse, JsonResponse
-from django.urls import path
-
+from django.http import HttpRequest, JsonResponse
 from core.models import BaseModel
+from core.response import ApiErrorCode, ApiJsonResponse
+from core.route import router
 
 def errorHandler(json=True):
     """api 错误处理
@@ -30,6 +29,12 @@ def errorHandler(json=True):
     return wrapper
 
 
+
+class ApiException(Exception):
+    code = 400
+    message = "api exception"
+
+
 class Rule:
     name: str = ""
     required: bool = False
@@ -43,130 +48,34 @@ class Rule:
     message: str = ""
     validator = bool = lambda *args, **kwargs: True
 
-    def __init__(self, **kwargs):
+    def __init__(self,name, message="", **kwargs):
+        self.name = name
+        self.message = message
         for key in kwargs:
             setattr(self, key, kwargs[key])
             
-            
-class ApiErrorCode(enum.Enum):
-    SUCCESS = 200, "成功"
-    ERROR = 400, "失败"
-    AUTH_ERROR = 401, "认证失败"
-    AUTH_EXPIRED = 402, "认证过期"
-    NOT_FOUND = 404, "资源不存在"
+    def is_required(self):
+        self.required = True
+        return self
+    def string(self):
+        self.type = "string"
+        return self
+    def number(self):
+        self.type = "number"
+        return self
+    def set_choices(self,choices):
+        self.choices = choices
+        return self
+    def set_min(self,min):
+        self.min = min
+        return self
+    def set_max(self,max):
+        self.max = max
+        return self
+    def set_message(self,message):
+        self.message = message
+        return self
     
-    USER_NOT_EXIST = 1001, "用户不存在"
-    USER_EXIST = 1002, "用户已存在"
-    USER_PASSWORD_ERROR = 1003, "密码错误"
-    USER_PASSWORD_NOT_MATCH = 1004, "密码不匹配"
-    
-    USER_NOT_LOGIN = 1005, "用户未登录"
-    USER_NOT_AUTH = 1006, "用户未认证"
-    TOKEN_INVALID = 1007, "token无效"
-
-class ApiJsonResponse(JsonResponse):
-    def __init__(self, data, message="", code=ApiErrorCode.SUCCESS,httpCode=200, **kwargs):
-        super().__init__(
-            {
-                "message": message or code.value[1], 
-                "code": code.value[0], 
-                "data": data
-            },
-            safe=False,
-            json_dumps_params={"ensure_ascii": False, "indent": 0},
-            **kwargs,
-        )
-        self["Access-Control-Allow-Origin"] = "*"
-        self["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
-        self["Access-Control-Max-Age"] = "1000"
-        self["Access-Control-Allow-Headers"] = "*"
-        self.status_code = httpCode
-        
-    def error(code=ApiErrorCode.ERROR,message="错误",data=None,**kwargs):
-        return ApiJsonResponse(data,code=code,message=message,httpCode=400,**kwargs)
-    
-    def success(data=None,message="成功",**kwargs):
-        return ApiJsonResponse(data,code=ApiErrorCode.SUCCESS,message=message,httpCode=200,**kwargs)
-
-
-
-def def_wrapper(func):
-    def inner(*args, **kwargs):
-        print("def_wrapper")
-        return func(*args, **kwargs)
-
-    return inner
-
-
-
-
-class ApiException(Exception):
-    code = 400
-    message = "api exception"
-
-apiUrls = []
-print("app init")
-urls = []
-
-
-def Route(url,doc="",middlewares=[]):
-    """_summary_
-
-    Args:
-        url (_type_): _description_
-        doc (str, optional): _description_. Defaults to "" \n
-        middlewares 中间件数组，每个中间件应该返回一个元组，第一个元素为是否继续执行，第二个元素为返回值
-
-    Returns:
-        _type_: _description_
-    """
-    def wrapper(func):
-        print("[Route] %s " % (url,))
-        
-        @wraps(func)
-        def inner(*args, **kwargs):
-            for middleware in middlewares:
-                next,res = middleware(*args, **kwargs)
-                if next is False:
-                    return res
-            print("work on inner")
-            return func(*args, **kwargs)
-        
-        apiUrls.append(path(url, inner, name=func.__name__))
-        urls.append({
-            "url":url,
-            "doc":doc,
-        })
-        return inner
-    return wrapper
-
-def Get(url,doc=""):
-    def isGetMethod(request:HttpRequest)->(bool,HttpResponse):
-        if request.method == "GET":
-            return True,None
-        return False,ApiJsonResponse({},code=ApiErrorCode.ERROR,message="only support GET")
-    return Route(url,doc,middlewares=[isGetMethod])
-    
-@Get("api/rr")
-def rr(request: HttpRequest):
-    return ApiJsonResponse({"name": "rr"})  
-
-@Get("api")
-def api(request: HttpRequest):
-    return ApiJsonResponse({
-        "name": "api",
-        "connect": "success",
-    })
-
-@Get("api/test")
-def test(request: HttpRequest):
-    def randomStr(length=10):
-        import random
-        import string
-        return ''.join(random.sample(string.ascii_letters + string.digits, length))
-    return ApiJsonResponse({
-        str(k) +"message" :randomStr() for k in range(100)
-    })
 
 class Api:
     """# 生成API
@@ -417,9 +326,9 @@ class Api:
     
     def registerRoute(self):
         baseUrl = 'api/' + self.routeName
-        Get(baseUrl)(self.pageApi)
-        Route(baseUrl + '/create')(self.createApi)
-        Route(baseUrl + '/<int:id>')(self.get_one)
-        Route(baseUrl + '/<int:id>/delete')(self.deleteApi)
-        Route(baseUrl + '/update')(self.updateApi)
+        router.get(baseUrl)(self.pageApi)
+        router.post(baseUrl + '/create')(self.createApi)
+        router.get(baseUrl + '/<int:id>')(self.get_one)
+        router.delete(baseUrl + '/<int:id>/delete')(self.deleteApi)
+        router.put(baseUrl + '/update')(self.updateApi)
     

@@ -2,7 +2,7 @@
 from functools import wraps
 from django.http import HttpRequest
 from django.urls import path
-from core.api import ApiErrorCode, ApiJsonResponse
+from core.response import ApiErrorCode, ApiJsonResponse
 
 
 def valid_method_middlewares(method="GET"):
@@ -22,7 +22,9 @@ class Route():
     urls = []
     routes = []
     
-    def route(self,url, middlewares=[],name_suffix=""):
+    def route(self,url, middlewares=[],name_suffix="",
+              exception_json=True
+              ):
         """_summary_
 
         Args:
@@ -39,6 +41,8 @@ class Route():
                         if next:
                             return func(request, *args, **kwargs)
                     except Exception as e:
+                        if not exception_json:
+                            raise e
                         return ApiJsonResponse.error(ApiErrorCode.ERROR,str(e))
                     
             self.urls.append(path(url, inner, name=func.__name__ + name_suffix))
@@ -46,23 +50,19 @@ class Route():
             
         return decorator
     
-    def get(self,url,middlewares=[]):
-        return self.route(url,middlewares=[valid_method_middlewares("GET")] + middlewares,name_suffix="_get")
+    def get(self,url,middlewares=[],**kwargs):
+        return self.route(url,middlewares=[valid_method_middlewares("GET")] + middlewares,name_suffix="_get",**kwargs)
 
-    def post(self,url,middlewares=[]):
-        return self.route(url,middlewares=[valid_method_middlewares("POST")] + middlewares,name_suffix="_post")
+    def post(self,url,middlewares=[],**kwargs):
+        return self.route(url,middlewares=[valid_method_middlewares("POST")] + middlewares,name_suffix="_post",**kwargs)
     
-    def put(self,url,middlewares=[]):
-        return self.route(url,middlewares=[valid_method_middlewares("PUT")] + middlewares,name_suffix="_put")
+    def put(self,url,middlewares=[],**kwargs):
+        return self.route(url,middlewares=[valid_method_middlewares("PUT")] + middlewares,name_suffix="_put",**kwargs)
     
-    def delete(self,url,middlewares=[]):
-        return self.route(url,middlewares=[valid_method_middlewares("DELETE")] + middlewares,name_suffix="_delete")
+    def delete(self,url,middlewares=[],**kwargs):
+        return self.route(url,middlewares=[valid_method_middlewares("DELETE")] + middlewares,name_suffix="_delete",**kwargs)
     
     
-route = Route()
+router = Route()
+Router = router
 
-@route.get("test")
-def test(request):
-    return ApiJsonResponse.success({
-        'method': request.method,
-    })

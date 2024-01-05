@@ -16,10 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from core import route
+from core.route import router
 
-from core.views import logout
-from core.api import apiUrls
+from core.test import logout
 
 handler404 = "core.views.handler404"
 
@@ -28,6 +27,6 @@ urlpatterns = [
     path("", include("link.urls")),
     path("dtk/api", include("dtk.urls")),
     path("logout", logout),
-] + apiUrls + route.route.urls
+]  + router.urls
 
 print("all set`")

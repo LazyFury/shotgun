@@ -1,6 +1,6 @@
 [minimp]
-APPID='minimp'
-SECRET='minimp'
+appid='minimp'
+secret='minimp'
 
 [timezone]
 timezone='Asia/Shanghai'
