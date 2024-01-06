@@ -15,10 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
-from core.route import router
+from django.urls import include, path, re_path
+from core.route import DApi
 
-from core.test import logout
+from core.views import logout
 
 handler404 = "core.views.handler404"
 
@@ -27,6 +27,6 @@ urlpatterns = [
     path("", include("link.urls")),
     path("dtk/api", include("dtk.urls")),
     path("logout", logout),
-]  + router.urls
+] + DApi.urls
 
 print("all set`")

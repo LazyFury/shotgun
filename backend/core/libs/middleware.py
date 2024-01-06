@@ -7,7 +7,7 @@ from core.api import ApiErrorCode, ApiJsonResponse
 def APITokenAuthMiddleware(get_response):
     """Middleware to authenticate API requests using token authentication."""
     def inner(request):
-            if request.path.startswith('/___api/'):
+            if request.path.startswith('/_v2/api/'):
                 try:
                     token = request.headers.get("token")
                     print("token", token)

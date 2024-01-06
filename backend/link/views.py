@@ -6,8 +6,8 @@ from django.shortcuts import redirect, render
 import qrcode
 from backend import settings
 from datetime import datetime
-from core.api import ApiErrorCode, ApiJsonResponse, Rule, errorHandler
-from core.route import Router
+from core.api import ApiErrorCode, ApiJsonResponse, Rule, errorHandler, validator
+from core.route import DApi, Router
 from link.models import Link
 from .models import QRCode
 from ipware import get_client_ip
@@ -127,22 +127,8 @@ def genMpMiniQrcode(req:HttpRequest):
             return HttpResponse(res,content_type="image/jpeg")
         return ApiJsonResponse(res,code=ApiErrorCode.ERROR,message="错误")
 
-def validator(rules: Iterable[Rule]=[]):
-    def wrapper(func):
-        def inner(req: HttpRequest,**kwargs):
-            params = req.GET.dict()
-            print("!!! params:",params)
-            for rule in rules:
-                value = params.get(rule.name)
-                if rule.required and value is None or value == "":
-                    return ApiJsonResponse(None,code=ApiErrorCode.ERROR,message=rule.message)
-                
-            return func(req,**kwargs)
-        return inner
-    return wrapper
 
-
-@Router.get("api/sendMpMiniSubscribe",exception_json=True)
+@DApi.get("wx/send_mp_mini_subscribe",exception_json=True)
 @validator(rules=[
     Rule("event").is_required().number().set_message("event不能为空"),
     Rule("userId").is_required().string().set_message("userId不能为空"),

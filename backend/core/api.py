@@ -2,9 +2,13 @@ from functools import wraps
 import re
 from typing import Any, Iterable
 from django.http import HttpRequest, JsonResponse
+from core.libs.utils import get_instance_from_args_or_kwargs
 from core.models import BaseModel
 from core.response import ApiErrorCode, ApiJsonResponse
-from core.route import router
+from core.route import Router
+
+
+
 
 def errorHandler(json=True):
     """api 错误处理
@@ -77,6 +81,26 @@ class Rule:
         return self
     
 
+def validator(rules: Iterable[Rule]=[],method="get"):
+    def wrapper(func):
+        @wraps(func)
+        def inner(*args,**kwargs):
+            req = get_instance_from_args_or_kwargs(HttpRequest,args,kwargs)
+            params = {}
+            if method.lower() == 'get':
+                params = req.GET.dict()
+            else:
+                params = req.POST.dict()
+            
+            print("!!! params:",params)
+            for rule in rules:
+                value = params.get(rule.name)
+                if rule.required and value is None or value == "":
+                    return ApiJsonResponse(None,code=ApiErrorCode.ERROR,message=rule.message)
+                
+            return func(*args,**kwargs)
+        return inner
+    return wrapper
 class Api:
     """# 生成API
 
@@ -147,7 +171,7 @@ class Api:
                 continue
         return validator
 
-    def createApi(self, request: HttpRequest, **kwargs):
+    def create(self, request: HttpRequest, **kwargs):
         """### 创建数据
 
         Args:
@@ -183,7 +207,7 @@ class Api:
             }
         )
 
-    def updateApi(self, request: HttpRequest, **kwargs):
+    def update(self, request: HttpRequest, **kwargs):
         """### 更新数据
 
         Args:
@@ -249,7 +273,7 @@ class Api:
                     valid_fields[key] = input_fields[key]
         return self.model.objects.all().filter(**valid_fields).order_by("-created_at")
         
-    def pageApi(self, request: HttpRequest, **kwargs):
+    def list(self, request: HttpRequest, **kwargs):
         if request.method != "GET":
             return JsonResponse({"error": "only support GET"})
         print(self.model, "pageApi")
@@ -282,13 +306,18 @@ class Api:
             message="获取成功",
         )
 
-    def get_one(self, request: HttpRequest, id: int):
+    @validator([
+        Rule(name="id", required=True, message="id不能为空"),
+    ])
+    def detail(self, request: HttpRequest):
         if request.method != "GET":
             return JsonResponse({"error": "only support GET"})
-        print(self.model, "get_one")
-        obj = self.model.objects.get(id=id)
-        if obj is None:
-            return JsonResponse({"error": "not found"})
+        id = request.GET.get("id")
+        print(self.model, "get_one",id)
+        try:
+            obj = self.model.objects.get(id=id)
+        except Exception:
+            return ApiJsonResponse.error(ApiErrorCode.NOT_FOUND,"没有 id 为 "+ id +" 的找到记录")
         return JsonResponse(
             {
                 "status": "success",
@@ -297,7 +326,8 @@ class Api:
             }
         )
 
-    def deleteApi(self, request: HttpRequest, id: int):
+    def delete(self, request: HttpRequest):
+        id = request.GET.get("id")
         if request.method != "DELETE":
             return JsonResponse({"error": "only support DELETE"})
         print(self.model, "deleteApi")
@@ -322,13 +352,12 @@ class Api:
         return self.model.__name__.lower()
 
     def __init__(self, *args: Any, **kwds: Any) -> Any:
-        self.registerRoute()
+        pass
     
-    def registerRoute(self):
-        baseUrl = 'api/' + self.routeName
-        router.get(baseUrl)(self.pageApi)
-        router.post(baseUrl + '/create')(self.createApi)
-        router.get(baseUrl + '/<int:id>')(self.get_one)
-        router.delete(baseUrl + '/<int:id>/delete')(self.deleteApi)
-        router.put(baseUrl + '/update')(self.updateApi)
+    def register(self,router:Router,baseUrl="api",middlewares=[]):
+        router.get(baseUrl,middlewares=middlewares)(self.list)
+        router.post(baseUrl + '.create',middlewares=middlewares)(self.create)
+        router.get(baseUrl + '.detail',middlewares=middlewares)(self.detail)
+        router.delete(baseUrl + '.delete',middlewares=middlewares)(self.delete)
+        router.put(baseUrl + '.update',middlewares=middlewares)(self.update)
     
