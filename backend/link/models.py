@@ -1,7 +1,6 @@
+from random import choice
 from typing import Any
 from django.db import models
-from datetime import timedelta, datetime
-import uuid
 from backend import settings
 from core.models import BaseModel
 
@@ -25,7 +24,7 @@ class VisitorIP(BaseModel):
         verbose_name_plural = "短链访客IP记录"
 
     def to_json(self, **kwargs):
-        return self.sample_to_json(related_serializer=False)
+        return self.sample_to_json(related_serializer=False,with_foreign=True)
 
 
 class QRCode(BaseModel):
@@ -77,6 +76,7 @@ class Link(BaseModel):
     Returns:
         _type_: _description_
     """
+    STATUS_CHOICES = [("normal", "正常"), ("deleted", "已删除"),("disabled","禁用")]
 
     url = models.URLField(max_length=2000, unique=True)
     description = models.TextField(blank=True)
@@ -85,8 +85,9 @@ class Link(BaseModel):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    sortUrl = models.CharField(max_length=10, blank=True, unique=True)
-    clickCount = models.IntegerField(default=0, editable=False)  # //deprecated
+    sort_url = models.CharField(max_length=10, blank=True, unique=True)
+    
+    status = models.CharField(choices=STATUS_CHOICES, max_length=10, default="normal")
 
     def __str__(self):
         return self.url
@@ -114,6 +115,12 @@ class Link(BaseModel):
 
     def add_visitor_ip(self, ip):
         VisitorIP.objects.create(ip=ip, link=self)
+        
+    def to_json(self, *args, **kwargs):
+        return super().sample_to_json(with_related=True,with_foreign=True,related_serializer=True)
+
+    def get_status_display(self):
+        return dict(self.STATUS_CHOICES)[self.status]
 
     def extra_json(self):
         qrcode_set = QRCode.objects.filter(short=self).values("image", "text", "type")
@@ -121,7 +128,8 @@ class Link(BaseModel):
         for qrcode in qrcode_set:
             arr.append(qrcode)
         return {
-            "short_url": settings.SITE_URL + "/j/" + self.sortUrl,
+            "short_url": settings.SITE_URL + "/j/" + self.sort_url,
             "qrcode_set":arr,
             "posted_by__username": self.posted_by.username if self.posted_by is not None else "未知",
+            "status_text": self.get_status_display(),
         }

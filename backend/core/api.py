@@ -2,6 +2,7 @@ from functools import wraps
 import re
 from typing import Any, Iterable
 from django.http import HttpRequest, JsonResponse
+from backend import settings
 from core.libs.utils import get_instance_from_args_or_kwargs
 from core.models import BaseModel
 from core.response import ApiErrorCode, ApiJsonResponse
@@ -92,7 +93,7 @@ def validator(rules: Iterable[Rule]=[],method="get"):
             else:
                 params = req.POST.dict()
             
-            print("!!! params:",params)
+            # print("!!! params:",params)
             for rule in rules:
                 value = params.get(rule.name)
                 if rule.required and value is None or value == "":
@@ -313,10 +314,12 @@ class Api:
         if request.method != "GET":
             return JsonResponse({"error": "only support GET"})
         id = request.GET.get("id")
-        print(self.model, "get_one",id)
+        # print(self.model, "get_one",id)
         try:
             obj = self.model.objects.get(id=id)
-        except Exception:
+        except Exception as e:
+            if settings.DEBUG:
+                raise e
             return ApiJsonResponse.error(ApiErrorCode.NOT_FOUND,"没有 id 为 "+ id +" 的找到记录")
         return JsonResponse(
             {

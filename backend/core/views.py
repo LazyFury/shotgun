@@ -12,7 +12,6 @@ def handler404(request, exception):
 
 def logout(request):
     from django.contrib.auth import logout
-
     logout(request)
     return redirect("/")
 

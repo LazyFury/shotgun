@@ -9,9 +9,15 @@ echo workdir: $WORKDIR
 
 cd $WORKDIR
 poetry install --no-root
+
+DEFAULT_PORT=8000
+# if env replace 
+if [ -n "$PORT" ]; then
+    DEFAULT_PORT=$PORT
+fi
 # poetry run python -m uvicorn backend.asgi:app --reload
 uvicorn() {
-    poetry run python -m uvicorn backend.asgi:app --reload
+    poetry run python -m uvicorn backend.asgi:app --reload --port ${DEFAULT_PORT}
 }
 
 runserver() {

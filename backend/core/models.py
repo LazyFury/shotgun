@@ -45,10 +45,10 @@ class BaseModel(models.Model):
                 foreign = getattr(self, fKey.name)
                 # print("foreign", fKey.name, foreign)
                 # one to one
-                if hasattr(foreign, "to_json"):
+                if hasattr(foreign, "sample_to_json"):
                     yield (
                         fKey.name,
-                        getattr(self, fKey.name).to_json(
+                        getattr(self, fKey.name).sample_to_json(
                             with_foreign=True,
                             related_serializer=False,
                             with_related=True,
@@ -76,10 +76,10 @@ class BaseModel(models.Model):
                 for item in related.objects.filter(
                     **{self.__class__.__name__.lower(): self}
                 ).all():
-                    if item is not None and hasattr(item, "to_json"):
+                    if item is not None and hasattr(item, "sample_to_json"):
                         if related_serializer is True:
                             arr.append(
-                                item.to_json(  # type: ignore
+                                item.sample_to_json(  # type: ignore
                                     with_foreign=False,
                                     related_serializer=False,
                                     with_related=False,

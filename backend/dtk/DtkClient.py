@@ -2,11 +2,10 @@ from hashlib import md5
 import json
 import random
 import time
-from typing import Any
 import requests
 import simple_cache
+from backend import settings
 from core import config
-from core.api import ApiException
 
 
 class DtkClient():
@@ -17,7 +16,7 @@ class DtkClient():
     cache_file = config.cacheFile("dtk.cache")
     
     
-    def request(self, api, params,method='GET',fullUrl="",**kwargs):
+    def request(self, api, params,method='GET',fullUrl="",cache=5,**kwargs):
         url = self.baseUrl + api
         if fullUrl is not None and fullUrl != "":
             url = fullUrl
@@ -34,15 +33,17 @@ class DtkClient():
         try:
             result = result.json()
         except Exception as e:
+            if settings.DEBUG:
+                raise e
             raise Exception("返回不是 json 内容")
-        simple_cache.save_key(cache_file, uniqueStr, result, 5 * 60)
+        simple_cache.save_key(cache_file, uniqueStr, result, cache * 60)
         return result
     
-    def get(self, api, params):
-        return self.request(api, params, method='GET')
+    def get(self, api, params,**kwargs):
+        return self.request(api, params, method='GET',**kwargs)
     
-    def post(self, api, params):
-        return self.request(api, params, method='POST')
+    def post(self, api, params,**kwargs):
+        return self.request(api, params, method='POST',**kwargs)
     
     def sign(self, params):
         nonce = [random.randint(0, 9) for _ in range(6)]

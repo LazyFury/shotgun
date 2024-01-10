@@ -29,8 +29,8 @@ class LinkAdmin(admin.ModelAdmin):
         return format_html(
             '<a href="/j/%s" target="_blank">%s</a>'
             % (
-                obj.sortUrl,
-                obj.sortUrl,
+                obj.sort_url,
+                obj.sort_url,
             )
         )
 
@@ -63,8 +63,8 @@ class QRCodeAdmin(admin.ModelAdmin):
             )
         )
 
-    # def has_add_permission(self, request: HttpRequest) -> bool:
-    #     return False
+    def has_add_permission(self, request: HttpRequest) -> bool:
+        return request.user.is_active
 
 
 @admin.register(VisitorIP)

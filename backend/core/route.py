@@ -1,16 +1,15 @@
-
-from email.mime import base
 from functools import wraps
 import inspect
 from django.http import HttpRequest
 from django.urls import re_path
+from backend import settings
 from core.libs.utils import  get_instance_from_args_or_kwargs
 from core.response import ApiErrorCode, ApiJsonResponse
 
 
 def valid_method_middlewares(method="GET"):
     def middleware(request:HttpRequest):
-        print("valid_method_middlewares",request.method,method)
+        print("valid_method_middlewares",request.method)
         if request.method == method:
             return True
         else:
@@ -49,17 +48,19 @@ class Router():
                         if next:
                             return func(*args, **kwargs)
                     except Exception as e:
+                        if settings.DEBUG:
+                            raise e
                         if not exception_json:
                             raise e
                         return ApiJsonResponse.error(ApiErrorCode.ERROR,str(e))
                     
             # self.urls.append(path(url, inner, name=func.__name__ + name_suffix))
             file = inspect.getsourcefile(func)
-            self.routeMap[self.baseUrl + url] = {
+            self.routeMap[url] = {
                 "name": func.__name__ + name_suffix,
                 "description": description,
                 "file": "vscode://file/" + file + ":" + str(func.__code__.co_firstlineno),
-                "func": func,
+                "func": inner,
             }
             self.routes.append({
                 "url": "/" + url,
@@ -101,10 +102,12 @@ class Router():
     
     
     @staticmethod
-    def handler(request: HttpRequest,*args,**kwargs):
-        func = Router.routeMap.get(request.path[1:])
+    def handler(request: HttpRequest,path: str):
+        func = Router.routeMap.get(path)
         if func is None:
             return ApiJsonResponse.error(ApiErrorCode.ERROR,"未找到对应的路由")
+        if path in ['users.detail1']:
+            return ApiJsonResponse.error(ApiErrorCode.AUTH_ERROR,"未登录")
         return func["func"](request)
         
         
