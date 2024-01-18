@@ -1,70 +1,17 @@
 import os
-from pathlib import Path
 
 from pytz import timezone
-from requests import get
-
+from revolver_api.revolver_api.config import readTomlConfig,get as config_get  # noqa: F403
+from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+config = readTomlConfig(BASE_DIR / "config.toml")
 
-def readTomlConfig():
-    """_summary_
+def get(key, default=None):
+    return config_get(config, key, default)
 
-    Raises:
-        Exception: _description_
-
-    Returns:
-        _type_: _description_
-    """
-    import toml
-
-    configPath = str(BASE_DIR) + "/config.toml"
-
-    # if file exits
-    if not Path(configPath).is_file():
-        with open(configPath, "w") as f:
-            f.write(
-                '[timezone]\ntimezone = "Asia/Shanghai"\ndatetime_format = "%Y-%m-%d %H:%M:%S"'
-            )
-        raise Exception("config.toml not found,try to create a new one")
-
-    with open(configPath, "r") as f:
-        config = toml.load(f)
-    return config
-
-
-config = readTomlConfig()
-print("read from config.toml ...")
-
-
-def get(domain, default=""):  # noqa: F811
-    """_summary_
-
-    Args:
-        domain (_type_): _description_
-        default (str, optional): _description_. Defaults to "".
-
-    Returns:
-        _type_: _description_
-    """
-    keys = domain.split(".")
-    target = config
-    for key in keys:
-        if key in target:
-            target = target[key]
-        else:
-            return default
-    return target
-
-
-TIME_ZONE = get("timezone.timezone")
-print("TIME_ZONE", TIME_ZONE)
-DATETIME_FORMAT = get("timezone.datetime_format")
-tz = timezone(TIME_ZONE)
-
-
-def cacheDir():
+def cache_dir():
     """_summary_
 
     Returns:
@@ -77,7 +24,7 @@ def cacheDir():
     return real_path
 
 
-def cacheFile(name):
+def get_cache_file(name):
     """_summary_
 
     Args:
@@ -86,4 +33,9 @@ def cacheFile(name):
     Returns:
         _type_: _description_
     """
-    return cacheDir() / name
+    return cache_dir() / name
+
+
+TIME_ZONE = get("timezone.timezone")
+DATETIME_FORMAT = get("timezone.datetime_format")
+tz = timezone(TIME_ZONE)

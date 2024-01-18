@@ -1,7 +1,7 @@
 
 
 from core import config
-from core.api import ApiErrorCode, ApiJsonResponse
+from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse
 
 
 def APITokenAuthMiddleware(get_response):
@@ -21,7 +21,7 @@ def APITokenAuthMiddleware(get_response):
 
 def RatelimitMiddleware(get_response):
     import simple_cache
-    cache_file = config.cacheFile("rate.cache")
+    cache_file = config.get_cache_file("rate.cache")
     """Middleware to authenticate API requests using token authentication."""
     def inner(request):
             if request.path.startswith('/api/'):

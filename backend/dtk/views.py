@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from core.api import ApiErrorCode, ApiJsonResponse, Rule, validator
+from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse, Rule, validator
 
 from dtk import DtkClient
 

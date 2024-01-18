@@ -1,8 +1,9 @@
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
-from core.response import ApiJsonResponse
+from core.urls import DApi
+from revolver_api.revolver_api.response import ApiJsonResponse
 
-from core.route import DApi, Router
+from revolver_api.revolver_api.route import Router
 
 
 # Create your views here.
@@ -28,7 +29,7 @@ def test(request: HttpRequest):
     
     
 
-@DApi.get("v2",description="所有接口")
+@DApi.get("all",description="所有接口")
 def api(request: HttpRequest):
     return ApiJsonResponse({
         "name": "api",

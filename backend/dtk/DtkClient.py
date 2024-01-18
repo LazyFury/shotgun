@@ -13,7 +13,7 @@ class DtkClient():
     version = config.get("dtk.version")
     appKey =  config.get("dtk.appKey")
     appSerect = config.get("dtk.appSecret")
-    cache_file = config.cacheFile("dtk.cache")
+    cache_file = config.get_cache_file("dtk.cache")
     
     
     def request(self, api, params,method='GET',fullUrl="",cache=5,**kwargs):

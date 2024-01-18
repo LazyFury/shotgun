@@ -6,8 +6,9 @@ from django.shortcuts import redirect, render
 import qrcode
 from backend import settings
 from datetime import datetime
-from core.api import ApiErrorCode, ApiJsonResponse, Rule, errorHandler, validator
-from core.route import DApi, Router
+from core.urls import DApi
+from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse, Rule, errorHandler, validator
+from revolver_api.revolver_api.route import  Router
 from link.models import Link
 from .models import QRCode
 from ipware import get_client_ip

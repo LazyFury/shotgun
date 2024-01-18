@@ -1,6 +1,6 @@
 from django.http import HttpRequest, JsonResponse
-from core.api import Rule, Api, validator
-from core.route import DApi
+from core.urls import DApi
+from revolver_api.revolver_api.api import Rule, Api, validator
 from .models import Link, VisitorIP
 from core.models import UserModel
 
