@@ -1,6 +1,5 @@
 from hashlib import md5
 import os
-from typing import Iterable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 import qrcode
@@ -8,9 +7,7 @@ from backend import settings
 from datetime import datetime
 from core.urls import DApi
 from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse, Rule, errorHandler, validator
-from revolver_api.revolver_api.route import  Router
-from link.models import Link
-from .models import QRCode
+from .models import QRCode,Link
 from ipware import get_client_ip
 
 # Create your views here.

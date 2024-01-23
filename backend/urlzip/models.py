@@ -9,7 +9,7 @@ class VisitorIP(BaseModel):
     ip = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     link = models.ForeignKey(
-        "link.Link", on_delete=models.CASCADE, null=True, blank=True
+        "urlzip.Link", on_delete=models.CASCADE, null=True, blank=True
     )
 
     def __str__(self):
@@ -37,7 +37,7 @@ class QRCode(BaseModel):
 
     originUrl = models.URLField(max_length=2000, blank=True, null=True)
     short = models.ForeignKey(
-        "link.Link",
+        "urlzip.Link",
         null=True,
         blank=True,
         on_delete=models.CASCADE,
@@ -98,13 +98,13 @@ class Link(BaseModel):
         verbose_name_plural = "短链"
 
     def save(self, *args, **kwargs):
-        if self.sortUrl == "":
+        if self.sort_url == "":
             # gen random sore url
             import random
             import string
 
             letters = string.ascii_letters + string.digits
-            self.sortUrl = "".join(random.choice(letters) for i in range(6))
+            self.sort_url = "".join(random.choice(letters) for i in range(6))
         super(Link, self).save(*args, **kwargs)
 
     def visitor_ips(self):

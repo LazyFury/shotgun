@@ -2,7 +2,7 @@ from importlib import import_module
 from django.urls import path
 from .views import genMpMiniQrcode, getRandomString, jump, qecodeGenerate, home, sendMpMiniSubscribe
 
-import_module("link.api")
+import_module("urlzip.api")
 
 urlpatterns = [
     path("j/<str:path>", jump, name="jump"),
