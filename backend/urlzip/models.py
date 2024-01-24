@@ -1,3 +1,5 @@
+import datetime
+import logging
 from random import choice
 from typing import Any
 from django.db import models
@@ -35,6 +37,14 @@ class QRCode(BaseModel):
         def __str__(self):
             return self.value
 
+    type = models.CharField(
+        choices=QRCodeType.choices,
+        max_length=10,
+        default=QRCodeType.TEXT,
+        null=False,
+        blank=False,
+    )
+    text = models.TextField(blank=True)
     originUrl = models.URLField(max_length=2000, blank=True, null=True)
     short = models.ForeignKey(
         "urlzip.Link",
@@ -42,27 +52,36 @@ class QRCode(BaseModel):
         blank=True,
         on_delete=models.CASCADE,
     )
-    text = models.TextField(blank=True)
 
     image = models.ImageField(
         null=False,
         blank=True,
         editable=False,
     )
-
-    type = models.CharField(
-        choices=QRCodeType.choices,
-        max_length=10,
-        default=QRCodeType.URL,
-        null=False,
-        blank=False,
-    )
-    ip = models.CharField(max_length=20, blank=True)
-
+    
     class Meta:
         ordering = ["-id"]
         verbose_name = "二维码"
         verbose_name_plural = "二维码"
+    
+    def save(self, *args, **kwargs):
+        if self.image is None or self.image == "":
+            import qrcode
+            import os
+            from backend.settings import UPLOAD_DIR
+            from hashlib import md5
+            时间目录 = datetime.datetime.now().strftime("%y_%m_%d/")
+            fileName = md5(self.text.encode("utf-8")).hexdigest() + ".png"
+            dirPath = UPLOAD_DIR + "tmp/qr/" + 时间目录
+            if os.path.exists(dirPath) is False:
+                os.makedirs(dirPath)
+            filePath = dirPath + fileName
+            if os.path.exists(filePath) is False:
+                img = qrcode.make(self.text)
+                img.save(filePath)
+            self.image = filePath
+            logging.warning("QRCode save",filePath)
+        super(QRCode, self).save(*args, **kwargs)
 
 
 

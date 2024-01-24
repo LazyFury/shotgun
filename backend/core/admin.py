@@ -8,6 +8,28 @@ admin.site.site_header = "后台管理"
 admin.site.register(Permission)
 
 
+app_indexs = (
+    ("core", 9),
+    ("urlzip", 12),
+    ("dtk", -1),
+    ("store", 1),
+)
+
+def get_app_list(self, request, app_label=None):
+        """
+        Return a sorted list of all the installed apps that have been
+        registered in this site.
+        """
+        app_dict = self._build_app_dict(request, app_label)
+
+        # Sort the apps use app_indexs.
+        index_map = {app_label: index for app_label, index in app_indexs}
+        app_list = sorted(app_dict.values(), key=lambda x: index_map.get(x["app_label"], 99))
+
+        return app_list
+    
+admin.AdminSite.get_app_list = get_app_list
+
 # Register your models here.
 @admin.register(UserModel)
 class UserModelAdmin(admin.ModelAdmin):

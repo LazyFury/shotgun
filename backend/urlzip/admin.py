@@ -40,14 +40,15 @@ class QRCodeAdmin(admin.ModelAdmin):
         "originUrl_cut",
         "image_preview",
         "type_display",
-        "ip",
     ]
     form = QRCodeForm
     # readonly_fields = ["image", "originUrl", "type", "text", "short", "wx", "ip"]
 
     def originUrl_cut(self, obj: QRCode):
-        url = obj.originUrl if obj.originUrl is not None else ""
-        return url[:32] + "..."
+        text = obj.originUrl if obj.originUrl is not None else ""
+        if obj.type == QRCode.QRCodeType.TEXT:
+            text = obj.text if obj.text is not None else ""
+        return text[:32] + "..."
 
     def type_display(self, obj: QRCode):
         return QRCode.QRCodeType(obj.type).label

@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "core",
     "urlzip",
-    "dtk"
+    "dtk",
+    "store"
 ]
 
 AUTH_USER_MODEL = "core.UserModel"
@@ -76,6 +77,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            "libraries": {
+                "utils": "core.libs.templatetags.utils",
+            }
         },
     },
 ]
@@ -129,15 +133,20 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
-UPLOAD_DIR = "uploads/"
+UPLOAD_DIR = "static/uploads/"
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "./static", ("uploads", BASE_DIR / "./uploads")]
+STATICFILES_DIRS = [
+    BASE_DIR / "./static",
+]
 # STATIC_ROOT = BASE_DIR / "./static"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Change on ./manage.py file
+RUNING=False
 
 LOGGING = {
     "version": 1,

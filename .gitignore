@@ -1,7 +1,7 @@
 # for django 
 mysql/
 **/__pycache__/
-backend/uploads/
+**/static/uploads/
 .DS_Store
 .ruff_cache/
 

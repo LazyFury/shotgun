@@ -12,11 +12,10 @@ from ipware import get_client_ip
 
 # Create your views here.
 def jump(request: HttpRequest, path: str):
-    link = Link.objects.filter(sortUrl=path).first()
+    link = Link.objects.filter(sort_url=path).first()
     if link is None:
         return render(request, "404.html", status=404)
     else:
-        link.clickCount += 1
         client_ip, _ = get_client_ip(request)
         link.add_visitor_ip(client_ip or request.META.get("REMOTE_ADDR"))
         link.save()
