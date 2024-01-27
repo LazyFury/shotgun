@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser
 import uuid
 from core.libs.utils.time import toUtcTime
 from revolver_api.revolver_api.model import SerializerModel
+from django.contrib.auth.models import Permission, Group
 
 
 # Create your models here.
@@ -116,3 +117,7 @@ class UserInviteRelate(BaseModel):
     class Meta:
         verbose_name = "邀请关系"
         verbose_name_plural = "邀请关系"
+
+
+class MyPermission(Permission,BaseModel):
+    pass

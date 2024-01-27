@@ -14,8 +14,11 @@
     "axios": "^1.6.5",
     "dayjs": "^1.11.10",
     "element-plus": "^2.5.2",
+    "hotkeys-js": "^3.13.5",
     "iconify": "^1.4.0",
     "pinia": "^2.1.7",
+    "tsc": "^2.0.4",
+    "typescript": "^5.3.3",
     "vue": "^3.3.11",
     "vue-router": "^4.2.5"
   },

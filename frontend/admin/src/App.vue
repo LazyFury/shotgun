@@ -3,6 +3,20 @@ import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 import NavMenu from './components/layout/NavMenu.vue'
 import { ElAvatar, ElBreadcrumb, ElButton, ElTabs } from 'element-plus';
+import { onMounted, ref } from 'vue';
+import axios from 'axios'
+import router from './router';
+import useTranslateStore from './pinia/translate';
+
+const menus = ref([])
+const translateStore = useTranslateStore()
+
+onMounted(()=>{
+    axios.get('http://127.0.0.1:8000/v2/api/menus').then(res=>{
+        menus.value = res.data.data?.menus || []
+    })
+})
+
 </script>
 
 <template>
@@ -12,17 +26,21 @@ import { ElAvatar, ElBreadcrumb, ElButton, ElTabs } from 'element-plus';
             <ElRow :align="'middle'" class="py-3 h-full">
                 <div class="flex-1">
                     <UIButton>
-                        <span class="text-2xl font-bold">Element Vite Admin</span>
+                        <span class="text-2xl font-bold">{{$t('AdminTitle')}}</span>
                     </UIButton>
                 </div>
                 <div class="flex flex-row items-center justify-center gap-4">
                     <UIButton class="flex-row-btn">
+                        <Icon icon="ant-design:sort-ascending-outlined"></Icon>
+                        <span>{{translateStore.getLocaleToDisplay()}}</span>
+                    </UIButton>
+                    <UIButton class="flex-row-btn">
                         <Icon icon="ant-design:message-outlined"></Icon>
-                        <span>Message</span>
+                        <span>{{ $t('header.notifyMessage') }}</span>
                     </UIButton>
                     <UIButton class="flex-row-btn">
                         <Icon icon="ant-design:setting-outlined"></Icon>
-                        <span>Setting</span>
+                        <span>{{$t("setting")}}</span>
                     </UIButton>
                     <UIButton class="flex-row-btn">
                         <Icon icon="ant-design:login-outlined"></Icon>
@@ -38,7 +56,7 @@ import { ElAvatar, ElBreadcrumb, ElButton, ElTabs } from 'element-plus';
         <ElRow class="flex-1 bg-gray-100">
             <div class="w-200px bg-white fixed h-screen overflow-y-auto hidden-scroll-bar">
                 <el-aside width="w-full bg-dark-100">
-                    <NavMenu />
+                    <NavMenu :menus="menus" />
                 </el-aside>
                 <div class="h-100px"></div>
             </div>
@@ -55,5 +73,4 @@ import { ElAvatar, ElBreadcrumb, ElButton, ElTabs } from 'element-plus';
 </template>
 
 <style scoped>
-
 </style>
