@@ -93,6 +93,10 @@ export default {
     created() { },
     mounted() { 
         this.findDefaultActive()
+
+        router.afterEach((to, from) => {
+            this.findDefaultActive()
+        })
     }
 };
 </script>

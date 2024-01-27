@@ -3,9 +3,6 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import 'virtual:uno.css'
-import '@unocss/reset/normalize.css'
-import '@unocss/reset/sanitize/sanitize.css'
-import '@unocss/reset/sanitize/assets.css'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
@@ -49,7 +46,12 @@ const registerRoute = (menu) => {
         const route = {
             path: menu.path,
             name: menu.key,
-            component: component
+            component: component,
+            meta:{
+                title:menu.title,
+                key:menu.key,
+                api:menu.api || "",
+            }
         }
         router.addRoute('Admin', route)
     }
@@ -60,7 +62,7 @@ const registerRoute = (menu) => {
     }
 }
 
-request.get('/v2/api/menus').then(res => {
+request.get('/menus').then(res => {
     let menus = res.data.data?.menus || []
     for (let i = 0; i < menus.length; i++) {
         let el = menus[i]

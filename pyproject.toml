@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "shortcut"
+name = "shutgun"
 version = "0.1.0"
 description = ""
 authors = ["suke <suke971219@gmail.com>"]

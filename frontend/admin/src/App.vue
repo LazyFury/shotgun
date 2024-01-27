@@ -1,18 +1,16 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-import NavMenu from './components/layout/NavMenu.vue'
+import Menu from './components/layout/Menu.vue'
 import { ElAvatar, ElBreadcrumb, ElButton, ElTabs } from 'element-plus';
 import { onMounted, ref } from 'vue';
-import axios from 'axios'
-import router from './router';
 import useTranslateStore from './pinia/translate';
+import { request } from './api/request';
 
 const menus = ref([])
 const translateStore = useTranslateStore()
 
 onMounted(()=>{
-    axios.get('http://127.0.0.1:8000/v2/api/menus').then(res=>{
+    request.get('/menus').then(res=>{
         menus.value = res.data.data?.menus || []
     })
 })
@@ -22,11 +20,11 @@ onMounted(()=>{
 <template>
   <div>
     <el-container class="min-h-screen bg-gary-100">
-        <el-header class=" p-2 bg-primary text-white fixed w-full" style="left: 0;top:0;z-index: 99;height: 60px;">
-            <ElRow :align="'middle'" class="py-3 h-full">
+        <div class="bg-primary text-white h-60px fixed w-full px-4 box-border" style="left: 0;top:0;z-index: 99;">
+            <ElRow :align="'middle'" class="py-2 h-full">
                 <div class="flex-1">
                     <UIButton>
-                        <span class="text-2xl font-bold">{{$t('AdminTitle')}}</span>
+                        <span class="text-xl font-bold">{{$t('AdminTitle')}}</span>
                     </UIButton>
                 </div>
                 <div class="flex flex-row items-center justify-center gap-4">
@@ -51,22 +49,20 @@ onMounted(()=>{
                     </UIButton>
                 </div>
             </ElRow>
-        </el-header>
+        </div>
         <div style="height: 60px;" class="bg-gray-100"></div>
-        <ElRow class="flex-1 bg-gray-100">
-            <div class="w-200px bg-white fixed h-screen overflow-y-auto hidden-scroll-bar">
-                <el-aside width="w-full bg-dark-100">
-                    <NavMenu :menus="menus" />
-                </el-aside>
+        <div class="flex flex-row flex-1 bg-gray-100">
+            <div class="w-200px bg-white fixed h-screen overflow-y-auto hidden-scroll-bar top-60px" style="z-index: 98;">
+                <Menu :menus="menus" />
                 <div class="h-100px"></div>
             </div>
             <div class="w-200px"></div>
-            <div class="flex-1 ">
+            <div class="flex-1 mt-60px">
                 <main class="p-4">
                     <RouterView></RouterView>
                 </main>
             </div>
-        </ElRow>
+        </div>
         <!-- <el-footer class="bg-dark-600">footer</el-footer> -->
     </el-container>
   </div>
