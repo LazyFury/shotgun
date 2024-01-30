@@ -1,5 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-
+import {ElMessage} from "element-plus";
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
@@ -18,11 +18,20 @@ const router = createRouter({
 
     // 404
     {
-        path: '/:pathMatch(.*)*',
+        path: '/not-found',
         name: 'not-found',
         component: () => import('../views/NotFoundView.vue')
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        redirect: {name: 'not-found'}
     }
   ]
+})
+
+router.onError((err) => {
+    ElMessage.error(err.message)
+    router.push({name: 'not-found'})
 })
 
 export default router

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import WelcomeItem from './WelcomeItem.vue'
 import DocumentationIcon from './icons/IconDocumentation.vue'
 import ToolingIcon from './icons/IconTooling.vue'
@@ -15,7 +15,7 @@ import SupportIcon from './icons/IconSupport.vue'
             <DocumentationIcon />
           </template>
           <template #heading>
-            {{$t('welcome.documentation')}}
+            {{$t('welcome.documentation',{user:'Jack.'})}}
           </template>
           {{$t('welcome.documentationText')}}
         </WelcomeItem>

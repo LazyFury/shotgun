@@ -56,7 +56,8 @@ def menus(request: HttpRequest):
                     {
                         "title":"商品列表",
                         "path":"/product",
-                        "key":"product"
+                        "key":"product",
+                        "component":"product/ProductView"
                     },
                     {
                         "title":"商品分类",

@@ -7,7 +7,8 @@
             "ES2015",
             "ES2022",
             "ESNext",
-            "DOM"
+            "DOM",
+            "DOM.Iterable",
         ],
         "baseUrl": "./",
         "types": [
@@ -23,7 +24,8 @@
         "src/**/*.ts",
         "src/**/*.d.ts",
         "src/**/*.tsx",
-        ],
+        "src/app.d.ts"
+    ],
     "exclude": [
         "node_modules"
     ]

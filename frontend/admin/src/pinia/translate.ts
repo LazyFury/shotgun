@@ -27,14 +27,39 @@ export const useTranslateStore = defineStore('translate', () => {
         return messages.value[local] || {}
     }
     
-    function getKey(key) {
-        if(!getMessage(locale.value)[key]){
+    function getKey(key,args) {
+        let msg = getMessage(locale.value)[key] || key + ""
+        
+        // format "hello {}" messages with the provided arguments
+        try{
+            if (Array.isArray(args) && args?.length >= 1) {
+                for (let i = 0; i < args.length; i++) {
+                    msg = msg.replace(/\{(.*?)\}/, args[i])
+                }
+            }
+
+            // if obj
+            if(typeof args === "object"){
+                for (const key in args) {
+                    msg = msg.replace(new RegExp(`\\{${key}\\}`,"g"), args[key])
+                }
+            }
+            
+            // single value 
+            if(typeof args === "string" || typeof args === "number"){
+                msg = msg.replace(/\{(.*?)\}/, args)
+            }
+        }catch(e){
+            console.error("Translate Error:",e)
+        }
+
+        if(!msg){
             setTimeout(() => {
-                // 仅上报
+                // 仅上报,push 到服务器配置翻译，初始化的时候再获取
                 console.log(`key:${key} not found in locale:${locale.value}`)
             }, 100);
         }
-        return getMessage(locale.value)[key] || key + ""
+        return msg
     }
 
     function getLocaleToDisplay(_locale) {

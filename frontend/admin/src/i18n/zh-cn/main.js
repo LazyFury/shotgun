@@ -1,7 +1,7 @@
 export default {
     "header.notifyMessage":"我的消息",
     "setting":"设置",
-    "welcome.documentation":"欢迎使用文档",
+    "welcome.documentation":"欢迎 {user} 使用文档",
     "welcome.documentationText":"文档是一个帮助你快速了解系统的地方，你可以在这里找到你想要的答案。",
     "welcome.tooling":"工具",
     "welcome.toolingText":"工具是一个帮助你快速了解系统的地方，你可以在这里找到你想要的答案。",

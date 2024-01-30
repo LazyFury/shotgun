@@ -23,14 +23,16 @@ app.use(function (vm) {
     vm.component("Icon", Icon)
     vm.config.globalProperties.$t = translateStore.getKey
     setTimeout(() => {
+        const serverData = {
+            "zh-cn": {
+                "AdminTitle": "Element Vite Admin ｜ EVA",
+                "首页":"控制台",
+                "welcome.documentation":"欢迎 {user} 使用文档",
+            },
+        }
         translateStore.setMessages("zh-cn",{
-            "AdminTitle": "Element Vite Admin ｜ EVA",
-            "首页":"控制台",
             ...zhCN,
-        })
-        translateStore.setMessages("en",{
-            "AdminTitle": "Element Vite Admin ｜ EVA",
-            "首页":"Dashboard"
+            ...(serverData["zh-cn"] || {})
         })
     }, 200);
 
