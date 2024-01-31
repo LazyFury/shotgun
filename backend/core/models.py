@@ -1,4 +1,6 @@
 import datetime
+from math import exp
+from urllib import request
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
@@ -121,3 +123,58 @@ class UserInviteRelate(BaseModel):
 
 class MyPermission(Permission,BaseModel):
     pass
+
+
+class UserToken(BaseModel):
+    user = models.ForeignKey(
+        "core.UserModel", null=True, blank=True, on_delete=models.CASCADE
+    )
+    token = models.CharField(max_length=100, unique=True)
+    expired_at = models.DateTimeField()
+
+    def __str__(self):
+        return self.user.username + " -> " + self.token
+    
+    @staticmethod
+    def get_token(username,password):
+        user = UserModel.objects.filter(username=username).first()
+        if user is None:
+            raise Exception("用户不存在")
+        if not user.check_password(password):
+            raise Exception("密码错误")
+        expired = datetime.datetime.now() + datetime.timedelta(days=1)
+        token = UserToken.objects.filter(user=user).filter(expired_at__gt=expired).first()
+        if token is None:
+            token = UserToken()
+            token.user = user
+            token.token = str(uuid.uuid4())
+            token.expired_at = datetime.datetime.now() + datetime.timedelta(days=1)
+            token.save()
+        return token
+
+    @staticmethod
+    def delete_token(user:UserModel):
+        print("!!!!delete_token")
+        tokens = UserToken.objects.filter(user=user).filter(expired_at__gt=datetime.datetime.now())
+        for token in tokens:
+            token.expired_at = datetime.datetime.now() - datetime.timedelta(days=1)
+            token.save()
+        
+    @staticmethod
+    def check_token(token):
+        token = UserToken.objects.filter(token=token).first()
+        if token is None:
+            raise Exception("token不存在")
+        expired = datetime.datetime.now()
+        print("token.expired_at", token.expired_at)
+        print("expired", expired)
+        # to unix 
+        expired = expired.timestamp()
+        expired_at = token.expired_at.timestamp()
+        if expired_at < expired:
+            return None
+        return token.user  
+    
+    class Meta:
+        verbose_name = "用户Token"
+        verbose_name_plural = "用户Token"

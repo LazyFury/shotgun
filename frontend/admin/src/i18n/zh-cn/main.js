@@ -1,3 +1,5 @@
+import common from "./common"
+
 export default {
     "header.notifyMessage":"我的消息",
     "setting":"设置",
@@ -11,4 +13,9 @@ export default {
     "welcome.communityText":"社区是一个帮助你快速了解系统的地方，你可以在这里找到你想要的答案。",
     "welcome.support":"支持",
     "welcome.supportText":"支持是一个帮助你快速了解系统的地方，你可以在这里找到你想要的答案。",
+    "search":"搜索",
+    "refresh":"刷新",
+    "reset":"重置",
+
+    ...common
 }

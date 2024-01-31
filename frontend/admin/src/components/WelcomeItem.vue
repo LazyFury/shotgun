@@ -1,5 +1,5 @@
 <template>
-  <ElCard :shadow="false" :border="false" class="" style="box-sizing: border-box;">
+  <ElCard shadow="never" :border="false" class="" style="box-sizing: border-box;">
     <div class="item">
       <i>
         <slot name="icon"></slot>

@@ -1,5 +1,7 @@
 import axios from 'axios'
 import config from '../config'
+import { ElMessage } from 'element-plus';
+import router from '../router';
 
 const createAxiosInstance = (baseURL,opt={}) => {
     const instance = axios.create({
@@ -13,15 +15,40 @@ const createAxiosInstance = (baseURL,opt={}) => {
     });
 
     instance.interceptors.request.use(function (config) {
-        // Do something before request is sent
+        let token = localStorage.getItem('token')
+        if (token) {
+            config.headers.Token = '' + token
+        }
+
         return config;
     })
 
     instance.interceptors.response.use(function (response) {
         // Do something with response data
+        let resp = response.data
+        let msg = resp.message || resp.msg || '未知错误'
+        let code = resp.code || 0
+        if (code !== 200) {
+            ElMessage.error(msg || response.statusText)
+        }
         return response;
     }, function (error) {
         // Do something with response error
+        console.log(error)
+        let resp = error.response
+        let msg = resp.data.message || resp.data.msg || '未知错误'
+        let code = resp.data.code || resp.status || -1
+        if(!resp.config.noMsgAlert){
+            ElMessage.error(msg || error.message)
+        }
+        if (code === 1007) {
+            setTimeout(() => {
+                router.push('/login')
+            }, 100);
+        }
+
+        
+
         return Promise.reject(error);
     });
 

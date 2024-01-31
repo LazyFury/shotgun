@@ -3,6 +3,6 @@
 from revolver_api.revolver_api.route import Router
 
 
-DApi = Router("v2/api/")
+DApi = Router("admin_api/")
 
 urlpatterns = [] + DApi.urls

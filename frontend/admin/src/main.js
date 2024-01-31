@@ -1,22 +1,36 @@
-import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+
+import './assets/scss/main.scss'
+// unocss 
 import 'virtual:uno.css'
+
+// element-plus
 import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-import 'element-plus/theme-chalk/dark/css-vars.css'
+import './assets/scss/element-variables.scss'
+import ElzhCn from 'element-plus/dist/locale/zh-cn.mjs'
+// end element-plus
+
+// iconify
 import { Icon } from '@iconify/vue';
+// end iconify
 
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
+
+// request
 import { request } from './api/request'
+
+// translate
 import useTranslateStore from './pinia/translate'
 import zhCN from './i18n/zh-cn/main.js'
+// end translate
+
 
 const app = createApp(App)
-app.use(ElementPlus)
+app.use(ElementPlus, { locale: ElzhCn })
 app.use(createPinia())
 app.use(function (vm) {
     const translateStore = useTranslateStore()
@@ -53,9 +67,24 @@ const registerRoute = (menu) => {
                 title:menu.title,
                 key:menu.key,
                 api:menu.api || "",
+                ...(menu.meta || {})
             }
         }
-        router.addRoute('Admin', route)
+        if(!menu.parent){
+            menu.parent = 'layout' //default layout
+        }
+        if(menu.parent){
+            const parentRoute = router.getRoutes().find(el => el.name === menu.parent)
+            if(parentRoute){
+                if(!parentRoute.children){
+                    parentRoute.children = []
+                }
+                parentRoute.children.push(route)
+            }
+            router && router.addRoute(parentRoute.name, route)
+        }else{
+            router.addRoute('Admin', route)
+        }
     }
     if (menu.children) {
         for (let i = 0; i < menu.children.length; i++) {
@@ -64,12 +93,18 @@ const registerRoute = (menu) => {
     }
 }
 
-request.get('/menus').then(res => {
+request.get('/menus',{
+    noMsgAlert:true
+}).then(res => {
     let menus = res.data.data?.menus || []
     for (let i = 0; i < menus.length; i++) {
         let el = menus[i]
         registerRoute(el)
     }
+    app.use(router)
+    app.mount('#app')
+    
+}).catch(() => {
     app.use(router)
     app.mount('#app')
 })

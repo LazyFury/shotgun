@@ -57,8 +57,9 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "better_exceptions.integrations.django.BetterExceptionsMiddleware",
+    "core.libs.middleware.CorsAcceptMiddleware",
     "core.libs.middleware.APITokenAuthMiddleware",
-    "core.libs.middleware.RatelimitMiddleware"
+    "core.libs.middleware.RatelimitMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"

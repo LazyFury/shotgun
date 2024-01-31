@@ -5,7 +5,24 @@ const router = createRouter({
   routes: [
     {
       path:"",
-      redirect:"/overview"
+      redirect: {name: 'overview'}
+    },
+    {
+      path:"/",
+      name:"layout",
+      component: () => import('../views/LayoutView.vue'),
+      children:[
+        {
+          path: '/not-found',
+          name: 'not-found',
+          component: () => import('../views/NotFoundView.vue')
+      },
+      ]
+    },
+    {
+      path:"/overview",
+      name:"overview",
+      component: () => import('../views/EmptyView.vue'),
     },
     {
       path: '/about',
@@ -16,12 +33,16 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
 
-    // 404
+
+    // login
     {
-        path: '/not-found',
-        name: 'not-found',
-        component: () => import('../views/NotFoundView.vue')
+        path: '/login',
+        name: 'login',
+        component: () => import('../views/LoginView.vue'),
+        meta: { title: '登录',noNeedLayout:true } 
     },
+    // 404
+    
     {
         path: '/:pathMatch(.*)*',
         redirect: {name: 'not-found'}

@@ -1,14 +1,10 @@
-
 <template>
 <div>
-    <RouterView />
 </div>
 </template>
 <script>
-import { RouterView } from 'vue-router';
-
 export default {
-  components: { RouterView },
+  components: {},
   props: {},
   data() {
     return {
@@ -18,7 +14,10 @@ export default {
   computed: {},
   methods: {},
   created() {},
-  mounted() {}
+  mounted() {
+    this.$router.push({ path: '/login' })
+    
+  }
 };
 </script>
 <style lang="scss" scoped>

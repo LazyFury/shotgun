@@ -1,17 +1,23 @@
 
 
 from core import config
+from core.models import UserToken
 from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse
 
 
 def APITokenAuthMiddleware(get_response):
     """Middleware to authenticate API requests using token authentication."""
     def inner(request):
-            if request.path.startswith('/_v2/api/'):
+            # exclude /login 
+            if request.path == '/admin_api/login':
+                return get_response(request)
+            if request.path.startswith('/admin_api/'):
                 try:
-                    token = request.headers.get("token")
+                    token = request.headers.get("Token")
                     print("token", token)
-                    if token == "123456":
+                    checked_user = UserToken.check_token(token)
+                    if checked_user is not None:
+                        request.user = checked_user
                         return get_response(request)
                     return ApiJsonResponse.error(ApiErrorCode.TOKEN_INVALID, "Token invalid")
                 except Exception as e:
@@ -27,8 +33,30 @@ def RatelimitMiddleware(get_response):
             if request.path.startswith('/api/'):
                 count = simple_cache.load_key(cache_file,'count') or 0
                 print("count", count)
-                if count > 1200:
+                if count > 1000:
                     return ApiJsonResponse.error(ApiErrorCode.ERROR, "每秒请求数超过50次")
                 simple_cache.save_key(cache_file,'count', count+1, 1)
+            return get_response(request)
+    return inner
+
+
+def CorsAcceptMiddleware(get_response):
+    """Middleware to authenticate API requests using token authentication."""
+    def inner(request):
+            if request.method == "OPTIONS":
+                response = ApiJsonResponse.success({})
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+                return response
+        
+            if request.path.startswith('/'):
+                response = get_response(request)
+                response["Access-Control-Allow-Origin"] = "*"
+                response["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS, PUT, DELETE"
+                response["Access-Control-Max-Age"] = "1000"
+                response["Access-Control-Allow-Headers"] = "*"
+                return response
             return get_response(request)
     return inner

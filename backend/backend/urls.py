@@ -21,7 +21,7 @@ from core.views import logout
 handler404 = "core.views.handler404"
 
 urlpatterns = [
-    # path("admin/", admin.site.urls),
+    path("admin/", admin.site.urls),
     path("", include("urlzip.urls")),
     path("",include("store.urls")),
     path("dtk/api", include("dtk.urls")),
