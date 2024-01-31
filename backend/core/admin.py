@@ -1,6 +1,7 @@
 
+import datetime
 from django.contrib import admin
-from .models import UserInviteCode, UserInviteRelate, UserModel
+from .models import UserInviteCode, UserInviteRelate, UserModel, UserToken
 from django.contrib.auth.models import Permission
 
 admin.site.site_title = "短链后台管理"
@@ -54,3 +55,15 @@ class UserInviteRelateAdmin(admin.ModelAdmin):
     
     def code(self, obj):
         return obj.invite.code
+    
+    
+@admin.register(UserToken)
+class UserTokenAdmin(admin.ModelAdmin):
+    list_display = ("user", "token","ua","ip","device","expired", "created_at","expired_at")
+    list_filter = ("user",)
+    search_fields = ("user__username",)
+    
+    def expired(self, obj):
+        expired_at_unix = int(obj.expired_at.timestamp())
+        now_unix = int(datetime.datetime.now().timestamp())
+        return "有效" if expired_at_unix > now_unix else "过期"

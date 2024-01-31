@@ -131,30 +131,42 @@ class UserToken(BaseModel):
     )
     token = models.CharField(max_length=100, unique=True)
     expired_at = models.DateTimeField()
+    ip = models.CharField(max_length=100, null=True, blank=True)
+    device = models.CharField(max_length=100, null=True, blank=True)
+    location = models.CharField(max_length=100, null=True, blank=True)
+    browser = models.CharField(max_length=100, null=True, blank=True)
+    platform = models.CharField(max_length=100, null=True, blank=True)
+    is_mobile = models.BooleanField(default=False)
+    ua = models.CharField(max_length=1000, null=True, blank=True)
 
     def __str__(self):
         return self.user.username + " -> " + self.token
     
     @staticmethod
-    def get_token(username,password):
+    def get_token(username,password,ip="",device="",location="",browser="",platform="",is_mobile=False,ua=""):
         user = UserModel.objects.filter(username=username).first()
         if user is None:
             raise Exception("用户不存在")
         if not user.check_password(password):
+            # print("!!!!check_password")
             raise Exception("密码错误")
+        # print("!!!!get_token")
         expired = datetime.datetime.now() + datetime.timedelta(days=1)
         token = UserToken.objects.filter(user=user).filter(expired_at__gt=expired).first()
         if token is None:
             token = UserToken()
-            token.user = user
             token.token = str(uuid.uuid4())
+            token.user = user
+            token.ip = ip
+            token.device = device
+            token.ua = ua
             token.expired_at = datetime.datetime.now() + datetime.timedelta(days=1)
             token.save()
         return token
 
     @staticmethod
     def delete_token(user:UserModel):
-        print("!!!!delete_token")
+        # print("!!!!delete_token")
         tokens = UserToken.objects.filter(user=user).filter(expired_at__gt=datetime.datetime.now())
         for token in tokens:
             token.expired_at = datetime.datetime.now() - datetime.timedelta(days=1)
