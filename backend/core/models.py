@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 from core.libs.utils.time import toUtcTime
+from core.libs.utils.upload_to import upload_hash_filename_wrapper
 from revolver_api.revolver_api.model import SerializerModel
 from django.contrib.auth.models import Permission, Group
 
@@ -32,6 +33,7 @@ class BaseModel(SerializerModel):
 class UserModel(AbstractUser, BaseModel):
     bio = models.TextField(max_length=500, blank=True)
     point = models.IntegerField(default=0)
+    avatar = models.ImageField(max_length=1000, null=True, blank=True,upload_to=upload_hash_filename_wrapper("avatar",image_field="avatar"))
 
     def __str__(self):
         return self.username
@@ -190,3 +192,16 @@ class UserToken(BaseModel):
     class Meta:
         verbose_name = "用户Token"
         verbose_name_plural = "用户Token"
+        
+        
+        
+class TableManager(BaseModel):
+    title = models.CharField(max_length=100, null=False, blank=False)
+    description = models.CharField(max_length=1000, null=True, blank=True)
+    api_url = models.CharField(max_length=1000, null=True, blank=True)
+    delete_api_url = models.CharField(max_length=1000, null=True, blank=True)
+    create_api_url = models.CharField(max_length=1000, null=True, blank=True)
+    update_api_url = models.CharField(max_length=1000, null=True, blank=True)
+    columns = models.CharField(max_length=1000, null=True, blank=True)
+    search_form_fields = models.CharField(max_length=1000, null=True, blank=True)
+    edit_form_fields = models.CharField(max_length=1000, null=True, blank=True)

@@ -59,9 +59,12 @@ class UserInviteRelateAdmin(admin.ModelAdmin):
     
 @admin.register(UserToken)
 class UserTokenAdmin(admin.ModelAdmin):
-    list_display = ("user", "token","ua","ip","device","expired", "created_at","expired_at")
+    list_display = ("user", "hide_token","ua","ip","device","expired", "created_at","expired_at")
     list_filter = ("user",)
     search_fields = ("user__username",)
+    
+    def hide_token(self,obj):
+        return obj.token[:12] + "***"
     
     def expired(self, obj):
         expired_at_unix = int(obj.expired_at.timestamp())

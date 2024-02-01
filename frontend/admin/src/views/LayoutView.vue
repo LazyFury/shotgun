@@ -5,15 +5,17 @@ import { ElAvatar, ElBreadcrumb, ElButton, ElTabs,ElMessageBox } from 'element-p
 import { onMounted, ref, watch, watchEffect } from 'vue';
 import useTranslateStore from '../pinia/translate';
 import { request } from '../api/request';
-
+import useProfileStore from '../pinia/profile';
 const menus = ref([])
 const router = useRouter()
 const translateStore = useTranslateStore()
-
+const profileStore = useProfileStore()
 onMounted(()=>{
     request.get('/menus').then(res=>{
         menus.value = res.data.data?.menus || []
     })
+
+    profileStore.refreshProfile()
 })
 
 const logout = () => {
@@ -59,10 +61,10 @@ const logout = () => {
                     </UIButton>
                     <UIButton class="flex-row-btn" @click="logout">
                         <Icon icon="ant-design:login-outlined"></Icon>
-                        <span>Admin user.</span>
+                        <span>{{profileStore.profile.username}}</span>
                     </UIButton>
                     <UIButton>
-                        <ElAvatar />
+                        <ElAvatar :src="$img(profileStore.profile.avatar)" />
                     </UIButton>
                 </div>
             </ElRow>

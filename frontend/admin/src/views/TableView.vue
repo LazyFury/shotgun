@@ -40,7 +40,7 @@
 
             <!-- betch actions  -->
             <div class="mb-2">
-                <ElButton type="primary">
+                <ElButton type="primary" @click="add">
                     <Icon icon="ant-design:plus-outlined"></Icon>
                     <span>添加</span>
                 </ElButton>
@@ -75,14 +75,19 @@
 
             
         </ElCard>
+
+        <ElDialog title="提示" v-model="editModal">
+            <Form :fields="meta.addForm.fields"></Form>
+        </ElDialog>
     </div>
 </template>
 <script>
 import { ElPagination } from 'element-plus';
-import { request } from '../../api/request';
+import { request } from '@/api/request';
+import Form from '@/views/components/Form.vue'
 
 export default {
-    components: { ElPagination },
+    components: { ElPagination,Form },
     props: {},
     data() {
         return {
@@ -94,7 +99,8 @@ export default {
                 total: 1000
             },
             tableData:[],
-            loading:false
+            loading:false,
+            editModal:false
         };
     },
     watch: {},
@@ -114,6 +120,9 @@ export default {
         }
     },
     methods: {
+        add(){
+            this.editModal = true
+        },
         submitSearch(){
             console.log(this.searchForm)
             this.load()
@@ -136,7 +145,15 @@ export default {
                     ...this.searchForm
                 }
             }).then(res=>{
-                this.tableData = res.data.data?.list || []
+                let data = res.data.data || {}
+                this.tableData = data?.list || []
+                let {size,page,total} = data?.pageable
+                this.pagination = {
+                    pageSize:size,
+                    currentPage:page,
+                    total
+                }
+
             }).finally(()=>{
                 setTimeout(()=>{
                     this.loading = false

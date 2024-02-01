@@ -28,11 +28,21 @@ import useTranslateStore from './pinia/translate'
 import zhCN from './i18n/zh-cn/main.js'
 // end translate
 
+import config from './config'
+
 
 const app = createApp(App)
 app.use(ElementPlus, { locale: ElzhCn })
 app.use(createPinia())
 app.use(function (vm) {
+
+    vm.config.globalProperties.$img = (url) => {
+        console.log(url)    
+        const target =  config.imgURL + url
+        console.log(target)
+        return target
+    }
+
     const translateStore = useTranslateStore()
     vm.component("Icon", Icon)
     vm.config.globalProperties.$t = translateStore.getKey

@@ -49,13 +49,16 @@ def find_device_in_ua_use_regx(ua=""):
 
 
 @DApi.post("login")
-@validator([
-    Rule("username", required=True, message="用户名不能为空"),
-    Rule("password", required=True, message="密码不能为空"),
-],method="post")
+@validator(
+    [
+        Rule("username", required=True, message="用户名不能为空"),
+        Rule("password", required=True, message="密码不能为空"),
+    ],
+    method="post",
+)
 def login(request: HttpRequest):
-    """ login 
-    
+    """login
+
 
     Args:
         request (HttpRequest): _description_
@@ -79,16 +82,29 @@ def login(request: HttpRequest):
         # print("is_mobile", is_mobile)
         device = find_device_in_ua_use_regx(ua)
         # print("device", device)
-        token = UserToken.get_token(username, password,ip=ip,ua=ua,is_mobile=is_mobile,device=device)
+        token = UserToken.get_token(
+            username, password, ip=ip, ua=ua, is_mobile=is_mobile, device=device
+        )
     except Exception as e:
         return ApiJsonResponse.error(ApiErrorCode.USER_PASSWORD_NOT_MATCH, e.__str__())
-    return ApiJsonResponse({"token": token.token,"expired_at":token.expired_at, "user": token.user.to_json()})
+    return ApiJsonResponse(
+        {
+            "token": token.token,
+            "expired_at": token.expired_at,
+            "user": token.user.to_json(),
+        }
+    )
 
 
 @DApi.post("logout")
 def logout(request: HttpRequest):
     UserToken.delete_token(request.user)
     return ApiJsonResponse.success({})
+
+
+@DApi.get("profile")
+def profile(request: HttpRequest):
+    return ApiJsonResponse({"user": request.user.to_json()})
 
 
 @DApi.get("menus")
@@ -102,100 +118,91 @@ def menus(request: HttpRequest):
                     "path": "/overview",
                     "key": "overview",
                     "component": "HomeView",
-                    "parent":"layout"
+                    "parent": "layout",
                 },
                 {
                     "title": "用户列表",
                     "path": "/user",
                     "icon": "ant-design:user-outlined",
                     "key": "user",
-                    "component": "user/UserView",
-                    "meta":{
-                        "api":"/users",
-                        "description":"处理用户注册、登录、修改密码等操作",
-                        "searchForm":{
-                            "fields":[
+                    "component": "TableView",
+                    "meta": {
+                        "api": "/users",
+                        "description": "处理用户注册、登录、修改密码等操作",
+                        "searchForm": {
+                            "fields": [
                                 {
-                                    "label":"用户名",
-                                    "name":"username",
-                                    "type":"input",
-                                    "placeholder":"请输入用户名"
+                                    "label": "用户名",
+                                    "name": "username",
+                                    "type": "input",
+                                    "placeholder": "请输入用户名",
                                 },
                                 {
-                                    "label":"手机号",
-                                    "name":"phone",
-                                    "type":"input",
-                                    "placeholder":"请输入手机号"
+                                    "label": "手机号",
+                                    "name": "phone",
+                                    "type": "input",
+                                    "placeholder": "请输入手机号",
                                 },
                                 {
-                                    "label":"邮箱",
-                                    "name":"email",
-                                    "type":"input",
-                                    "placeholder":"请输入邮箱"
+                                    "label": "邮箱",
+                                    "name": "email",
+                                    "type": "input",
+                                    "placeholder": "请输入邮箱",
                                 },
                                 # select level
                                 {
-                                    "label":"用户等级",
-                                    "name":"level",
-                                    "type":"select",
-                                    "placeholder":"请选择用户等级",
-                                    "width":"200px",
-                                    "options":[
-                                        {
-                                            "label":"普通用户",
-                                            "value":"1"
-                                        },
-                                        {
-                                            "label":"VIP用户",
-                                            "value":"2"
-                                        },
-                                        {
-                                            "label":"SVIP用户",
-                                            "value":"3"
-                                        },
-                                    ]
+                                    "label": "用户等级",
+                                    "name": "level",
+                                    "type": "select",
+                                    "placeholder": "请选择用户等级",
+                                    "width": "200px",
+                                    "options": [
+                                        {"label": "普通用户", "value": "1"},
+                                        {"label": "VIP用户", "value": "2"},
+                                        {"label": "SVIP用户", "value": "3"},
+                                    ],
                                 },
                             ]
                         },
-                        "table":{
-                            "batchActions":[
+                        "table": {
+                            "batchActions": [
                                 {
-                                    "label":"批量删除",
-                                    "api":"/api/user/delete",
-                                    "method":"post",
-                                    "confirm":"确定删除选中的用户吗？",
-                                    "btnType":"danger",
-                                    "action":"delete"
+                                    "label": "批量删除",
+                                    "api": "/api/user/delete",
+                                    "method": "post",
+                                    "confirm": "确定删除选中的用户吗？",
+                                    "btnType": "danger",
+                                    "action": "delete",
                                 }
                             ],
-                            "columns":[
+                            "columns": [
                                 {
-                                    "title":"用户名",
-                                    "dataIndex":"username",
-                                    "key":"username",
-                                    "sortable":True,
+                                    "title": "用户名",
+                                    "dataIndex": "username",
+                                    "key": "username",
+                                    "sortable": True,
                                 },
                                 {
-                                    "title":"邮箱",
-                                    "dataIndex":"email",
-                                    "key":"email",
-                                    "sortable":True,    
+                                    "title": "邮箱",
+                                    "dataIndex": "email",
+                                    "key": "email",
+                                    "sortable": True,
                                 },
                                 {
-                                    "title":"创建时间",
-                                    "dataIndex":"create_time",
-                                    "key":"created_at",
-                                    "sortable":True,
+                                    "title": "创建时间",
+                                    "dataIndex": "create_time",
+                                    "key": "created_at",
+                                    "sortable": True,
                                 },
                                 {
-                                    "title":"操作",
-                                    "dataIndex":"action",
-                                    "key":"action",
-                                    "slots":"action"
+                                    "title": "操作",
+                                    "dataIndex": "action",
+                                    "key": "action",
+                                    "slots": "action",
                                 },
-                            ]
-                        }
-                    }
+                            ],
+                        },
+                    },
                 },
                 {
                     "title": "商品管理",
@@ -206,96 +213,87 @@ def menus(request: HttpRequest):
                             "title": "商品列表",
                             "path": "/product",
                             "key": "product",
-                            "component": "user/UserView",
-                            "meta":{
-                                "api":"/products",
-                                "description":"处理商品的增删改查等操作",
-                                "searchForm":{
-                                    "fields":[
+                            "component": "TableView",
+                            "meta": {
+                                "api": "/products",
+                                "description": "处理商品的增删改查等操作",
+                                "searchForm": {
+                                    "fields": [
                                         {
-                                            "label":"商品名称",
-                                            "name":"name",
-                                            "type":"input",
-                                            "placeholder":"请输入商品名称"
+                                            "label": "商品名称",
+                                            "name": "name",
+                                            "type": "input",
+                                            "placeholder": "请输入商品名称",
                                         },
                                         {
-                                            "label":"商品分类",
-                                            "name":"category_name",
-                                            "type":"select",
-                                            "placeholder":"请选择商品分类",
-                                            "width":"200px",
-                                            "options":[
-                                                {
-                                                    "label":"普通商品",
-                                                    "value":"1"
-                                                },
-                                                {
-                                                    "label":"VIP商品",
-                                                    "value":"2"
-                                                },
-                                                {
-                                                    "label":"SVIP商品",
-                                                    "value":"3"
-                                                },
-                                            ]
+                                            "label": "商品分类",
+                                            "name": "category_name",
+                                            "type": "select",
+                                            "placeholder": "请选择商品分类",
+                                            "width": "200px",
+                                            "options": [
+                                                {"label": "普通商品", "value": "1"},
+                                                {"label": "VIP商品", "value": "2"},
+                                                {"label": "SVIP商品", "value": "3"},
+                                            ],
                                         },
                                     ]
                                 },
-                                "table":{
-                                    "batchActions":[
+                                "table": {
+                                    "batchActions": [
                                         {
-                                            "label":"批量删除",
-                                            "api":"/api/product/delete",
-                                            "method":"post",
-                                            "confirm":"确定删除选中的商品吗？",
-                                            "btnType":"danger",
+                                            "label": "批量删除",
+                                            "api": "/api/product/delete",
+                                            "method": "post",
+                                            "confirm": "确定删除选中的商品吗？",
+                                            "btnType": "danger",
                                         }
                                     ],
-                                    "columns":[
+                                    "columns": [
                                         {
-                                            "title":"商品名称",
-                                            "dataIndex":"name",
-                                            "key":"name"
+                                            "title": "商品名称",
+                                            "dataIndex": "name",
+                                            "key": "name",
                                         },
                                         {
-                                            "title":"商品分类",
-                                            "dataIndex":"category_name",
-                                            "key":"category_name"
+                                            "title": "商品分类",
+                                            "dataIndex": "category_name",
+                                            "key": "category_name",
                                         },
                                         {
-                                            "title":"商品价格",
-                                            "dataIndex":"price",
-                                            "key":"price"
+                                            "title": "商品价格",
+                                            "dataIndex": "price",
+                                            "key": "price",
                                         },
                                         {
-                                            "title":"商品库存",
-                                            "dataIndex":"stock",
-                                            "key":"stock"
+                                            "title": "商品库存",
+                                            "dataIndex": "stock",
+                                            "key": "stock",
                                         },
                                         {
-                                            "title":"商品销量",
-                                            "dataIndex":"sales",
-                                            "key":"sales"
+                                            "title": "商品销量",
+                                            "dataIndex": "sales",
+                                            "key": "sales",
                                         },
                                         {
-                                            "title":"商品状态",
-                                            "dataIndex":"status",
-                                            "key":"status"
+                                            "title": "商品状态",
+                                            "dataIndex": "status",
+                                            "key": "status",
                                         },
                                         {
-                                            "title":"创建时间",
-                                            "dataIndex":"create_time",
-                                            "key":"created_at"
+                                            "title": "创建时间",
+                                            "dataIndex": "create_time",
+                                            "key": "created_at",
                                         },
                                         {
-                                            "title":"操作",
-                                            "dataIndex":"action",
-                                            "key":"action",
-                                            "slots":"action"
+                                            "title": "操作",
+                                            "dataIndex": "action",
+                                            "key": "action",
+                                            "slots": "action",
                                         },
-                                    ]
-                                }
-                            }
+                                    ],
+                                },
+                            },
                         },
                         {
                             "title": "商品分类",
@@ -315,7 +313,6 @@ def menus(request: HttpRequest):
                     "path": "/order",
                     "key": "order",
                 },
-
                 {
                     "title": "系统管理",
                     "icon": "ant-design:setting-outlined",
@@ -355,6 +352,113 @@ def menus(request: HttpRequest):
                             "key": "system-monitor",
                         },
                     ],
+                },
+                # table
+                {
+                    "title": "表格管理",
+                    "path": "/system-table",
+                    "icon": "ant-design:dot-chart-outlined",
+                    "key": "system-table",
+                    "component": "TableView",
+                    "meta":{
+                        "api":"/tableManager",
+                        "description":"处理表格的增删改查等操作",
+                        "searchForm":{
+                            "fields":[
+                                {
+                                    "label":"表格名称",
+                                    "name":"title",
+                                    "type":"input",
+                                    "placeholder":"请输入表格名称"
+                                }
+                            ]
+                        },
+                        "addForm":{
+                            "fields":[
+                                {
+                                    "label":"表格名称",
+                                    "name":"title",
+                                    "type":"input",
+                                    "placeholder":"请输入表格名称",
+                                    "required":True
+                                },
+                                {
+                                    "label":"表格描述",
+                                    "name":"description",
+                                    "type":"input",
+                                    "placeholder":"请输入表格描述"
+                                },
+                                {
+                                    "label":"表格API",
+                                    "name":"api_url",
+                                    "type":"input",
+                                    "placeholder":"请输入表格API"
+                                },
+                                {
+                                    "label":"删除API",
+                                    "name":"delete_api_url",
+                                    "type":"input",
+                                    "placeholder":"请输入删除API"
+                                },
+                                {
+                                    "label":"创建API",
+                                    "name":"create_api_url",
+                                    "type":"input",
+                                    "placeholder":"请输入创建API"
+                                },
+                                {
+                                    "label":"更新API",
+                                    "name":"update_api_url",
+                                    "type":"input",
+                                    "placeholder":"请输入更新API"
+                                },
+                                {
+                                    "label":"表格列",
+                                    "name":"columns",
+                                    "type":"textarea",
+                                    "placeholder":"请输入表格列"
+                                },
+                                {
+                                    "label":"搜索表单字段",
+                                    "name":"search_form_fields",
+                                    "type":"input",
+                                    "placeholder":"请输入搜索表单字段"
+                                }
+                            ]
+                        },
+                        "table":{
+                            "batchActions":[
+                                {
+                                    "label":"批量删除",
+                                    "api":"/api/tableManager/delete",
+                                    "method":"post",
+                                    "confirm":"确定删除选中的表格吗？",
+                                    "btnType":"danger",
+                                    "action":"delete"
+                                }
+                            ],
+                            "columns":[
+                                {
+                                    "title":"表格名称",
+                                    "dataIndex":"title",
+                                    "key":"title",
+                                    "sortable":True
+                                },
+                                {
+                                    "title":"创建时间",
+                                    "dataIndex":"create_time",
+                                    "key":"created_at",
+                                    "sortable":True
+                                },
+                                {
+                                    "title":"操作",
+                                    "dataIndex":"action",
+                                    "key":"action",
+                                    "slots":"action"
+                                }
+                            ]
+                        }
+                    }
                 },
             ]
         }
