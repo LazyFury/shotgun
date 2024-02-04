@@ -285,6 +285,10 @@ def menus(request: HttpRequest):
                                             "title": "商品价格",
                                             "dataIndex": "price",
                                             "key": "price",
+                                            "formatter": {
+                                                "type":"number",
+                                                "formatStr":"0,0.000"
+                                            }
                                         },
                                         {
                                             "title": "商品库存",
@@ -300,6 +304,12 @@ def menus(request: HttpRequest):
                                             "title": "商品状态",
                                             "dataIndex": "status",
                                             "key": "status",
+                                            "formatter":{
+                                                "type":"boolean",
+                                                "trueText":"上架",
+                                                "falseText":"下架"
+                                            },
+                                            "slot": "status"
                                         },
                                         {
                                             "title": "创建时间",

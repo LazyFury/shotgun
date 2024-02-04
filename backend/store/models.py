@@ -14,6 +14,7 @@ class Product(BaseModel):
     description = models.TextField(blank=True)
     category = models.ForeignKey("store.ProductCategory", on_delete=models.CASCADE)
     skus = models.ManyToManyField("store.ProductSkuGroup", blank=True,related_name="products_set")
+    status = models.BooleanField(default=True)
     
     def __str__(self):
         return self.name

@@ -32,12 +32,15 @@ import zhCN from './i18n/zh-cn/main.js'
 // end translate
 
 import config from './config'
-
+import dayjs from 'dayjs'
+import numeral from 'numeral'
 
 const app = createApp(App)
 app.use(ElementPlus, { locale: ElzhCn })
 app.use(createPinia())
 app.use(function (vm) {
+    vm.config.globalProperties.$dayjs = dayjs
+    vm.config.globalProperties.$numeral = numeral
 
     vm.config.globalProperties.$img = (url) => {
         console.log(url)    

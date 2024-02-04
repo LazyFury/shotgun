@@ -66,8 +66,13 @@
                 <ElTableColumn type="selection" width="55"></ElTableColumn>
                 <ElTableColumn v-for="column in columns" :key="column.key" :sortable="column.sortable ? 'custom' : false"
                     :label="column.title">
-                    <template #default="{ row }">
+                    <template #default="{ row }" v-if="!column.slot">
                         {{ column.render(row) }}
+                    </template>
+                    <template v-if="column.slot" #default="{row}">
+                        <div v-if="column.key=='status'">
+                            <ElSwitch v-model="row[column.key]" :disabled="true" active-color="#13ce66" inactive-color="#ddd"></ElSwitch>
+                        </div>
                     </template>
                 </ElTableColumn>
             </ElTable>
@@ -117,12 +122,32 @@ export default {
                 return {
                     ...column,
                     render: (row) => {
+                        if(column.slot) return ""
                         if(column.formatter) {
-                            let {type,key,mapping_key,data=[],def} = column.formatter || {}
+                            let {type,key,mapping_key,data=[],def,formatStr=""} = column.formatter || {}
+                            let formatConfig = column.formatter
                             if(type === 'mapping') {
                                 console.log(data)
                                 console.log(row[column.key])
                                 return data.find(item=>item[key] == row[column.key])?.[mapping_key] || def || ""
+                            }
+
+                            if(type === 'date') {
+                                return row[column.key] ? this.$dayjs(row[column.key]).format('YYYY-MM-DD HH:mm:ss') : ''
+                            }
+
+                            if(type === 'datetime') {
+                                return row[column.key] ? this.$dayjs(row[column.key]).format('YYYY-MM-DD HH:mm:ss') : ''
+                            }
+
+                            // number 
+                            if(type === 'number') {
+                                return row[column.key] ? this.$numeral(row[column.key]).format(formatStr || '0,0') : ''
+                            }
+
+                            // bool 
+                            if(type === 'boolean') {
+                                return row[column.key] ? (formatConfig.trueText || '是') : (formatConfig.falseText || '否')
                             }
                         }
                         return row[column.key]
