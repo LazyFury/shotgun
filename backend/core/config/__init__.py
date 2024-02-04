@@ -12,7 +12,7 @@ assert config is not None
 def get(key, default=None):
     return config_get(config, key, default)
 
-def cache_dir():
+def cache_dir(suffix=""):
     """_summary_
 
     Returns:
@@ -20,6 +20,8 @@ def cache_dir():
     """
     path = get("cache.dir", "tmp")
     real_path = BASE_DIR / path
+    if suffix is not None and suffix != "":
+        real_path = real_path / suffix
     if not os.path.exists(real_path):
         os.mkdir(real_path)
     return real_path

@@ -11,6 +11,7 @@ const createAxiosInstance = (baseURL,opt={}) => {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
+        binary:false,
         ...opt
     });
 
@@ -24,6 +25,9 @@ const createAxiosInstance = (baseURL,opt={}) => {
     })
 
     instance.interceptors.response.use(function (response) {
+        if(response.config.binary){
+            return response
+        }
         // Do something with response data
         let resp = response.data
         let msg = resp.message || resp.msg || '未知错误'
@@ -33,6 +37,9 @@ const createAxiosInstance = (baseURL,opt={}) => {
         }
         return response;
     }, function (error) {
+        if(error.config.binary){
+            return Promise.reject(error)
+        }
         // Do something with response error
         console.log(error)
         let resp = error.response

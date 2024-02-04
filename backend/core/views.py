@@ -275,6 +275,7 @@ def menus(request: HttpRequest):
                                             "title": "商品名称",
                                             "dataIndex": "name",
                                             "key": "name",
+                                            "className":"font-bold text-lg"
                                         },
                                         {
                                             "title": "商品分类",
@@ -285,9 +286,11 @@ def menus(request: HttpRequest):
                                             "title": "商品价格",
                                             "dataIndex": "price",
                                             "key": "price",
+                                            "className":"font-bold text-lg !text-red",
                                             "formatter": {
                                                 "type":"number",
-                                                "formatStr":"0,0.000"
+                                                "formatStr":"0,0.000",
+                                                "prefix":"￥",
                                             }
                                         },
                                         {
@@ -301,15 +304,10 @@ def menus(request: HttpRequest):
                                             "key": "sales",
                                         },
                                         {
-                                            "title": "商品状态",
+                                            "title": "商品状态/上架",
                                             "dataIndex": "status",
                                             "key": "status",
-                                            "formatter":{
-                                                "type":"boolean",
-                                                "trueText":"上架",
-                                                "falseText":"下架"
-                                            },
-                                            "slot": "status"
+                                            "type":"checkbox",
                                         },
                                         {
                                             "title": "创建时间",

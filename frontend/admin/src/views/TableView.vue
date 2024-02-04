@@ -59,6 +59,12 @@
                     v-for="action in meta.table?.batchActions || []" :key="action.name">
                     {{ action.label }}
                 </ElButton>
+
+                <!-- 导出 -->
+                <ElButton type="default" @click="exportData">
+                    <Icon icon="ant-design:export-outlined"></Icon>
+                    <span>导出</span>
+                </ElButton>
             </div>
             <ElTable ref="tableRef" v-loading="loading" :data="tableData" :border="true" stripe
                 @sort-change="handleSortChange">
@@ -67,12 +73,24 @@
                 <ElTableColumn v-for="column in columns" :key="column.key" :sortable="column.sortable ? 'custom' : false"
                     :label="column.title">
                     <template #default="{ row }" v-if="!column.slot">
-                        {{ column.render(row) }}
+                        <div :class="[column.className]" v-if="column.type=='render'">
+                            {{ column.render(row) }}
+                        </div>
+                        <!-- switch  -->
+                        <ElSwitch v-else-if="column.type=='switch'" v-model="row[column.key]" active-color="#13ce66"
+                            inactive-color="#ff4949" active-text="" inactive-text="" disabled></ElSwitch>
+                        <!-- checkbox  -->
+                        <ElCheckbox v-else-if="column.type=='checkbox'" v-model="row[column.key]" disabled></ElCheckbox>
+
+                        <!-- select  -->
+                        <ElSelect v-else-if="column.type=='select'" v-model="row[column.key]" :placeholder="column.placeholder"
+                            clearable>
+                            <ElOption v-for="option in column.options" :key="option.value" :label="option.label"
+                                :value="option.value"></ElOption>
+                        </ElSelect>
                     </template>
                     <template v-if="column.slot" #default="{row}">
-                        <div v-if="column.key=='status'">
-                            <ElSwitch v-model="row[column.key]" :disabled="true" active-color="#13ce66" inactive-color="#ddd"></ElSwitch>
-                        </div>
+                        <slot :name="column.slot" :row="row"></slot>
                     </template>
                 </ElTableColumn>
             </ElTable>
@@ -121,10 +139,11 @@ export default {
             return (this.meta.table?.columns || []).map(column => {
                 return {
                     ...column,
+                    type:column.type || 'render',
                     render: (row) => {
                         if(column.slot) return ""
                         if(column.formatter) {
-                            let {type,key,mapping_key,data=[],def,formatStr=""} = column.formatter || {}
+                            let {type,key,mapping_key,data=[],def,formatStr="",prefix="",suffix=""} = column.formatter || {}
                             let formatConfig = column.formatter
                             if(type === 'mapping') {
                                 console.log(data)
@@ -142,7 +161,8 @@ export default {
 
                             // number 
                             if(type === 'number') {
-                                return row[column.key] ? this.$numeral(row[column.key]).format(formatStr || '0,0') : ''
+                                let result = row[column.key] ? this.$numeral(row[column.key]).format(formatStr || '0,0') : ''
+                                return `${prefix}${result}${suffix}`
                             }
 
                             // bool 
@@ -232,6 +252,29 @@ export default {
                     message: '已取消删除'
                 });
             });
+        },
+        exportData() {
+            console.log('export')
+            request({
+                url: this.meta.api + '.export',
+                method: 'get',
+                responseType: 'blob',
+                params: {
+                    ...this.searchForm
+                },
+                binary: true
+            }).then(res => {
+                let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+                let url = window.URL.createObjectURL(blob)
+                let link = document.createElement('a')
+                link.style.display = 'none'
+                link.href = url
+                link.setAttribute('download', `export-${this.meta.title}-${this.$dayjs().format('YYYYMMDDHHmmss')}.xlsx`)
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                window.URL.revokeObjectURL(url)
+            })
         }
     },
     created() { },
