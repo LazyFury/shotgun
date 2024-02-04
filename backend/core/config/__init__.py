@@ -7,6 +7,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 config = readTomlConfig(BASE_DIR / "config.toml")
+assert config is not None
 
 def get(key, default=None):
     return config_get(config, key, default)

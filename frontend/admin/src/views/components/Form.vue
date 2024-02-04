@@ -1,52 +1,75 @@
 <template>
-<div>
-    <ElForm :inline="true" :model="form" :rules="rules" class="mb-4 grid xl:grid-cols-2" :label-width="100">
-        <ElFormItem v-for="field in fields" :key="field.name" :label="field.label + ':'" :prop="field.name">
-            <ElInput v-if="field.type == 'textarea'" type="textarea" :placeholder="field.placeholder"></ElInput>
-            <ElInput v-else :placeholder="field.placeholder"></ElInput>
-        </ElFormItem>
-    </ElForm>
+    <div>
+        <ElForm :inline="false" :model="form" :rules="rules" :label-width="100" class="mt-0">
+            <div class="mb-4 grid xl:grid-cols-2">
+                <div v-for="field in fields" v-if="!multiRowMode">
+                    <span>not support yet!</span>
+                </div>
+            </div>
 
-    <div class="flex flex-row items-center justify-end">
-        <ElButton type="primary" class="w-24">保存</ElButton>
+
+            <div v-if="multiRowMode" v-for="items in fields" class="flex flex-row flex-wrap">
+                <div class="w-line mb-2"></div>
+                <template v-for="field in items" :key="field.name">
+                    <ElFormItem :label="field.label + ':'" :prop="field.name" :style="{
+                        width: field.width
+                    }">
+                        <FormItem :field="field" v-model="form[field.name]"></FormItem>
+                    </ElFormItem>
+                </template>
+            </div>
+        </ElForm>
+
+        <div class="flex flex-row items-center justify-end">
+            <ElButton type="primary" class="w-24">保存</ElButton>
+        </div>
     </div>
-</div>
 </template>
 <script>
+import FormItem from './FormItem.vue'
 export default {
-  components: {},
-  props: {
-    fields:{
-        type:Array,
-        default:()=>[]
-    }
-  },
-  computed:{
-    rules(){
-        // check required in fields 
-        let map = {}
-        this.fields.forEach(el=>{
-            if(el.required){
-                map[el.name] = [
-                    {required:true,message:el.placeholder}
-                ]
-            }
-        })
-        return map;
-    }
-  },
-  data() {
-    return {
-        form:{
-
+    components: { FormItem },
+    props: {
+        fields: {
+            type: Array,
+            default: () => []
         }
-    };
-  },
-  watch: {},
-  methods: {},
-  created() {},
-  mounted() {}
+    },
+    computed: {
+        rules() {
+            // check required in fields 
+            let map = {}
+            this.flatFields.forEach(el => {
+                if (el.required) {
+                    map[el.name] = [
+                        { required: true, message: el.placeholder }
+                    ]
+                }
+            })
+            return map;
+        },
+        flatFields(){
+            if(!this.multiRowMode)return this.fields;
+            return this.fields.reduce((acc, cur) => {
+                return acc.concat(cur)
+            }, [])
+        },
+        multiRowMode() {
+            return this.fields && this.fields[0] && Array.isArray(this.fields[0])
+        },
+
+    },
+    data() {
+        return {
+            form: {
+
+            }
+        };
+    },
+    watch: {},
+    methods: {},
+    created() { },
+    mounted() { }
 };
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

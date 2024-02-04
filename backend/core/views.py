@@ -3,7 +3,9 @@ from operator import is_
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from core.models import UserToken
-from core.urls import DApi
+from core.urls import ClientApi, DApi
+from plugins import dtk
+from plugins.dtk import views as dtk_views
 from revolver_api.revolver_api.api import Rule, validator
 from revolver_api.revolver_api.response import ApiErrorCode, ApiJsonResponse
 from revolver_api.revolver_api.route import Router
@@ -67,7 +69,7 @@ def login(request: HttpRequest):
         _type_: _description_
     """
     try:
-        payload = json.loads(request.body)
+        payload = request.valid_data or json.loads(request.body)
     except Exception as e:
         return ApiJsonResponse.error(ApiErrorCode.ERROR, e.__str__())
     # print("payload", payload)
@@ -173,6 +175,7 @@ def menus(request: HttpRequest):
                                     "confirm": "确定删除选中的用户吗？",
                                     "btnType": "danger",
                                     "action": "delete",
+                                    
                                 }
                             ],
                             "columns": [
@@ -187,6 +190,24 @@ def menus(request: HttpRequest):
                                     "dataIndex": "email",
                                     "key": "email",
                                     "sortable": True,
+                                },
+                                # type 
+                                {
+                                    "title": "用户等级",
+                                    "dataIndex": "id",
+                                    "key": "id",
+                                    "sortable": True,
+                                    "formatter":{
+                                        "key":"id",
+                                        "mapping_key":"name",
+                                        "type":"mapping",
+                                        "data":[
+                                            {"id":1,"name":"普通用户"},
+                                            {"id":2,"name":"VIP用户"},
+                                            {"id":3,"name":"SVIP用户"}
+                                        ],
+                                        "def":"未知"
+                                    }
                                 },
                                 {
                                     "title": "创建时间",
@@ -360,106 +381,127 @@ def menus(request: HttpRequest):
                     "icon": "ant-design:dot-chart-outlined",
                     "key": "system-table",
                     "component": "TableView",
-                    "meta":{
-                        "api":"/tableManager",
-                        "description":"处理表格的增删改查等操作",
-                        "searchForm":{
-                            "fields":[
+                    "meta": {
+                        "api": "/tableManager",
+                        "description": "处理表格的增删改查等操作",
+                        "searchForm": {
+                            "fields": [
                                 {
-                                    "label":"表格名称",
-                                    "name":"title",
-                                    "type":"input",
-                                    "placeholder":"请输入表格名称"
+                                    "label": "表格名称",
+                                    "name": "title",
+                                    "type": "input",
+                                    "placeholder": "请输入表格名称",
                                 }
                             ]
                         },
-                        "addForm":{
-                            "fields":[
-                                {
-                                    "label":"表格名称",
-                                    "name":"title",
-                                    "type":"input",
-                                    "placeholder":"请输入表格名称",
-                                    "required":True
-                                },
-                                {
-                                    "label":"表格描述",
-                                    "name":"description",
-                                    "type":"input",
-                                    "placeholder":"请输入表格描述"
-                                },
-                                {
-                                    "label":"表格API",
-                                    "name":"api_url",
-                                    "type":"input",
-                                    "placeholder":"请输入表格API"
-                                },
-                                {
-                                    "label":"删除API",
-                                    "name":"delete_api_url",
-                                    "type":"input",
-                                    "placeholder":"请输入删除API"
-                                },
-                                {
-                                    "label":"创建API",
-                                    "name":"create_api_url",
-                                    "type":"input",
-                                    "placeholder":"请输入创建API"
-                                },
-                                {
-                                    "label":"更新API",
-                                    "name":"update_api_url",
-                                    "type":"input",
-                                    "placeholder":"请输入更新API"
-                                },
-                                {
-                                    "label":"表格列",
-                                    "name":"columns",
-                                    "type":"textarea",
-                                    "placeholder":"请输入表格列"
-                                },
-                                {
-                                    "label":"搜索表单字段",
-                                    "name":"search_form_fields",
-                                    "type":"input",
-                                    "placeholder":"请输入搜索表单字段"
-                                }
+                        "addForm": {
+                            "fields": [
+                                [
+                                    {
+                                        "label": "表格名称",
+                                        "name": "title",
+                                        "type": "input",
+                                        "placeholder": "请输入表格名称",
+                                        "required": True,
+                                        "width": "480px",
+                                    },
+                                ],
+                                [
+                                    {
+                                        "label": "表格描述",
+                                        "name": "description",
+                                        "type": "input",
+                                        "placeholder": "请输入表格描述",
+                                        "width": "480px",
+                                    },
+                                ],
+                                [
+                                    {
+                                        "label": "表格API",
+                                        "name": "api_url",
+                                        "type": "input",
+                                        "placeholder": "请输入表格API",
+                                    },
+                                    {
+                                        "label": "删除API",
+                                        "name": "delete_api_url",
+                                        "type": "input",
+                                        "placeholder": "请输入删除API",
+                                    },
+                                    {
+                                        "label": "创建API",
+                                        "name": "create_api_url",
+                                        "type": "input",
+                                        "placeholder": "请输入创建API",
+                                    },
+                                    {
+                                        "label": "更新API",
+                                        "name": "update_api_url",
+                                        "type": "input",
+                                        "placeholder": "请输入更新API",
+                                    },
+                                ],
+                                [
+                                    {
+                                        "label": "表格列",
+                                        "name": "columns",
+                                        "type": "textarea",
+                                        "placeholder": "请输入表格列",
+                                        "width": "640px",
+                                    },
+                                ],
+                                [
+                                    {
+                                        "label": "搜索表单字段",
+                                        "name": "search_form_fields",
+                                        "type": "textarea",
+                                        "placeholder": "请输入搜索表单字段",
+                                        "width": "540px",
+                                    }
+                                ],
                             ]
                         },
-                        "table":{
-                            "batchActions":[
+                        "table": {
+                            "batchActions": [
                                 {
-                                    "label":"批量删除",
-                                    "api":"/api/tableManager/delete",
-                                    "method":"post",
-                                    "confirm":"确定删除选中的表格吗？",
-                                    "btnType":"danger",
-                                    "action":"delete"
+                                    "label": "批量删除",
+                                    "api": "/api/tableManager/delete",
+                                    "method": "post",
+                                    "confirm": "确定删除选中的表格吗？",
+                                    "btnType": "danger",
+                                    "action": "delete",
                                 }
                             ],
-                            "columns":[
+                            "columns": [
                                 {
-                                    "title":"表格名称",
-                                    "dataIndex":"title",
-                                    "key":"title",
-                                    "sortable":True
+                                    "title": "表格名称",
+                                    "dataIndex": "title",
+                                    "key": "title",
+                                    "sortable": True,
                                 },
                                 {
-                                    "title":"创建时间",
-                                    "dataIndex":"create_time",
-                                    "key":"created_at",
-                                    "sortable":True
+                                    "title": "创建时间",
+                                    "dataIndex": "create_time",
+                                    "key": "created_at",
+                                    "sortable": True,
                                 },
                                 {
-                                    "title":"操作",
-                                    "dataIndex":"action",
-                                    "key":"action",
-                                    "slots":"action"
-                                }
-                            ]
-                        }
-                    }
+                                    "title": "操作",
+                                    "dataIndex": "action",
+                                    "key": "action",
+                                    "slots": "action",
+                                },
+                            ],
+                        },
+                    },
                 },
             ]
         }
     )
+
+
+
+@ClientApi.get("dtk")
+def dtkHandler(request: HttpRequest):
+    print("dtkHandler")
+    return dtk_views.dataoke(request)

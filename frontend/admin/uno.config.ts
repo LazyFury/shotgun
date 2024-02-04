@@ -25,17 +25,18 @@ export default defineConfig({
   ],
   theme:{
     colors:{
-        "bg-primary":"#1a1d48",
-        "primary": '#0F609B',
+        "primary": 'teal',
         secondary: '#0F609B',
         accent: '#F59E0B',
         danger: '#DC2626',
         success: '#10B981',
         warning: '#F59E0B',
         info: '#3B82F6',
+        "light-header-bg": 'teal',
+        "light-header-text": 'white',
     }
   },
   shortcuts:{
-    "flex-row-btn":"flex flex-row items-center gap-1"
+    "flex-row-btn":"flex flex-row items-center gap-1",
   }
 })

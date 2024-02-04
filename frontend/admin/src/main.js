@@ -9,6 +9,9 @@ import 'virtual:uno.css'
 // element-plus
 import ElementPlus from 'element-plus'
 import './assets/scss/element-variables.scss'
+// dark theme 
+import 'element-plus/theme-chalk/dark/css-vars.css'
+
 import ElzhCn from 'element-plus/dist/locale/zh-cn.mjs'
 // end element-plus
 
@@ -59,6 +62,8 @@ app.use(function (vm) {
             ...(serverData["zh-cn"] || {})
         })
     }, 200);
+
+    translateStore.setLocale("zh-cn")
 
     // setTimeout(() => {
     //     translateStore.setLocale("en")

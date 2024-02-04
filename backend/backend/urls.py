@@ -24,7 +24,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("urlzip.urls")),
     path("",include("store.urls")),
-    path("dtk/api", include("dtk.urls")),
     path("logout", logout),
     path("",include("core.urls"))
 ]

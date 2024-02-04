@@ -15,10 +15,13 @@
             </div>
             <ElDivider></ElDivider>
             <ElForm :inline="true" :model="searchForm" class="mb-2">
-                <ElFormItem v-for="field in searchFormFields" :key="field.name" :label="field.label" :prop="field.name" :class="[]" :style="{'min-width':field.width || '100px'}">
+                <ElFormItem v-for="field in searchFormFields" :key="field.name" :label="field.label" :prop="field.name"
+                    :class="[]" :style="{ 'min-width': field.width || '100px' }">
                     <!-- select  -->
-                    <ElSelect v-if="field.type === 'select'" v-model="searchForm[field.name]" :placeholder="field.placeholder" clearable>
-                        <ElOption v-for="option in field.options" :key="option.value" :label="option.label" :value="option.value"></ElOption>
+                    <ElSelect v-if="field.type === 'select'" v-model="searchForm[field.name]"
+                        :placeholder="field.placeholder" clearable>
+                        <ElOption v-for="option in field.options" :key="option.value" :label="option.label"
+                            :value="option.value"></ElOption>
                     </ElSelect>
 
                     <ElInput v-else v-model="searchForm[field.name]" :placeholder="field.placeholder"></ElInput>
@@ -46,21 +49,24 @@
                 </ElButton>
                 <ElButton :loading="loading" type="default" @click="load">
                     <Icon v-if="!loading" icon="ant-design:reload-outlined"></Icon>
-                    <span>{{$t("refresh")}}</span>    
+                    <span>{{ $t("refresh") }}</span>
                 </ElButton>
 
                 <!-- divider vertical  -->
                 <ElDivider direction="vertical" class="mx-4"></ElDivider>
 
-                <ElButton :type="action.btnType" @click="batchAction(action.action)" v-for="action in meta.table?.batchActions || []" :key="action.name">
+                <ElButton :type="action.btnType" @click="batchAction(action.action)"
+                    v-for="action in meta.table?.batchActions || []" :key="action.name">
                     {{ action.label }}
                 </ElButton>
             </div>
-            <ElTable ref="tableRef" v-loading="loading" :data="tableData" :border="true" stripe @sort-change="handleSortChange">
+            <ElTable ref="tableRef" v-loading="loading" :data="tableData" :border="true" stripe
+                @sort-change="handleSortChange">
                 <!-- selection  -->
                 <ElTableColumn type="selection" width="55"></ElTableColumn>
-                <ElTableColumn v-for="column in columns" :key="column.key" :sortable="column.sortable ? 'custom' : false" :label="column.title">
-                    <template #default="{row}">
+                <ElTableColumn v-for="column in columns" :key="column.key" :sortable="column.sortable ? 'custom' : false"
+                    :label="column.title">
+                    <template #default="{ row }">
                         {{ column.render(row) }}
                     </template>
                 </ElTableColumn>
@@ -68,17 +74,15 @@
 
             <!-- pagination  -->
             <div class="flex mt-2">
-                <ElPagination 
-                    layout="total, sizes, prev, pager, next, jumper"
-                    :total="pagination.total"></ElPagination>
+                <ElPagination layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"></ElPagination>
             </div>
-
-            
         </ElCard>
 
-        <ElDialog title="提示" v-model="editModal">
-            <Form :fields="meta.addForm.fields"></Form>
-        </ElDialog>
+        <slot name="addModal">
+            <ElDialog v-if="meta.addForm" title="提示" v-model="editModal">
+                <Form :fields="meta.addForm.fields"></Form>
+            </ElDialog>
+        </slot>
     </div>
 </template>
 <script>
@@ -87,7 +91,7 @@ import { request } from '@/api/request';
 import Form from '@/views/components/Form.vue'
 
 export default {
-    components: { ElPagination,Form },
+    components: { ElPagination, Form },
     props: {},
     data() {
         return {
@@ -98,9 +102,9 @@ export default {
                 pageSize: 10,
                 total: 1000
             },
-            tableData:[],
-            loading:false,
-            editModal:false
+            tableData: [],
+            loading: false,
+            editModal: false
         };
     },
     watch: {},
@@ -113,6 +117,14 @@ export default {
                 return {
                     ...column,
                     render: (row) => {
+                        if(column.formatter) {
+                            let {type,key,mapping_key,data=[],def} = column.formatter || {}
+                            if(type === 'mapping') {
+                                console.log(data)
+                                console.log(row[column.key])
+                                return data.find(item=>item[key] == row[column.key])?.[mapping_key] || def || ""
+                            }
+                        }
                         return row[column.key]
                     }
                 }
@@ -120,21 +132,21 @@ export default {
         }
     },
     methods: {
-        add(){
+        add() {
             this.editModal = true
         },
-        submitSearch(){
+        submitSearch() {
             console.log(this.searchForm)
             this.load()
         },
-        resetSearchForm(){
+        resetSearchForm() {
             this.searchForm = {}
             this.load()
 
             // reset table sort
             this.$refs.tableRef.clearSort()
         },
-        load(){
+        load() {
             this.loading = true
             request({
                 url: this.meta.api,
@@ -144,45 +156,45 @@ export default {
                     pageSize: this.pagination.pageSize,
                     ...this.searchForm
                 }
-            }).then(res=>{
+            }).then(res => {
                 let data = res.data.data || {}
                 this.tableData = data?.list || []
-                let {size,page,total} = data?.pageable
+                let { size, page, total } = data?.pageable
                 this.pagination = {
-                    pageSize:size,
-                    currentPage:page,
+                    pageSize: size,
+                    currentPage: page,
                     total
                 }
 
-            }).finally(()=>{
-                setTimeout(()=>{
+            }).finally(() => {
+                setTimeout(() => {
                     this.loading = false
                 }, 500)
             })
         },
-        handleSortChange({column,order}){
-            if(!order)return
-            let {no} = column
-            let col = this.meta.table.columns[no-1]
-            this.searchForm.order_by = col.key+(order === 'ascending' ? '_asc' : '_desc')
+        handleSortChange({ column, order }) {
+            if (!order) return
+            let { no } = column
+            let col = this.meta.table.columns[no - 1]
+            this.searchForm.order_by = col.key + (order === 'ascending' ? '_asc' : '_desc')
             console.log(col)
             this.load()
         },
-        getTableSelection(){
+        getTableSelection() {
             return this.$refs.tableRef?.getSelectionRows() || []
         },
-        getTableSelectionIds(){
-            return this.getTableSelection().map(item=>item.id)
+        getTableSelectionIds() {
+            return this.getTableSelection().map(item => item.id)
         },
-        batchAction(key){
+        batchAction(key) {
             let actionMap = {
                 delete: this.batchDelete
             }
             actionMap[key]?.()
         },
-        batchDelete(){
+        batchDelete() {
             let ids = this.getTableSelectionIds()
-            if(!ids.length)return
+            if (!ids.length) return
             this.$confirm('确定删除选中的数据吗？', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -193,7 +205,7 @@ export default {
                 this.$message({
                     type: 'info',
                     message: '已取消删除'
-                });          
+                });
             });
         }
     },
