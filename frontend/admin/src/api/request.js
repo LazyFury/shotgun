@@ -20,6 +20,7 @@ const createAxiosInstance = (baseURL,opt={}) => {
         if (token) {
             config.headers.Token = '' + token
         }
+        console.log("请求参数：",config)
 
         return config;
     })
@@ -37,15 +38,16 @@ const createAxiosInstance = (baseURL,opt={}) => {
         }
         return response;
     }, function (error) {
-        if(error.config.binary){
+        if(error?.config?.binary){
             return Promise.reject(error)
         }
         // Do something with response error
         console.log(error)
         let resp = error.response
-        let msg = resp.data.message || resp.data.msg || '未知错误'
-        let code = resp.data.code || resp.status || -1
-        if(!resp.config.noMsgAlert){
+        if(!resp) throw new Error("网络错误")
+        let msg = resp.data?.message || resp.data?.msg || '未知错误'
+        let code = resp.data?.code || resp.status || -1
+        if(!resp.config?.noMsgAlert){
             ElMessage.error(msg || error.message)
         }
         if (code === 1007) {

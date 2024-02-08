@@ -1,5 +1,5 @@
 
-from core.models import MyPermission, TableManager
+from core.models import MyPermission, Post, TableManager
 from core.urls import DApi
 from revolver_api.revolver_api.api import Api
 
@@ -12,3 +12,7 @@ class PermissionApi(Api):
 @DApi.resource('tableManager')
 class TableManagerApi(Api):
     model = TableManager
+    
+@DApi.resource('articles')
+class PostArticle(Api):
+    model = Post

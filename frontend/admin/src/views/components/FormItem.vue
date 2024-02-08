@@ -1,8 +1,30 @@
 <template>
-    <ElInput v-if="field.type == 'textarea'" type="textarea" :placeholder="field.placeholder"></ElInput>
-    <ElInput v-else :placeholder="field.placeholder"></ElInput>
+    <ElInput @change="handleUpdate" v-model="value" v-if="field.type == 'textarea'" type="textarea" :placeholder="field.placeholder"></ElInput>
+    <ElInput @change="handleUpdate" v-model="value" v-else-if="field.type == 'password'" type="password" :placeholder="field.placeholder">
+    </ElInput>
+    <!-- select  -->
+    <ElSelect @change="handleUpdate" v-model="value" v-else-if="field.type == 'select'" :placeholder="field.placeholder">
+        <ElOption v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></ElOption>
+    </ElSelect>
+    <!-- switch -->
+    <ElSwitch @change="handleUpdate" v-model="value" v-else-if="field.type == 'switch'" :active-text="field.checkedChildren"></ElSwitch>
+    <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'" v-else :placeholder="field.placeholder">
+        <!-- suffix  -->
+        <template v-if="field.suffix" #suffix>
+            <div>
+                {{ field.suffix }}
+            </div>
+        </template>
+        <!-- prefix -->
+        <template v-if="field.prefix" #prefix>
+            <div>
+                {{ field.prefix }}
+            </div>
+        </template>
+    </ElInput>
 </template>
 <script>
+import { request } from '@/api/request'
 export default {
     components: {},
     props: {
@@ -10,16 +32,45 @@ export default {
             type: Object,
             default: () => ({})
         },
+        modelValue: {
+            type: [String, Number, Array, Object],
+            default: () => ''
+        }
     },
     data() {
         return {
+            options: [],
+            value: ""
         };
     },
-    watch: {},
+    watch: {
+        modelValue: {
+            handler(val) {
+                this.value = val
+            },
+            immediate: true
+        },
+        value: {
+            handler(val) {
+                this.$emit('update:modelValue', val)
+            }
+        }
+    },
     computed: {},
-    methods: {},
+    methods: {
+        handleUpdate(val) {
+            this.$emit('update:modelValue', val)
+        }
+    },
     created() { },
-    mounted() { }
+    mounted() {
+        if (this.field.remoteDataApi) request.get(this.field.remoteDataApi).then(res => {
+            this.options = (res.data?.data?.list || []).map(v => ({
+                label: v[this.field.props?.label || 'name'],
+                value: v[this.field.props?.value || 'id']
+            }))
+        })
+    }
 };
 </script>
 <style lang="scss" scoped></style>

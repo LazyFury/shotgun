@@ -16,6 +16,7 @@ export default {
     "search":"搜索",
     "refresh":"刷新",
     "reset":"重置",
+    "export":"导出",
 
     ...common
 }

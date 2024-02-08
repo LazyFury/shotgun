@@ -19,6 +19,20 @@ class Product(BaseModel):
     def __str__(self):
         return self.name
     
+    def json_key_remark(self):
+        return {
+            "name":"商品名称",
+            "price":"商品价格",
+            "image":"商品图片",
+            "description":"商品描述",
+            "category":"商品分类",
+            "skus_set":"商品规格组",
+            "status":"商品状态/上架",
+            "category_name":"商品分类名称",
+            "category_id":"商品分类ID",
+            **super().json_key_remark()
+        }
+    
     def exclude_json_keys(self):
         return super().exclude_json_keys() + ["skus_set"]
     

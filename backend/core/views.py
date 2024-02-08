@@ -167,17 +167,6 @@ def menus(request: HttpRequest):
                             ]
                         },
                         "table": {
-                            "batchActions": [
-                                {
-                                    "label": "批量删除",
-                                    "api": "/api/user/delete",
-                                    "method": "post",
-                                    "confirm": "确定删除选中的用户吗？",
-                                    "btnType": "danger",
-                                    "action": "delete",
-                                    
-                                }
-                            ],
                             "columns": [
                                 {
                                     "title": "用户名",
@@ -226,6 +215,102 @@ def menus(request: HttpRequest):
                     },
                 },
                 {
+                    "title": "文章管理",
+                    "icon": "ant-design:file-text-outlined",
+                    "key": "article-menu",
+                    "path":"/article",
+                    "component": "TableView",
+                    "meta":{
+                        "api":"/articles",
+                        "description":"处理文章的增删改查等操作",
+                        "searchForm":{
+                            "fields":[
+                                {
+                                    "label":"文章标题",
+                                    "name":"title",
+                                    "type":"input",
+                                    "placeholder":"请输入文章标题",
+                                },
+                                {
+                                    "label":"文章分类",
+                                    "name":"category__name",
+                                    "type":"select",
+                                    "placeholder":"请选择文章分类",
+                                    "width":"200px",
+                                    "options":[
+                                        {"label":"普通文章","value":"1"},
+                                        {"label":"VIP文章","value":"2"},
+                                        {"label":"SVIP文章","value":"3"},
+                                    ],
+                                }
+                            ]
+                        },
+                        "addForm":{
+                            "fields":[
+                                [
+                                    {
+                                        "label":"文章标题",
+                                        "name":"title",
+                                        "type":"input",
+                                        "placeholder":"请输入文章标题",
+                                        "required":True,
+                                    },
+                                    {
+                                        "label":"User",
+                                        "name":"user_id",
+                                        "type":"select",
+                                        "remoteDataApi":"/users",
+                                        "props":{
+                                            "label":"username",
+                                            "value":"id"
+                                        },
+                                        "placeholder":"请选择作者",
+                                        # "required":True,
+                                        "width":"240px"
+                                    },
+                                ],
+                                [
+                                    {
+                                        "label":"文章内容",
+                                        "name":"content",
+                                        "type":"textarea",
+                                        "placeholder":"请输入文章内容",
+                                        "required":True,
+                                        "width":"640px"
+                                    }
+                                ]
+                            ]
+                        },
+                        "table":{
+                            "columns":[
+                                {
+                                    "title":"文章标题",
+                                    "dataIndex":"title",
+                                    "key":"title",
+                                    "sortable":True,
+                                },
+                                {
+                                    "title":"Author",
+                                    "dataIndex":"user_name",
+                                    "key":"user_name",
+                                },
+                                {
+                                    "title":"创建时间",
+                                    "dataIndex":"create_time",
+                                    "key":"created_at",
+                                    "sortable":True,
+                                },
+                                {
+                                    "title":"操作",
+                                    "dataIndex":"action",
+                                    "key":"action",
+                                    "slots":"action",
+                                },
+                            ],
+                        },
+                    }
+                },
+                {
                     "title": "商品管理",
                     "icon": "iconoir:shopping-bag-pocket",
                     "key": "product-menu",
@@ -236,6 +321,7 @@ def menus(request: HttpRequest):
                             "key": "product",
                             "component": "TableView",
                             "meta": {
+                                "name":"商品",
                                 "api": "/products",
                                 "description": "处理商品的增删改查等操作",
                                 "searchForm": {
@@ -248,7 +334,7 @@ def menus(request: HttpRequest):
                                         },
                                         {
                                             "label": "商品分类",
-                                            "name": "category_name",
+                                            "name": "category__name",
                                             "type": "select",
                                             "placeholder": "请选择商品分类",
                                             "width": "200px",
@@ -260,16 +346,55 @@ def menus(request: HttpRequest):
                                         },
                                     ]
                                 },
+                                "addForm":{
+                                    "fields":[
+                                        [
+                                            {
+                                                "label": "商品名称",
+                                                "name": "name",
+                                                "type": "input",
+                                                "placeholder": "请输入商品名称",
+                                                "required": True,
+                                            },
+                                            {
+                                                "label": "商品价格",
+                                                "name": "price",
+                                                "type": "input",
+                                                "placeholder": "请输入商品价格",
+                                                "required": True,
+                                                "suffix":"￥",
+                                                "epInputType":"number"
+                                            },
+                                            {
+                                                "label": "商品分类",
+                                                "name": "category_id",
+                                                "type": "select",
+                                                "remoteDataApi":"/product-categories",
+                                                "props":{
+                                                    "label":"name",
+                                                    "value":"id"
+                                                },
+                                                "placeholder": "请输选择商品分类",
+                                                "required": True,
+                                                "width":"320px"
+                                            },
+                                            
+                                        ],
+                                        [
+                                            # status 
+                                            {
+                                                "label": "商品状态",
+                                                "name": "status",
+                                                "type": "switch",
+                                                "required": True,
+                                                "checkedChildren":"上架",
+                                                "unCheckedChildren":"下架"
+                                            }
+                                        ]
+                                    ]
+                                },
                                 "table": {
-                                    "batchActions": [
-                                        {
-                                            "label": "批量删除",
-                                            "api": "/api/product/delete",
-                                            "method": "post",
-                                            "confirm": "确定删除选中的商品吗？",
-                                            "btnType": "danger",
-                                        }
-                                    ],
+                                    "pageSize":5,
                                     "columns": [
                                         {
                                             "title": "商品名称",
@@ -281,27 +406,19 @@ def menus(request: HttpRequest):
                                             "title": "商品分类",
                                             "dataIndex": "category_name",
                                             "key": "category_name",
+                                            "type":"tag",
                                         },
                                         {
                                             "title": "商品价格",
                                             "dataIndex": "price",
                                             "key": "price",
-                                            "className":"font-bold text-lg !text-red",
+                                            "className":"font-bold text-lg text-red",
+                                            "width":120,
                                             "formatter": {
                                                 "type":"number",
-                                                "formatStr":"0,0.000",
+                                                "formatStr":"0,0.00",
                                                 "prefix":"￥",
                                             }
-                                        },
-                                        {
-                                            "title": "商品库存",
-                                            "dataIndex": "stock",
-                                            "key": "stock",
-                                        },
-                                        {
-                                            "title": "商品销量",
-                                            "dataIndex": "sales",
-                                            "key": "sales",
                                         },
                                         {
                                             "title": "商品状态/上架",
@@ -314,13 +431,25 @@ def menus(request: HttpRequest):
                                             "dataIndex": "create_time",
                                             "key": "created_at",
                                         },
+                                        # updated 
                                         {
-                                            "title": "操作",
-                                            "dataIndex": "action",
-                                            "key": "action",
-                                            "slots": "action",
+                                            "title": "更新时间",
+                                            "dataIndex": "update_time",
+                                            "key": "updated_at",
                                         },
                                     ],
+                                    "actions":[
+                                        {
+                                            "title":"编辑",
+                                            "key":"edit",
+                                            "type":"primary"
+                                        },
+                                        {
+                                            "title":"删除",
+                                            "key":"delete",
+                                            "type":"danger"
+                                        }
+                                    ]
                                 },
                             },
                         },
@@ -382,9 +511,35 @@ def menus(request: HttpRequest):
                         },
                     ],
                 },
+                # 开发人员维护 group 
+                {
+                    "title": "开发人员维护",
+                    "icon": "ant-design:code-sandbox",
+                    "key": "developer-menu",
+                    "children": [
+                        {
+                            "title": "接口管理",
+                            "path": "/developer-api",
+                            "key": "developer-api",
+                            "component": "setting/DeveloperApiView",
+                        },
+                        {
+                            "title": "模型管理",
+                            "path": "/developer-model",
+                            "key": "developer-model",
+                            "component": "setting/DeveloperModelView",
+                        },
+                        {
+                            "title": "插件管理",
+                            "path": "/developer-plugin",
+                            "key": "developer-plugin",
+                            "component": "setting/DeveloperPluginView",
+                        },
+                    ],
+                },
                 # table
                 {
-                    "title": "表格管理",
+                    "title": "表格Api管理",
                     "path": "/system-table",
                     "icon": "ant-design:dot-chart-outlined",
                     "key": "system-table",
@@ -470,16 +625,6 @@ def menus(request: HttpRequest):
                             ]
                         },
                         "table": {
-                            "batchActions": [
-                                {
-                                    "label": "批量删除",
-                                    "api": "/api/tableManager/delete",
-                                    "method": "post",
-                                    "confirm": "确定删除选中的表格吗？",
-                                    "btnType": "danger",
-                                    "action": "delete",
-                                }
-                            ],
                             "columns": [
                                 {
                                     "title": "表格名称",

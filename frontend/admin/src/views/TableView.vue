@@ -59,7 +59,9 @@
                     v-for="action in meta.table?.batchActions || []" :key="action.name">
                     {{ action.label }}
                 </ElButton>
-
+                <ElButton type="danger" @click="handleBatchDelete()">
+                    <span>批量删除</span>
+                </ElButton>
                 <!-- 导出 -->
                 <ElButton type="default" @click="exportData">
                     <Icon icon="ant-design:export-outlined"></Icon>
@@ -71,39 +73,61 @@
                 <!-- selection  -->
                 <ElTableColumn type="selection" width="55"></ElTableColumn>
                 <ElTableColumn v-for="column in columns" :key="column.key" :sortable="column.sortable ? 'custom' : false"
-                    :label="column.title">
+                    :label="column.title"
+                    :width="column.width">
                     <template #default="{ row }" v-if="!column.slot">
                         <div :class="[column.className]" v-if="column.type=='render'">
                             {{ column.render(row) }}
                         </div>
                         <!-- switch  -->
-                        <ElSwitch v-else-if="column.type=='switch'" v-model="row[column.key]" active-color="#13ce66"
+                        <ElSwitch v-if="column.type=='switch'" v-model="row[column.key]" active-color="#13ce66"
                             inactive-color="#ff4949" active-text="" inactive-text="" disabled></ElSwitch>
                         <!-- checkbox  -->
-                        <ElCheckbox v-else-if="column.type=='checkbox'" v-model="row[column.key]" disabled></ElCheckbox>
+                        <ElCheckbox v-if="column.type=='checkbox'" v-model="row[column.key]" disabled></ElCheckbox>
 
                         <!-- select  -->
-                        <ElSelect v-else-if="column.type=='select'" v-model="row[column.key]" :placeholder="column.placeholder"
+                        <ElSelect v-if="column.type=='select'" v-model="row[column.key]" :placeholder="column.placeholder"
                             clearable>
                             <ElOption v-for="option in column.options" :key="option.value" :label="option.label"
                                 :value="option.value"></ElOption>
                         </ElSelect>
+                        <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}</ElTag>
                     </template>
                     <template v-if="column.slot" #default="{row}">
                         <slot :name="column.slot" :row="row"></slot>
+                    </template>
+                </ElTableColumn>
+
+                <!-- actions  -->
+                <ElTableColumn v-if="actions?.length" label="操作" width="200">
+                    <template #default="{ row }">
+                        <ElButton v-for="action in actions" link :key="action.key" :type="action.type || 'primary'"
+                            @click="action.handler(row)">
+                            {{ action.title }}
+                        </ElButton>
                     </template>
                 </ElTableColumn>
             </ElTable>
 
             <!-- pagination  -->
             <div class="flex mt-2">
-                <ElPagination layout="total, sizes, prev, pager, next, jumper" :total="pagination.total"></ElPagination>
+                <ElPagination small layout="total,sizes, prev, pager, next, jumper" background 
+                :hide-on-single-page="false"
+                v-model:current-page="pagination.currentPage"
+                v-model:page-size="pagination.pageSize"
+                :page-sizes="[5,10, 20, 50, 100]"
+                :total="pagination.total"
+                @current-change="handleCurrentPageChange"
+                @size-change="handlePageSizeChange"></ElPagination>
             </div>
         </ElCard>
 
         <slot name="addModal">
             <ElDialog v-if="meta.addForm" title="提示" v-model="editModal">
-                <Form :fields="meta.addForm.fields"></Form>
+                <template #header>
+                    <div></div>
+                </template>
+                <Form ref="formRef" :title="meta.name" :fields="meta.addForm.fields" @submit="handleAddSubmit"></Form>
             </ElDialog>
         </slot>
     </div>
@@ -122,7 +146,7 @@ export default {
             searchForm: {},
             pagination: {
                 currentPage: 1,
-                pageSize: 10,
+                pageSize: this.$route.meta?.table?.pageSize || 10,
                 total: 1000
             },
             tableData: [],
@@ -174,11 +198,42 @@ export default {
                     }
                 }
             })
+        },
+        actions() {
+            return (this.meta.table?.actions || [
+                {
+                    key: 'edit',
+                    title: '编辑',
+                    type: 'primary'
+                },
+                {
+                    key: 'delete',
+                    title: '删除',
+                    type: 'danger'
+                }
+            ]).map(action => {
+                return {
+                    ...action,
+                    handler: (row) => {
+                        console.log(row)
+                        if(action.key === 'delete'){
+                            this.handleBatchDelete([row.id])
+                        }
+                        if(action.key === 'edit'){
+                            this.editModal = true
+                            this.$nextTick(()=>{
+                                this.$refs.formRef.edit(row)
+                            })
+                        }
+                    }
+                }
+            })
         }
     },
     methods: {
         add() {
             this.editModal = true
+            this.$refs.formRef.add()
         },
         submitSearch() {
             console.log(this.searchForm)
@@ -191,6 +246,14 @@ export default {
             // reset table sort
             this.$refs.tableRef.clearSort()
         },
+        handlePageSizeChange(val) {
+            this.pagination.pageSize = val
+            this.load()
+        },
+        handleCurrentPageChange(val) {
+            this.pagination.currentPage = val
+            this.load()
+        },
         load() {
             this.loading = true
             request({
@@ -198,7 +261,7 @@ export default {
                 method: 'get',
                 params: {
                     page: this.pagination.currentPage,
-                    pageSize: this.pagination.pageSize,
+                    size: this.pagination.pageSize,
                     ...this.searchForm
                 }
             }).then(res => {
@@ -233,12 +296,12 @@ export default {
         },
         batchAction(key) {
             let actionMap = {
-                delete: this.batchDelete
+                delete: ()=>this.handleBatchDelete()
             }
             actionMap[key]?.()
         },
-        batchDelete() {
-            let ids = this.getTableSelectionIds()
+        handleBatchDelete(ids = null) {
+            if(!ids)ids = this.getTableSelectionIds()
             if (!ids.length) return
             this.$confirm('确定删除选中的数据吗？', '提示', {
                 confirmButtonText: '确定',
@@ -246,6 +309,16 @@ export default {
                 type: 'warning'
             }).then(() => {
                 console.log(ids)
+                request.delete(this.meta.api + ".delete",{
+                    data:{
+                        ids
+                    },
+                }).then(res=>{
+                    if(res.data.code==200){
+                        this.$message.success("删除成功")
+                        this.load()
+                    }
+                })
             }).catch(() => {
                 this.$message({
                     type: 'info',
@@ -253,7 +326,21 @@ export default {
                 });
             });
         },
-        exportData() {
+        exportData(){
+            this.$confirm('确定导出当前数据吗？', '提示', {
+                confirmButtonText: this.$t("export"),
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.exportDataApi()
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消导出'
+                });
+            });
+        },
+        exportDataApi() {
             console.log('export')
             request({
                 url: this.meta.api + '.export',
@@ -269,11 +356,32 @@ export default {
                 let link = document.createElement('a')
                 link.style.display = 'none'
                 link.href = url
-                link.setAttribute('download', `export-${this.meta.title}-${this.$dayjs().format('YYYYMMDDHHmmss')}.xlsx`)
+                link.setAttribute('download', `${this.meta.title}-导出-${this.$dayjs().format('YYYYMMDDHHmmss')}.xlsx`)
                 document.body.appendChild(link)
                 link.click()
                 document.body.removeChild(link)
                 window.URL.revokeObjectURL(url)
+            })
+        },
+        handleAddSubmit(form){
+            console.log(form)
+            if(form.id){
+                request.put(this.meta.api + ".update",form).then(res=>{
+                    if(res.data?.code==200){
+                        this.$message.success("修改成功")
+                        this.editModal = false
+                        this.load()
+                    }
+                })
+                return
+            }
+
+            request.post(this.meta.api + ".create",form).then(res=>{
+                if(res.data?.code==200){
+                    this.$message.success("添加成功")
+                    this.editModal = false
+                    this.load()
+                }
             })
         }
     },

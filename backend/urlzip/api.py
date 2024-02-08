@@ -67,6 +67,8 @@ class LinkApi(RestApi):
 @DApi.resource("users")
 class UserApi(Api):
     model = UserModel
+    
+    public_view = True
 
     rules = []
 

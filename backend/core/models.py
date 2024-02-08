@@ -1,6 +1,4 @@
 import datetime
-from math import exp
-from urllib import request
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
@@ -205,3 +203,16 @@ class TableManager(BaseModel):
     columns = models.CharField(max_length=1000, null=True, blank=True)
     search_form_fields = models.CharField(max_length=1000, null=True, blank=True)
     edit_form_fields = models.CharField(max_length=1000, null=True, blank=True)
+    
+    
+class Post(BaseModel):
+    title = models.CharField(max_length=100, null=False, blank=False)
+    content = models.TextField(null=False, blank=False)
+    user = models.ForeignKey(
+        "core.UserModel", null=True, blank=True, on_delete=models.CASCADE
+    )
+    
+    def extra_json(self):
+        return {
+            "user_name": self.user.username if  self.user is not None else None
+        }

@@ -1,6 +1,9 @@
 <template>
     <div>
-        <ElForm :inline="false" :model="form" :rules="rules" :label-width="100" class="mt-0">
+        <div class="title">
+            <span class="text-2xl">{{ formTitle }}{{ title }}</span>
+        </div>
+        <ElForm ref="formRef" :inline="false" :model="form" :rules="rules" :label-width="100" class="mt-0">
             <div class="mb-4 grid xl:grid-cols-2">
                 <div v-for="field in fields" v-if="!multiRowMode">
                     <span>not support yet!</span>
@@ -21,7 +24,7 @@
         </ElForm>
 
         <div class="flex flex-row items-center justify-end">
-            <ElButton type="primary" class="w-24">保存</ElButton>
+            <ElButton @click="handleSubmit" type="primary" class="w-24">保存</ElButton>
         </div>
     </div>
 </template>
@@ -33,6 +36,10 @@ export default {
         fields: {
             type: Array,
             default: () => []
+        },
+        title:{
+            type: String,
+            default: ''
         }
     },
     computed: {
@@ -48,8 +55,8 @@ export default {
             })
             return map;
         },
-        flatFields(){
-            if(!this.multiRowMode)return this.fields;
+        flatFields() {
+            if (!this.multiRowMode) return this.fields;
             return this.fields.reduce((acc, cur) => {
                 return acc.concat(cur)
             }, [])
@@ -57,7 +64,12 @@ export default {
         multiRowMode() {
             return this.fields && this.fields[0] && Array.isArray(this.fields[0])
         },
-
+        isAdd() {
+            return !this.form.id
+        },
+        formTitle() {
+            return this.isAdd ? '新增' : '编辑'
+        }
     },
     data() {
         return {
@@ -67,7 +79,32 @@ export default {
         };
     },
     watch: {},
-    methods: {},
+    methods: {
+        handleSubmit() {
+            this.$refs.formRef.validate((valid) => {
+                if (valid) {
+                    this.$emit('submit', this.form)
+                }
+            })
+        },
+        edit(data) {
+            this.reset()
+            let form = JSON.parse(JSON.stringify(data))
+            this.form = form
+            this.$forceUpdate()
+        },
+        add() {
+            this.reset()
+            this.form = {}
+        },
+        close() {
+            this.reset()
+        },
+        reset() {
+            this.$refs.formRef.resetFields()
+            this.form = {}
+        }
+    },
     created() { },
     mounted() { }
 };
