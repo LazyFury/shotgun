@@ -46,6 +46,7 @@ export default {
     watch: {
         modelValue: {
             handler(val) {
+                if(this.field.type == 'switch') return this.value = !!val
                 this.value = val
             },
             immediate: true

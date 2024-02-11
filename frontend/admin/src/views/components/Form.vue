@@ -17,7 +17,9 @@
                     <ElFormItem :label="field.label + ':'" :prop="field.name" :style="{
                         width: field.width
                     }">
-                        <FormItem :field="field" v-model="form[field.name]"></FormItem>
+                        <slot :name="field.name" :fields="fields" :field="field" :form="form">
+                            <FormItem :field="field" v-model="form[field.name]"></FormItem>
+                        </slot>
                     </ElFormItem>
                 </template>
             </div>
@@ -40,6 +42,10 @@ export default {
         title:{
             type: String,
             default: ''
+        },
+        defaultForm: {
+            type: Object,
+            default: () => ({})
         }
     },
     computed: {
@@ -95,14 +101,15 @@ export default {
         },
         add() {
             this.reset()
-            this.form = {}
+            this.$forceUpdate()
         },
         close() {
             this.reset()
         },
         reset() {
             this.$refs.formRef.resetFields()
-            this.form = {}
+            let form = JSON.parse(JSON.stringify(this.defaultForm))
+            this.form = form
         }
     },
     created() { },

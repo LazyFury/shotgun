@@ -13,7 +13,7 @@ appSecret='17eda35413998548b3fdebd31e6d2c51'
 version='v1.2.0'
 
 [cache]
-dir='cache'
+dir='tmp/cache'
 
 [app]
 DEBUG=true

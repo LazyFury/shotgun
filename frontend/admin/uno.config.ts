@@ -25,14 +25,14 @@ export default defineConfig({
   ],
   theme:{
     colors:{
-        "primary": 'teal',
+        primary: 'teal',
         secondary: '#0F609B',
         accent: '#F59E0B',
         danger: '#DC2626',
         success: '#10B981',
         warning: '#F59E0B',
         info: '#3B82F6',
-        "light-header-bg": 'teal',
+        "light-header-bg": '#0075ff',
         "light-header-text": 'white',
     }
   },

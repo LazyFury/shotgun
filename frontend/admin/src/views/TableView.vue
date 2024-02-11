@@ -127,7 +127,9 @@
                 <template #header>
                     <div></div>
                 </template>
-                <Form ref="formRef" :title="meta.name" :fields="meta.addForm.fields" @submit="handleAddSubmit"></Form>
+               <slot name="addForm">
+                <Form ref="formRef" :title="meta.name" :defaultForm="meta.addForm.default" :fields="meta.addForm.fields" @submit="handleAddSubmit"></Form>
+               </slot>
             </ElDialog>
         </slot>
     </div>
@@ -222,7 +224,8 @@ export default {
                         if(action.key === 'edit'){
                             this.editModal = true
                             this.$nextTick(()=>{
-                                this.$refs.formRef.edit(row)
+                                this.$refs.formRef?.edit(row)
+                                this.$emit("edit",row)
                             })
                         }
                     }
@@ -233,7 +236,10 @@ export default {
     methods: {
         add() {
             this.editModal = true
-            this.$refs.formRef.add()
+            this.$nextTick(()=>{
+                this.$refs.formRef?.add({})
+                this.$emit("add")
+            })
         },
         submitSearch() {
             console.log(this.searchForm)

@@ -217,7 +217,7 @@ def menus(request: HttpRequest):
                 {
                     "title": "文章管理",
                     "icon": "ant-design:file-text-outlined",
-                    "key": "article-menu",
+                    "key": "article",
                     "path":"/article",
                     "component": "TableView",
                     "meta":{
@@ -347,6 +347,9 @@ def menus(request: HttpRequest):
                                     ]
                                 },
                                 "addForm":{
+                                    "default":{
+                                        "status":True
+                                    },
                                     "fields":[
                                         [
                                             {
@@ -543,7 +546,7 @@ def menus(request: HttpRequest):
                     "path": "/system-table",
                     "icon": "ant-design:dot-chart-outlined",
                     "key": "system-table",
-                    "component": "TableView",
+                    "component":"dev/SystemTableView",
                     "meta": {
                         "api": "/tableManager",
                         "description": "处理表格的增删改查等操作",
