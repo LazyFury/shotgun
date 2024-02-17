@@ -1,4 +1,5 @@
 import datetime
+import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
@@ -203,6 +204,11 @@ class TableManager(BaseModel):
     columns = models.CharField(max_length=1000, null=True, blank=True)
     search_form_fields = models.CharField(max_length=1000, null=True, blank=True)
     edit_form_fields = models.CharField(max_length=1000, null=True, blank=True)
+    
+    def save(self, *args, **kwargs):
+        if self.columns is not None:
+            self.columns = json.dumps(self.columns)
+        super().save(*args, **kwargs)
     
     
 class Post(BaseModel):

@@ -1,4 +1,3 @@
-from calendar import c
 from django.shortcuts import render
 from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse, Rule, validator
 

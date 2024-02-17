@@ -46,6 +46,10 @@ export default {
         defaultForm: {
             type: Object,
             default: () => ({})
+        },
+        progressFormData: {
+            type: Function,
+            default: () => {}
         }
     },
     computed: {
@@ -96,6 +100,9 @@ export default {
         edit(data) {
             this.reset()
             let form = JSON.parse(JSON.stringify(data))
+            if(this.progressFormData && typeof this.progressFormData === 'function'){
+                form = this.progressFormData(form)
+            }
             this.form = form
             this.$forceUpdate()
         },

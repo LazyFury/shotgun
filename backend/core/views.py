@@ -1,10 +1,8 @@
 import json
-from operator import is_
 from django.http import HttpRequest
 from django.shortcuts import redirect, render
 from core.models import UserToken
 from core.urls import ClientApi, DApi
-from plugins import dtk
 from plugins.dtk import views as dtk_views
 from revolver_api.revolver_api.api import Rule, validator
 from revolver_api.revolver_api.response import ApiErrorCode, ApiJsonResponse
@@ -641,12 +639,6 @@ def menus(request: HttpRequest):
                                     "key": "created_at",
                                     "sortable": True,
                                 },
-                                {
-                                    "title": "操作",
-                                    "dataIndex": "action",
-                                    "key": "action",
-                                    "slots": "action",
-                                },
                             ],
                         },
                     },
@@ -654,6 +646,8 @@ def menus(request: HttpRequest):
             ]
         }
     )
+    
+    
 
 
 

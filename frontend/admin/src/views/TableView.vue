@@ -123,7 +123,7 @@
         </ElCard>
 
         <slot name="addModal">
-            <ElDialog v-if="meta.addForm" title="提示" v-model="editModal">
+            <ElDialog v-if="meta.addForm" title="提示" v-model="editModal" class="!md:w-640px !w-full !lg:w-960px">
                 <template #header>
                     <div></div>
                 </template>
