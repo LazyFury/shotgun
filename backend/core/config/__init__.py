@@ -12,6 +12,12 @@ assert config is not None
 def get(key, default=None):
     return config_get(config, key, default)
 
+
+tempDir = "tmp"
+if not os.path.exists(tempDir):
+    os.mkdir(tempDir)
+
+
 def cache_dir(suffix=""):
     """_summary_
 
