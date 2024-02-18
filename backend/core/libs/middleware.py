@@ -4,26 +4,27 @@ from core import config
 from core.models import UserToken
 from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse
 
-
-def APITokenAuthMiddleware(get_response):
-    """Middleware to authenticate API requests using token authentication."""
-    def inner(request):
-            # exclude /login 
-            if request.path == '/admin_api/login':
+def APIAuthMiddleware(prefix="/api", exclude=["/api/login"]):
+    def midd(get_response):
+        """Middleware to authenticate API requests using token authentication."""
+        def inner(request):
+                # exclude /login 
+                if request.path in exclude:
+                    return get_response(request)
+                if request.path.startswith(prefix):
+                    try:
+                        token = request.headers.get("Token")
+                        print("token", token)
+                        checked_user = UserToken.check_token(token)
+                        if checked_user is not None:
+                            request.user = checked_user
+                            return get_response(request)
+                        return ApiJsonResponse.error(ApiErrorCode.TOKEN_INVALID, "Token invalid")
+                    except Exception as e:
+                        return ApiJsonResponse.error(ApiErrorCode.ERROR, e.__str__())
                 return get_response(request)
-            if request.path.startswith('/admin_api/'):
-                try:
-                    token = request.headers.get("Token")
-                    print("token", token)
-                    checked_user = UserToken.check_token(token)
-                    if checked_user is not None:
-                        request.user = checked_user
-                        return get_response(request)
-                    return ApiJsonResponse.error(ApiErrorCode.TOKEN_INVALID, "Token invalid")
-                except Exception as e:
-                    return ApiJsonResponse.error(ApiErrorCode.ERROR, e.__str__())
-            return get_response(request)
-    return inner
+        return inner
+    return midd
 
 def RatelimitMiddleware(get_response):
     import simple_cache
@@ -60,3 +61,4 @@ def CorsAcceptMiddleware(get_response):
                 return response
             return get_response(request)
     return inner
+

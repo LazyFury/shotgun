@@ -27,7 +27,7 @@ class DtkClient():
     
     def request(self, api, params,method='GET',fullUrl="",cache=5,**kwargs):
         url = self.baseUrl + api
-        print("url",url)
+        print("dtk request url:",url)
         if fullUrl is not None and fullUrl != "":
             url = fullUrl
         cache_file = self.cache_file
@@ -66,11 +66,11 @@ class DtkClient():
     def sign(self, params):
         nonce = random.randint(100000, 999999)
         timer = int(time.time() * 1000)
-        print("timerr",timer)
+        # print("timerr",timer)
         appKey = self.appKey
         key = self.appSerect
         str = f'appKey={appKey}&timer={timer}&nonce={nonce}&key={key}'
-        print("str",str)
+        # print("str",str)
         params['signRan'] =  md5(str.encode('utf-8')).hexdigest().upper()
         params['timer'] = timer
         params['nonce'] = nonce

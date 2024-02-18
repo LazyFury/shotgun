@@ -32,13 +32,11 @@ def dataoke(request):
     params = request.GET.dict()
     url = params.get("url", "")
     cache = params.get("cache", 5)
-    print("dataoke url",url)
-    if url == "":
-        return ApiJsonResponse.error(ApiErrorCode.ERROR, "url is empty")
+    # print("dataoke url",url)
     result = client.get(url, {
         **params,
     },cache=int(cache))
-    print("dataoke result",result)
+    # print("dataoke result",result)
     return ApiJsonResponse.success(
         result,
         message=result["msg"] if "msg" in result else "success",

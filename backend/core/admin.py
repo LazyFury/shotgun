@@ -1,12 +1,10 @@
 
 import datetime
 from django.contrib import admin
-from .models import UserInviteCode, UserInviteRelate, UserModel, UserToken
-from django.contrib.auth.models import Permission
+from .models import UserInviteCode, UserInviteRelate, UserModel, UserPermission, UserToken,Permission
 
 admin.site.site_title = "短链后台管理"
 admin.site.site_header = "后台管理"
-admin.site.register(Permission)
 
 
 app_indexs = (
@@ -70,3 +68,12 @@ class UserTokenAdmin(admin.ModelAdmin):
         expired_at_unix = int(obj.expired_at.timestamp())
         now_unix = int(datetime.datetime.now().timestamp())
         return "有效" if expired_at_unix > now_unix else "过期"
+    
+    
+@admin.register(UserPermission)
+class UserPermissionAdmin(admin.ModelAdmin):
+    list_display = ("user", "permission")
+
+@admin.register(Permission)
+class PermissionAdmin(admin.ModelAdmin):
+    list_display = ("code", "name","description")

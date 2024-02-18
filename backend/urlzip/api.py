@@ -1,11 +1,11 @@
 from django.http import HttpRequest, JsonResponse
-from core.urls import DApi
+from core.urls import api
 from revolver_api.revolver_api.api import Rule, Api, validator
 from .models import Link, VisitorIP
 from core.models import UserModel
 
 
-@DApi.resource("visitor_ips")
+@api.resource("visitor_ips")
 class VisitorIPApi(Api):
     model = VisitorIP
 
@@ -29,7 +29,7 @@ class RestApi(Api):
         return super().list(request, **kwargs)
 
 
-@DApi.resource("links")
+@api.resource("links")
 class LinkApi(RestApi):
     model = Link
 
@@ -45,7 +45,7 @@ class LinkApi(RestApi):
     def list(self, request: HttpRequest, **kwargs):
         return super().list(request, **kwargs)
 
-    @DApi.get("test1", exception_json=True)
+    @api.get("test1", exception_json=True)
     @validator(
         [
             Rule(name="url", required=True, message="url不能为空"),
@@ -64,7 +64,7 @@ class LinkApi(RestApi):
         return super().defaultQuery(**kwargs)  # .order_by("-posted_by__is_active")
 
 
-@DApi.resource("users")
+@api.resource("users")
 class UserApi(Api):
     model = UserModel
     

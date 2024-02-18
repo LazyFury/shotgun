@@ -1,10 +1,10 @@
 
-from core.urls import DApi
+from core.urls import api
 from revolver_api.revolver_api.api import Api, Rule
 from store.models import Product, ProductCategory
 
 # Create your views here.
-api = DApi
+api = api
 
 @api.resource("products")
 class ProductApi(Api):

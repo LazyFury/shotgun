@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 import qrcode
 from backend import settings
 from datetime import datetime
-from core.urls import DApi
+from core.urls import api
 from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse, Rule, errorHandler, validator
 from .models import QRCode,Link
 from ipware import get_client_ip
@@ -125,7 +125,7 @@ def genMpMiniQrcode(req:HttpRequest):
         return ApiJsonResponse(res,code=ApiErrorCode.ERROR,message="错误")
 
 
-@DApi.get("wx/send_mp_mini_subscribe",exception_json=True)
+@api.get("wx/send_mp_mini_subscribe",exception_json=True)
 @validator(rules=[
     Rule("event").is_required().number().set_message("event不能为空"),
     Rule("userId").is_required().string().set_message("userId不能为空"),

@@ -1,8 +1,9 @@
 import json
 from django.http import HttpRequest
-from django.shortcuts import redirect, render
+from django.shortcuts import render
+from core.libs.wrapper import hasPermission
 from core.models import UserToken
-from core.urls import ClientApi, DApi
+from core.urls import api
 from plugins.dtk import views as dtk_views
 from revolver_api.revolver_api.api import Rule, validator
 from revolver_api.revolver_api.response import ApiErrorCode, ApiJsonResponse
@@ -16,7 +17,8 @@ def handler404(request, exception):
     return render(request, "404.html", status=404)
 
 
-@DApi.get("test", exception_json=True)
+@api.get("test", exception_json=True)
+
 def test(request: HttpRequest):
     def randomStr(length=10):
         import random
@@ -27,8 +29,8 @@ def test(request: HttpRequest):
     return ApiJsonResponse({str(k) + "message": randomStr() for k in range(10)})
 
 
-@DApi.get("all", description="所有接口")
-def api(request: HttpRequest):
+@api.get("all", description="所有接口")
+def allApi(request: HttpRequest):
     return ApiJsonResponse(
         {"name": "api", "connect": "success", "routers": Router.routes}
     )
@@ -48,7 +50,7 @@ def find_device_in_ua_use_regx(ua=""):
     return "PC"
 
 
-@DApi.post("login")
+@api.post("login")
 @validator(
     [
         Rule("username", required=True, message="用户名不能为空"),
@@ -96,18 +98,18 @@ def login(request: HttpRequest):
     )
 
 
-@DApi.post("logout")
+@api.post("logout")
 def logout(request: HttpRequest):
     UserToken.delete_token(request.user)
     return ApiJsonResponse.success({})
 
 
-@DApi.get("profile")
+@api.get("profile")
 def profile(request: HttpRequest):
     return ApiJsonResponse({"user": request.user.to_json()})
 
 
-@DApi.get("menus")
+@api.get("menus")
 def menus(request: HttpRequest):
     return ApiJsonResponse(
         {
@@ -650,7 +652,8 @@ def menus(request: HttpRequest):
 
 
 
-@ClientApi.get("dtk")
+@api.get("dtk")
+@hasPermission("dtk_api",allow_superuser=False)
 def dtkHandler(request: HttpRequest):
     print("dtkHandler")
     return dtk_views.dataoke(request)

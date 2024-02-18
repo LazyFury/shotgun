@@ -4,10 +4,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
+from regex import P
+
 from core.libs.utils.time import toUtcTime
 from core.libs.utils.upload_to import upload_hash_filename_wrapper
 from revolver_api.revolver_api.model import SerializerModel
-from django.contrib.auth.models import Permission, Group
 
 
 # Create your models here.
@@ -129,9 +130,6 @@ class UserInviteRelate(BaseModel):
         verbose_name_plural = "邀请关系"
 
 
-class MyPermission(Permission,BaseModel):
-    pass
-
 
 class UserToken(BaseModel):
     user = models.ForeignKey(
@@ -216,6 +214,40 @@ class TableManager(BaseModel):
         if self.columns is not None:
             self.columns = json.dumps(self.columns)
         super().save(*args, **kwargs)
+
+
+class Permission(BaseModel):
+    name = models.CharField(max_length=100, null=False, blank=False)
+    code = models.CharField(max_length=100, null=False, blank=False)
+    description = models.CharField(max_length=1000, null=True, blank=True)
+    is_enabled = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return self.name
+        
+    class Meta:
+        verbose_name = "权限"
+        verbose_name_plural = "权限"
+    
+    @staticmethod
+    def add_model_permission(self,model):
+        """ 添加模型权限
+
+        Args:
+            model (_type_): _description_
+        """
+        Permission.objects.create(name=f"create {model}",code=f"create_{model}")
+        Permission.objects.create(name=f"read {model}",code=f"read_{model}")
+        Permission.objects.create(name=f"update {model}",code=f"update_{model}")
+        Permission.objects.create(name=f"delete {model}",code=f"delete_{model}")
+        
+class UserPermission(BaseModel):
+    user = models.ForeignKey(UserModel,null=False,blank=False,on_delete=models.DO_NOTHING)
+    permission = models.ForeignKey(Permission,null=False,blank=False,on_delete=models.DO_NOTHING)
+
+class Group(BaseModel):
+    name = models.CharField(max_length=100, null=False, blank=False)
+    permissions = models.ManyToManyField(Permission, blank=True,related_name="core_group_permissions")
     
     
 class Post(BaseModel):

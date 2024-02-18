@@ -1,18 +1,23 @@
 
-from core.models import MyPermission, Post, TableManager
-from core.urls import DApi
+from core.models import Group, Permission, Post, TableManager
+from core.urls import api
 from revolver_api.revolver_api.api import Api
 
 
-@DApi.resource('permission')
+@api.resource('permission')
 class PermissionApi(Api):
-    model = MyPermission
+    model = Permission
     
     
-@DApi.resource('tableManager')
+@api.resource('tableManager')
 class TableManagerApi(Api):
     model = TableManager
     
-@DApi.resource('articles')
+@api.resource('articles')
 class PostArticle(Api):
     model = Post
+    
+    
+@api.resource('groups')
+class GroupApi(Api):
+    model = Group

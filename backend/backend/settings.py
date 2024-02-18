@@ -57,7 +57,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "better_exceptions.integrations.django.BetterExceptionsMiddleware",
     "core.libs.middleware.CorsAcceptMiddleware",
-    "core.libs.middleware.APITokenAuthMiddleware",
+    "core.urls.authMiddleware",
     "core.libs.middleware.RatelimitMiddleware",
 ]
 

@@ -1,9 +1,15 @@
 
 
+from core.libs.middleware import APIAuthMiddleware
 from revolver_api.revolver_api.route import Router
 
 
-DApi = Router("admin_api/")
-ClientApi = Router("api/")
+api = Router("api/")
+authMiddleware = APIAuthMiddleware("/api", exclude=[
+    "/api/login",
+    "/api/dtk",
+    "/api/groups",
+    "/api/test",
+    ])
 
-urlpatterns = [] + DApi.urls + ClientApi.urls
+urlpatterns = [] + api.urls

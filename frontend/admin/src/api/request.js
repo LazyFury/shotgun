@@ -2,6 +2,7 @@ import axios from 'axios'
 import config from '../config'
 import { ElMessage } from 'element-plus';
 import router from '../router';
+import NProgress from 'nprogress'
 
 const createAxiosInstance = (baseURL,opt={}) => {
     const instance = axios.create({
@@ -21,11 +22,12 @@ const createAxiosInstance = (baseURL,opt={}) => {
             config.headers.Token = '' + token
         }
         console.log("请求参数：",config)
-
+        NProgress.start()
         return config;
     })
 
     instance.interceptors.response.use(function (response) {
+        NProgress.done()
         if(response.config.binary){
             return response
         }
@@ -38,6 +40,7 @@ const createAxiosInstance = (baseURL,opt={}) => {
         }
         return response;
     }, function (error) {
+        NProgress.done()
         if(error?.config?.binary){
             return Promise.reject(error)
         }

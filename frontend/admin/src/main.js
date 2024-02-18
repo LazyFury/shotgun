@@ -36,7 +36,7 @@ import dayjs from 'dayjs'
 import numeral from 'numeral'
 
 import NProgress from 'nprogress'
-NProgress.configure({ showSpinner: false })
+NProgress.configure({ showSpinner: true })
 
 const app = createApp(App)
 app.use(ElementPlus, { locale: ElzhCn })
@@ -54,9 +54,7 @@ app.use(function (vm) {
     }
 
     router.beforeEach((to, from, next) => {
-        NProgress.start()
         next()
-        NProgress.done()
     })
 
     const translateStore = useTranslateStore()
