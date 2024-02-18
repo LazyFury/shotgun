@@ -6,7 +6,7 @@ import router from '../router';
 const createAxiosInstance = (baseURL,opt={}) => {
     const instance = axios.create({
         baseURL: baseURL,
-        timeout: 1000,
+        timeout: 30000,
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -64,4 +64,4 @@ const createAxiosInstance = (baseURL,opt={}) => {
     return instance
 }
 
-export const request = createAxiosInstance(config.apiURL) 
+export const request = createAxiosInstance(config.url.API_URL) 

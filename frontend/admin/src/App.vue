@@ -1,7 +1,9 @@
 
 <template>
 <div>
-    <RouterView />
+    <RouterView>
+      loading...
+    </RouterView>
     <div :class="defaultUnoClass"></div>
 </div>
 </template>

@@ -35,10 +35,13 @@ import config from './config'
 import dayjs from 'dayjs'
 import numeral from 'numeral'
 
+
+
 const app = createApp(App)
 app.use(ElementPlus, { locale: ElzhCn })
 app.use(createPinia())
 app.use(function (vm) {
+
     vm.config.globalProperties.$dayjs = dayjs
     vm.config.globalProperties.$numeral = numeral
 
@@ -73,10 +76,18 @@ app.use(function (vm) {
     // }, 3000);
 })
 
+
+const getComponents = () => {
+    const components = import.meta.glob('./views/**/*.vue')
+    return components
+}
+
+console.log("components",getComponents())
+
 const registerRoute = (menu) => {
     if (menu.component) {
         // register router
-        const component = () => import(/* @vite-ignore */ `/src/views/${menu.component}.vue` /* @vite-ignore */)
+        const component = getComponents()[`./views/${menu.component}.vue`]
         const route = {
             path: menu.path,
             name: menu.key,
