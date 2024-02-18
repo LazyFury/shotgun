@@ -3,6 +3,7 @@
         <div class="title">
             <span class="text-2xl">{{ formTitle }}{{ title }}</span>
         </div>
+
         <ElForm ref="formRef" :inline="false" :model="form" :rules="rules" :label-width="100" class="mt-0">
             <div class="mb-4 grid xl:grid-cols-2">
                 <div v-for="field in fields" v-if="!multiRowMode">
@@ -49,7 +50,7 @@ export default {
         },
         progressFormData: {
             type: Function,
-            default: () => {}
+            default: (res) => res
         }
     },
     computed: {

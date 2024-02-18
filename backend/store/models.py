@@ -19,7 +19,7 @@ class Product(BaseModel):
     def __str__(self):
         return self.name
     
-    def json_key_remark(self):
+    def xls_key_mapping(self):
         return {
             "name":"商品名称",
             "price":"商品价格",
@@ -30,7 +30,7 @@ class Product(BaseModel):
             "status":"商品状态/上架",
             "category_name":"商品分类名称",
             "category_id":"商品分类ID",
-            **super().json_key_remark()
+            **super().xls_key_mapping()
         }
     
     def exclude_json_keys(self):

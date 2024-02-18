@@ -3,6 +3,7 @@ import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
+
 from core.libs.utils.time import toUtcTime
 from core.libs.utils.upload_to import upload_hash_filename_wrapper
 from revolver_api.revolver_api.model import SerializerModel
@@ -49,6 +50,12 @@ class UserModel(AbstractUser, BaseModel):
     class Meta:
         verbose_name = "User"
         verbose_name_plural = "Users"
+    
+    def delete(self, *args, **kwargs):
+        if self.is_superuser:
+            raise Exception("超级管理员不能删除")
+        # super().delete(*args, **kwargs)
+        raise Exception("用户不能删除")
 
 
 class UserInviteCode(BaseModel):
@@ -219,6 +226,8 @@ class Post(BaseModel):
     )
     
     def extra_json(self):
+        user = self.user
         return {
-            "user_name": self.user.username if  self.user is not None else None
+            "user_name": user.username if user is not None else None,
+            "sort_title": self.title[:18] + "..." if len(self.title) > 18 else self.title,
         }

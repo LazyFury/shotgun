@@ -28,4 +28,4 @@ urlpatterns = [
     path("",include("core.urls"))
 ]
 
-print("all set`")
+print("All set`")

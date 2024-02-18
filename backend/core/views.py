@@ -252,7 +252,12 @@ def menus(request: HttpRequest):
                                         "type":"input",
                                         "placeholder":"请输入文章标题",
                                         "required":True,
+                                        "width":"640px",
+                                        "suffix":"30字以内"
                                     },
+                                ],
+                                [
+                                    
                                     {
                                         "label":"User",
                                         "name":"user_id",
@@ -283,8 +288,8 @@ def menus(request: HttpRequest):
                             "columns":[
                                 {
                                     "title":"文章标题",
-                                    "dataIndex":"title",
-                                    "key":"title",
+                                    "dataIndex":"sort_title",
+                                    "key":"sort_title",
                                     "sortable":True,
                                 },
                                 {
@@ -297,12 +302,6 @@ def menus(request: HttpRequest):
                                     "dataIndex":"create_time",
                                     "key":"created_at",
                                     "sortable":True,
-                                },
-                                {
-                                    "title":"操作",
-                                    "dataIndex":"action",
-                                    "key":"action",
-                                    "slots":"action",
                                 },
                             ],
                         },
