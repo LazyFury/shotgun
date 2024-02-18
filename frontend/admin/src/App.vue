@@ -1,21 +1,21 @@
 
 <template>
-<div>
-    <RouterView>
-      loading...
-    </RouterView>
+  <div>
+    <div v-if="loading">
+      loading
+    </div>
+    <RouterView v-else></RouterView>
     <div :class="defaultUnoClass"></div>
-</div>
+  </div>
 </template>
 <script>
 import { RouterView } from 'vue-router';
-
 export default {
   components: { RouterView },
   props: {},
   data() {
     return {
-      defaultUnoClass:[
+      defaultUnoClass: [
         "bg-primary",
         "text-primary text-red",
         "text-sm text-xs text-lg text-xl text-2xl text-3xl",
@@ -23,15 +23,19 @@ export default {
         "box-border",
         "text-center text-left text-right",
         "mr-5 ml-5"
-      ]
+      ],
     };
+  },
+  setup() {
+    
   },
   watch: {},
   computed: {},
   methods: {},
-  created() {},
-  mounted() {}
+  created() { },
+  mounted() {
+    
+  }
 };
 </script>
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

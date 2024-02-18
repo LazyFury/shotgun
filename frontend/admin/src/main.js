@@ -35,7 +35,8 @@ import config from './config'
 import dayjs from 'dayjs'
 import numeral from 'numeral'
 
-
+import NProgress from 'nprogress'
+NProgress.configure({ showSpinner: false })
 
 const app = createApp(App)
 app.use(ElementPlus, { locale: ElzhCn })
@@ -51,6 +52,12 @@ app.use(function (vm) {
         console.log(target)
         return target
     }
+
+    router.beforeEach((to, from, next) => {
+        NProgress.start()
+        next()
+        NProgress.done()
+    })
 
     const translateStore = useTranslateStore()
     vm.component("Icon", Icon)
@@ -124,16 +131,14 @@ const registerRoute = (menu) => {
 
 request.get('/menus',{
     noMsgAlert:true
-}).then(res => {
+}).then(async res => {
     let menus = res.data.data?.menus || []
     for (let i = 0; i < menus.length; i++) {
         let el = menus[i]
         registerRoute(el)
     }
-    app.use(router)
-    app.mount('#app')
     
-}).catch(() => {
+}).finally(()=>{
     app.use(router)
     app.mount('#app')
 })

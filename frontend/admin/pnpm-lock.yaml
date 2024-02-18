@@ -29,6 +29,9 @@ dependencies:
   iconify:
     specifier: ^1.4.0
     version: 1.4.0
+  nprogress:
+    specifier: ^0.2.0
+    version: 0.2.0
   numeral:
     specifier: ^2.0.6
     version: 2.0.6
@@ -3023,6 +3026,10 @@ packages:
     dependencies:
       path-key: 4.0.0
     dev: true
+
+  /nprogress@0.2.0:
+    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==, tarball: https://r2.cnpmjs.org/nprogress/-/nprogress-0.2.0.tgz}
+    dev: false
 
   /numeral@2.0.6:
     resolution: {integrity: sha512-qaKRmtYPZ5qdw4jWJD6bxEf1FJEqllJrwxCLIm0sQU/A7v2/czigzOb+C2uSiFsa9lBUzeH7M1oK+Q+OLxL3kA==, tarball: https://r2.cnpmjs.org/numeral/-/numeral-2.0.6.tgz}
