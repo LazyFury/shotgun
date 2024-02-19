@@ -58,7 +58,6 @@ MIDDLEWARE = [
     "better_exceptions.integrations.django.BetterExceptionsMiddleware",
     "core.libs.middleware.CorsAcceptMiddleware",
     "core.urls.authMiddleware",
-    "core.libs.middleware.RatelimitMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"

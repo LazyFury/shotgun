@@ -19,9 +19,9 @@ import ElzhCn from 'element-plus/dist/locale/zh-cn.mjs'
 import { Icon } from '@iconify/vue';
 // end iconify
 
+// @ts-ignore 
 import App from './App.vue'
 import router from './router'
-import axios from 'axios'
 
 // request
 import { request } from './api/request'
@@ -87,12 +87,13 @@ const getComponents = () => {
     return components
 }
 
-console.log("components",getComponents())
+const components = getComponents()  
+console.log("components",components)
 
 const registerRoute = (menu) => {
     if (menu.component) {
         // register router
-        const component = getComponents()[`./views/${menu.component}.vue`]
+        const component = components[`./views/${menu.component}.vue`]
         const route = {
             path: menu.path,
             name: menu.key,

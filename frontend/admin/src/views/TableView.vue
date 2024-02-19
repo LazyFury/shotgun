@@ -162,7 +162,11 @@ export default {
             return this.meta.searchForm?.fields || []
         },
         columns() {
-            return (this.meta.table?.columns || []).map(column => {
+            let columns = this.meta.table?.columns || this.meta.columns || []
+            if (typeof columns === 'string'){
+                columns = JSON.parse(columns)
+            }
+            return (columns || []).map(column => {
                 return {
                     ...column,
                     type:column.type || 'render',
@@ -263,7 +267,7 @@ export default {
         load() {
             this.loading = true
             request({
-                url: this.meta.api,
+                url: this.meta.api || this.meta.api_url,
                 method: 'get',
                 params: {
                     page: this.pagination.currentPage,

@@ -2,7 +2,7 @@ import json
 from django.http import HttpRequest
 from django.shortcuts import render
 from core.libs.wrapper import hasPermission
-from core.models import UserToken
+from core.models import TableManager, UserToken
 from core.urls import api
 from plugins.dtk import views as dtk_views
 from revolver_api.revolver_api.api import Rule, validator
@@ -644,6 +644,14 @@ def menus(request: HttpRequest):
                         },
                     },
                 },
+                {
+                    "title": "文章",
+                    "path": "/system-article",
+                    "icon": "ant-design:bar-chart-outlined",
+                    "key": "system-article",
+                    "component":"TableView",
+                    "meta": TableManager.objects.filter(title="Articles").first().to_json(),
+                }
             ]
         }
     )
