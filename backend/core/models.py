@@ -1,4 +1,5 @@
 import datetime
+from email.policy import default
 import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -197,23 +198,59 @@ class UserToken(BaseModel):
         verbose_name = "用户Token"
         verbose_name_plural = "用户Token"
         
-        
+class JSONField(models.TextField):
+    def from_db_value(self, value, expression, connection):
+        if value is None:
+            return value
+        return json.loads(value)
+    
+    def to_python(self, value):
+        if isinstance(value, dict):
+            return value
+        if value is None:
+            return value
+        return json.loads(value)
+    
+    def get_prep_value(self, value):
+        print("save value", json.dumps(value))
+        if value is None:
+            return value
+        return json.dumps(value)
+    
+    def value_to_string(self, obj):
+        value = self.value_from_object(obj)
+        return json.dumps(value)
+
+class Menu(BaseModel):
+    title = models.CharField(max_length=100, null=False, blank=False)
+    icon = models.CharField(max_length=100, null=True, blank=True)
+    component = models.CharField(max_length=100, null=True, blank=True)
+    pid = models.IntegerField(null=True, blank=True,default=0)
+    path = models.CharField(max_length=100, null=True, blank=True)
+    key = models.CharField(max_length=100, null=True, blank=True)
+    
+    
+    def children(self):
+        return Menu.objects.filter(pid=self.id).all() or []
+    
+    def save(self, *args, **kwargs):
+        if self.pid == self.id:
+            raise Exception("父级菜单不能是自己")
+        super().save(*args, **kwargs)
+    
+    def extra_json(self):
+        return {
+            "children": [menu.to_json() for menu in self.children()]
+        }
         
 class TableManager(BaseModel):
     title = models.CharField(max_length=100, null=False, blank=False)
+    key = models.CharField(max_length=100, null=False, blank=False, unique=True)
     description = models.CharField(max_length=1000, null=True, blank=True)
     api_url = models.CharField(max_length=1000, null=True, blank=True)
-    delete_api_url = models.CharField(max_length=1000, null=True, blank=True)
-    create_api_url = models.CharField(max_length=1000, null=True, blank=True)
-    update_api_url = models.CharField(max_length=1000, null=True, blank=True)
-    columns = models.CharField(max_length=1000, null=True, blank=True)
-    search_form_fields = models.CharField(max_length=1000, null=True, blank=True)
-    edit_form_fields = models.CharField(max_length=1000, null=True, blank=True)
-    
-    def save(self, *args, **kwargs):
-        if self.columns is not None:
-            self.columns = json.dumps(self.columns)
-        super().save(*args, **kwargs)
+    columns = JSONField(max_length=10000, null=True, blank=True)
+    search_form_fields = JSONField(max_length=10000, null=True, blank=True)
+    add_form_fields = JSONField(max_length=10000, null=True, blank=True)
 
 
 class Permission(BaseModel):

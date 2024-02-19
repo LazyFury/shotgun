@@ -67,7 +67,7 @@ export default {
     mounted() {
         if (this.field.remoteDataApi) request.get(this.field.remoteDataApi).then(res => {
             this.options = (res.data?.data?.list || []).map(v => ({
-                label: v[this.field.props?.label || 'name'],
+                label: v[this.field.props?.label || 'name' || 'title'],
                 value: v[this.field.props?.value || 'id']
             }))
         })

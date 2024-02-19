@@ -99,7 +99,7 @@
                 </ElTableColumn>
 
                 <!-- actions  -->
-                <ElTableColumn v-if="actions?.length" label="操作" width="200">
+                <ElTableColumn v-if="actions?.length" label="操作">
                     <template #default="{ row }">
                         <ElButton v-for="action in actions" link :key="action.key" :type="action.type || 'primary'"
                             @click="action.handler(row)">
@@ -123,12 +123,12 @@
         </ElCard>
 
         <slot name="addModal">
-            <ElDialog v-if="meta.addForm" title="提示" v-model="editModal" class="!md:w-640px !w-full !lg:w-960px">
+            <ElDialog v-if="addForm" title="提示" v-model="editModal" class="!md:w-640px !w-full !lg:w-960px">
                 <template #header>
                     <div></div>
                 </template>
                <slot name="addForm">
-                <Form ref="formRef" :title="meta.name" :defaultForm="meta.addForm.default" :fields="meta.addForm.fields" @submit="handleAddSubmit"></Form>
+                <Form ref="formRef" :title="meta.title" :defaultForm="{}" :fields="addForm" @submit="handleAddSubmit"></Form>
                </slot>
             </ElDialog>
         </slot>
@@ -158,14 +158,28 @@ export default {
     },
     watch: {},
     computed: {
+        api() {
+            return this.meta.api || this.meta.api_url
+        },
         searchFormFields() {
-            return this.meta.searchForm?.fields || []
+            return this.meta.searchForm?.fields || this.meta.search_form_fields || []
+        },
+        addForm() {
+            return this.meta.addForm || this.meta.add_form_fields || []
         },
         columns() {
             let columns = this.meta.table?.columns || this.meta.columns || []
             if (typeof columns === 'string'){
                 columns = JSON.parse(columns)
             }
+            if(typeof columns === 'string'){
+                return
+            }
+            console.log(columns)
+            columns = columns?.map(v=>({
+                ...v,
+                dataIndex:v.dataIndex ? v.dataIndex : 999
+            })).sort((a, b) => a.dataIndex - b.dataIndex) || []
             return (columns || []).map(column => {
                 return {
                     ...column,
@@ -267,7 +281,7 @@ export default {
         load() {
             this.loading = true
             request({
-                url: this.meta.api || this.meta.api_url,
+                url: this.api,
                 method: 'get',
                 params: {
                     page: this.pagination.currentPage,
@@ -319,7 +333,7 @@ export default {
                 type: 'warning'
             }).then(() => {
                 console.log(ids)
-                request.delete(this.meta.api + ".delete",{
+                request.delete(this.api + ".delete",{
                     data:{
                         ids
                     },
@@ -353,7 +367,7 @@ export default {
         exportDataApi() {
             console.log('export')
             request({
-                url: this.meta.api + '.export',
+                url: this.api + '.export',
                 method: 'get',
                 responseType: 'blob',
                 params: {
@@ -376,7 +390,7 @@ export default {
         handleAddSubmit(form){
             console.log(form)
             if(form.id){
-                request.put(this.meta.api + ".update",form).then(res=>{
+                request.put(this.api + ".update",form).then(res=>{
                     if(res.data?.code==200){
                         this.$message.success("修改成功")
                         this.editModal = false
@@ -386,7 +400,7 @@ export default {
                 return
             }
 
-            request.post(this.meta.api + ".create",form).then(res=>{
+            request.post(this.api + ".create",form).then(res=>{
                 if(res.data?.code==200){
                     this.$message.success("添加成功")
                     this.editModal = false
