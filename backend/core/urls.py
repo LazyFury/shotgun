@@ -10,6 +10,7 @@ authMiddleware = APIAuthMiddleware("/api", exclude=[
     "/api/dtk",
     "/api/groups",
     "/api/test",
+    "/api/articles"
     ])
 
 urlpatterns = [] + api.urls
