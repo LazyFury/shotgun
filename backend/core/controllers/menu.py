@@ -55,8 +55,7 @@ def menus(request: HttpRequest):
                                         }
                                     ]
                                 },
-                                "addForm": {
-                                    "fields": [
+                                "add_form_fields": [
                                         [
                                             {
                                                 "label": "表格名称",
@@ -121,8 +120,7 @@ def menus(request: HttpRequest):
                                                 "width":"100%"
                                             }
                                         ]
-                                    ]
-                                },
+                                    ],
                                 "table": {
                                     "columns": [
                                         {

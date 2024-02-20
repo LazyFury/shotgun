@@ -3,7 +3,7 @@
     <TableView ref="tableRef" @add="handleAdd" @edit="handleEdit">
       <template #addForm>
         <div>
-          <Form ref="formRef" :title="meta.name" :defaultForm="meta.addForm.default" :fields="meta.addForm.fields"
+          <Form ref="formRef" :title="meta.name" :defaultForm="{}" :fields="meta.add_form_fields"
             :progressFormData="handleProgressFormData" @submit="handleAddSubmit">
 
             <!-- columns  -->

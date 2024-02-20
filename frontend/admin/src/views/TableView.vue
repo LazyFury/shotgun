@@ -45,7 +45,7 @@
 
             <!-- betch actions  -->
             <div class="mb-4">
-                <ElButton type="primary" @click="add">
+                <ElButton :disabled="!canAdd" type="primary" @click="add">
                     <Icon icon="ant-design:plus-outlined"></Icon>
                     <span>添加</span>
                 </ElButton>
@@ -125,7 +125,7 @@
         </ElCard>
 
         <slot name="addModal">
-            <ElDialog v-if="addForm" title="提示" v-model="editModal" class="!md:w-640px !w-full !lg:w-960px">
+            <ElDialog v-if="canAdd" title="提示" v-model="editModal" class="!md:w-640px !w-full !lg:w-960px">
                 <template #header>
                     <div></div>
                 </template>
@@ -169,6 +169,9 @@ export default {
         },
         addForm() {
             return this.meta.addForm || this.meta.add_form_fields || []
+        },
+        canAdd() {
+            return this.addForm && this.addForm.length > 0
         },
         addFormDefault() {
             let obj = {}
