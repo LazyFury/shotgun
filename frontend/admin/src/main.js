@@ -117,8 +117,6 @@ const registerRoute = (menu) => {
                 parentRoute.children.push(route)
             }
             router && router.addRoute(parentRoute.name, route)
-        }else{
-            router.addRoute('Admin', route)
         }
     }
     if (menu.children) {

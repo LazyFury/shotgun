@@ -1,5 +1,8 @@
 <template>
+
+    <!-- textarea  -->
     <ElInput @change="handleUpdate" v-model="value" v-if="field.type == 'textarea'" type="textarea" :placeholder="field.placeholder"></ElInput>
+    <!-- password  -->
     <ElInput @change="handleUpdate" v-model="value" v-else-if="field.type == 'password'" type="password" :placeholder="field.placeholder">
     </ElInput>
     <!-- select  -->
@@ -8,6 +11,7 @@
     </ElSelect>
     <!-- switch -->
     <ElSwitch @change="handleUpdate" v-model="value" v-else-if="field.type == 'switch'" :active-text="field.checkedChildren"></ElSwitch>
+    <!-- input  -->
     <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'" v-else :placeholder="field.placeholder">
         <!-- suffix  -->
         <template v-if="field.suffix" #suffix>
@@ -67,7 +71,7 @@ export default {
     mounted() {
         if (this.field.remoteDataApi) request.get(this.field.remoteDataApi).then(res => {
             this.options = (res.data?.data?.list || []).map(v => ({
-                label: v[this.field.props?.label || 'name' || 'title'],
+                label: v[this.field.props?.label || 'name'] || v[this.field.props?.value || 'title'],
                 value: v[this.field.props?.value || 'id']
             }))
         })

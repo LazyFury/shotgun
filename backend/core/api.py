@@ -17,8 +17,8 @@ class TableManagerApi(Api):
 class MenuManagerApi(Api):
     model = Menu
     
-    def default_query(self, query):
-        return super().default_query(query).filter(parent=None)
+    def defaultQuery(self, request):
+        return super().defaultQuery(request).filter(pid=0)
     
 @api.resource('articles')
 class PostArticle(Api):

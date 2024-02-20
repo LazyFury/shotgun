@@ -228,19 +228,27 @@ class Menu(BaseModel):
     pid = models.IntegerField(null=True, blank=True,default=0)
     path = models.CharField(max_length=100, null=True, blank=True)
     key = models.CharField(max_length=100, null=True, blank=True)
+    meta = models.ForeignKey("core.TableManager",null=True,blank=True,on_delete=models.SET_NULL)
     
     
     def children(self):
         return Menu.objects.filter(pid=self.id).all() or []
     
     def save(self, *args, **kwargs):
+        if not self.pid:
+            self.pid = 0
         if self.pid == self.id:
             raise Exception("父级菜单不能是自己")
         super().save(*args, **kwargs)
     
     def extra_json(self):
+        parent = Menu.objects.filter(id=self.pid).first()
         return {
-            "children": [menu.to_json() for menu in self.children()]
+            "children": [menu.to_json() for menu in self.children()],
+            "has_children": len(self.children()) > 0,
+            "parent": parent.key if parent is not None else None,
+            "parent_name": parent.title if parent is not None else None,
+            "meta":self.meta.to_json() if self.meta is not None else None
         }
         
 class TableManager(BaseModel):

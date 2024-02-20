@@ -116,6 +116,12 @@ export default {
         { key: 'key', label: 'key' },
         { key: 'dataIndex', label: 'dataIndex' },
         { key: 'width', label: 'width' },
+        // prefix ,suffix
+        {key:"prefix",label:"prefix"},
+        {key:"suffix",label:"suffix"},
+        {key:"className",label:"className"},
+        // valueType
+        {key:"valueType",label:"valueType"},
       ],
       edit_form_fields_attrs: [
         // label,name,type,placeholder,required,disabled,defaultValue,hidden,clearable,showPassword,remoteDataApi,prefix,suffix,epInputType

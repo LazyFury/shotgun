@@ -42,11 +42,21 @@ body,html{
     border-right: none!important;
 }
 
+
 .el-checkbox__input.is-checked .el-checkbox__inner{
     background-color: var(--el-checkbox-checked-bg-color)!important;
     border-color: var(--el-checkbox-checked-bg-color)!important;
 
     &:after{
         border-color: white!important;
+    }
+}
+
+
+
+.el-switch{
+    .el-switch__core{
+        background-color: #dcdcdc;
+        border-color: #dcdcdc;
     }
 }

@@ -2,7 +2,7 @@
     <div>
         <el-menu class="text-xl menus" @open="handleOpen" @close="handleClose" :default-active="defaultActive">
             <template v-for="(item, index) in menus">
-                <el-sub-menu v-if="item.children" :key="item.key" :index="item.key">
+                <el-sub-menu v-if="item.children && item.children.length>0" :key="item.key" :index="item.key">
                     <template #title>
                         <Icon :icon="item.icon"></Icon>
                         <span class="ml-1">{{ $t(item.title) }}</span>
