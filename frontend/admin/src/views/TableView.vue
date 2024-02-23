@@ -86,7 +86,7 @@
                             {{ column.render(row) }}
                         </div>
                         <!-- switch  -->
-                        <ElSwitch v-if="column.type == 'switch'" v-model="row[column.key]" active-color="#13ce66"
+                        <ElSwitch v-if="column.type == 'switch'" v-model="row[column.key]"
                             inactive-color="#ff4949" active-text="" inactive-text="" disabled></ElSwitch>
                         <!-- checkbox  -->
                         <ElCheckbox v-if="column.type == 'checkbox'" v-model="row[column.key]" disabled></ElCheckbox>
@@ -99,7 +99,11 @@
                         </ElSelect>
                         <!-- icon  -->
                         <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :style="column.style"></Icon>
-
+                        <!-- image  -->
+                        <ElImage v-if="column.type == 'image'" :src="$img(row[column.key])" fit="cover"
+                            :preview-teleported="true"
+                            :preview-src-list="row[column.key] ? [$img(row[column.key])] : []"
+                            style="width: 50px; height: 50px;"></ElImage>
                         <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}</ElTag>
                     </template>
                     <template v-if="column.slot" #default="{ row }">

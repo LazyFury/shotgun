@@ -48,7 +48,7 @@ app.use(function (vm) {
 
     vm.config.globalProperties.$img = (url) => {
         console.log(url)    
-        const target =  config.imgURL + url
+        const target =  config.url.IMG_URL + url
         console.log(target)
         return target
     }

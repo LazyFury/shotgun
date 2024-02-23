@@ -18,7 +18,12 @@
             "@/*": [
                 "src/*"
             ]
-        }
+        },
+        // 不禁止隐藏 any
+        "noImplicitAny": false,
+        "noImplicitThis": false,
+        // 忽略大小写
+        "forceConsistentCasingInFileNames": false,
     },
     "include": [
         "src/**/*.ts",
