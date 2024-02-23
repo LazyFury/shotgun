@@ -97,6 +97,9 @@
                             <ElOption v-for="option in column.options" :key="option.value" :label="option.label"
                                 :value="option.value"></ElOption>
                         </ElSelect>
+                        <!-- icon  -->
+                        <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :style="column.style"></Icon>
+
                         <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}</ElTag>
                     </template>
                     <template v-if="column.slot" #default="{ row }">

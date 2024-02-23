@@ -64,13 +64,3 @@ class LinkApi(RestApi):
         return super().defaultQuery(**kwargs)  # .order_by("-posted_by__is_active")
 
 
-@api.resource("users")
-class UserApi(Api):
-    model = UserModel
-    
-    public_view = True
-
-    rules = []
-
-    def pageApi(self, request: HttpRequest, **kwargs):
-        return super().pageApi(request, **kwargs)

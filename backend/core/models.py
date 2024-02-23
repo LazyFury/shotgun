@@ -239,12 +239,17 @@ class Menu(BaseModel):
             self.pid = 0
         if self.pid == self.id:
             raise Exception("父级菜单不能是自己")
+        # todo:在前端设置 defalut value type 并且 format 
+        if self.meta_id == "":
+            self.meta = None
+            self.meta_id = None
         super().save(*args, **kwargs)
     
     def extra_json(self):
         parent = Menu.objects.filter(id=self.pid).first()
         return {
             "children": [menu.to_json() for menu in self.children()],
+            "children_count": len(self.children()),
             "has_children": len(self.children()) > 0,
             "parent": parent.key if parent is not None else None,
             "parent_name": parent.title if parent is not None else None,
@@ -297,6 +302,7 @@ class Group(BaseModel):
     
 class Post(BaseModel):
     title = models.CharField(max_length=100, null=False, blank=False)
+    description = models.CharField(max_length=1000, null=True, blank=True)
     content = models.TextField(null=False, blank=False)
     user = models.ForeignKey(
         "core.UserModel", null=True, blank=True, on_delete=models.CASCADE
@@ -304,7 +310,10 @@ class Post(BaseModel):
     
     def extra_json(self):
         user = self.user
+        if self.description is None:
+            self.description = "-"
         return {
             "user_name": user.username if user is not None else None,
             "sort_title": self.title[:18] + "..." if len(self.title) > 18 else self.title,
+            "sort_desc": self.description[:18] + "..." if len(self.description) > 18 else self.description,
         }

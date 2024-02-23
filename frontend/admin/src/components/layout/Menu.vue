@@ -87,6 +87,10 @@ export default {
             let path = href.split('#').pop()
             // path with out start / 
             path = path.replace(/^\//, '')
+
+            // last path 
+            path = path.split('/').pop()
+
             this.defaultActive = path
         }
     },
