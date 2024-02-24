@@ -66,7 +66,7 @@
                     <ElTableColumn v-for="column in edit_form_fields_attrs" :label="column.label" :prop="column.key"
                       :width="column.width || 'auto'">
                       <template #default="{ row }">
-                        <ElInput v-model="row[column.key]" placeholder="请输入" />
+                        <FormItem :field="handleField(column,row)" v-model="row[column.key]"></FormItem>
                       </template>
                     </ElTableColumn>
                     <ElTableColumn label="操作" width="auto">
@@ -92,11 +92,13 @@
 import { ElTable, ElTableColumn, ElInput } from 'element-plus';
 import TableView from '../TableView.vue';
 import Form from '../components/Form.vue';
+import FormItem from '../components/FormItem.vue';
 export default {
   components: {
     TableView, Form,
     ElTable,
-    ElTableColumn
+    ElTableColumn,
+    FormItem,
   },
   props: {},
   data() {
@@ -131,10 +133,10 @@ export default {
         { key: 'placeholder', label: 'placeholder' },
         // width 
         { key: 'width', label: 'width'},
-        { key: 'required', label: 'required' },
-        { key: 'disabled', label: 'disabled' },
+        { key: 'required', label: 'required',type:'switch' },
+        { key: 'disabled', label: 'disabled',type:'switch' },
         { key: 'defaultValue', label: 'defaultValue' },
-        { key: 'hidden', label: 'hidden' },
+        { key: 'hidden', label: 'hidden',type:'switch' },
         { key: 'clearable', label: 'clearable' },
         { key: 'showPassword', label: 'showPassword' },
         { key: 'remoteDataApi', label: 'remoteDataApi' },
@@ -147,6 +149,18 @@ export default {
   watch: {},
   computed: {},
   methods: {
+    handleField(column,row) {
+      if(column.key == 'defaultValue') {
+        return {
+          ...column,
+          type: row.type
+        }
+      }
+      return {
+        ...column,
+
+      }
+    },
     handleAddSubmit(data) {
       this.$refs.tableRef?.handleAddSubmit(data);
     },

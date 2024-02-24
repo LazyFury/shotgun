@@ -19,7 +19,7 @@ class MenuManagerApi(Api):
     model = Menu
     
     def defaultQuery(self, request):
-        return super().defaultQuery(request).filter(pid=0)
+        return super().defaultQuery(request).filter(pid__isnull=True)
     
 @api.resource('articles')
 class PostArticle(Api):

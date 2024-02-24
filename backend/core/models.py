@@ -1,11 +1,9 @@
 import datetime
-from email.policy import default
 import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
-from regex import P
 
 from core.libs.utils.time import toUtcTime
 from core.libs.utils.upload_to import upload_hash_filename_wrapper
@@ -41,13 +39,15 @@ class UserModel(AbstractUser, BaseModel):
         return self.username
 
     def extra_json(self):
+        belong = UserInviteRelate.objects.filter(user=self).first()
         return {
-            "belong_username": UserInviteRelate.objects.filter(user=self)
-            .first()
-            .belong.username
-            if UserInviteRelate.objects.filter(user=self).first() is not None
-            else None,
+            "belong_username": belong.belong.username if belong is not None else None,
         }
+        
+    def fillable(self):
+        exclude = ["is_superuser","password"]
+        super_fill = super().fillable()
+        return [f for f in super_fill if f not in exclude]
 
     class Meta:
         verbose_name = "User"
@@ -229,15 +229,15 @@ class Menu(BaseModel):
     path = models.CharField(max_length=100, null=True, blank=True)
     key = models.CharField(max_length=100, null=True, blank=True)
     meta = models.ForeignKey("core.TableManager",null=True,blank=True,on_delete=models.SET_NULL)
-    
+    enable_delete = models.BooleanField(default=False)
     
     def children(self):
         return Menu.objects.filter(pid=self.id).all() or []
     
     def save(self, *args, **kwargs):
         if not self.pid:
-            self.pid = 0
-        if self.pid == self.id:
+            self.pid = None
+        if self.pid == self.id and self.pid is not None:
             raise Exception("父级菜单不能是自己")
         # todo:在前端设置 defalut value type 并且 format 
         if self.meta_id == "":
@@ -253,8 +253,16 @@ class Menu(BaseModel):
             "has_children": len(self.children()) > 0,
             "parent": parent.key if parent is not None else None,
             "parent_name": parent.title if parent is not None else None,
-            "meta":self.meta.to_json() if self.meta is not None else None
+            "meta":self.meta.to_json() if self.meta is not None else None,
         }
+    
+    def to_json(self, *args, **kwargs):
+        return super().to_json(*args, **kwargs,merge_force=True)
+        
+    def delete(self, *args, **kwargs):
+        if not self.enable_delete:
+            raise Exception("该菜单不允许删除")
+        super().delete(*args, **kwargs)
         
 class TableManager(BaseModel):
     title = models.CharField(max_length=100, null=False, blank=False)
@@ -264,6 +272,13 @@ class TableManager(BaseModel):
     columns = JSONField(max_length=10000, null=True, blank=True)
     search_form_fields = JSONField(max_length=10000, null=True, blank=True)
     add_form_fields = JSONField(max_length=10000, null=True, blank=True)
+    enable_delete = models.BooleanField(default=False)
+    
+    def delete(self, *args, **kwargs):
+        if not self.enable_delete:
+            raise Exception("该表格不允许删除")
+        super().delete(*args, **kwargs)
+        
 
 
 class Permission(BaseModel):

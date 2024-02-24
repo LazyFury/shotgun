@@ -3,7 +3,7 @@
         <div class="title">
             <span class="text-2xl">{{ formTitle }}{{ title }}</span>
         </div>
-
+        <!-- {{ form }} -->
         <ElForm ref="formRef" :inline="false" :model="form" :rules="rules" :label-width="120" class="mt-0">
             <div class="mb-4 grid xl:grid-cols-2">
                 <div v-for="field in fields" v-if="!multiRowMode">
@@ -15,7 +15,7 @@
             <div v-if="multiRowMode" v-for="items in fields" class="flex flex-row flex-wrap">
                 <div class="w-line mb-2"></div>
                 <template v-for="field in items" :key="field.name">
-                    <ElFormItem :label="field.label + ':'" :prop="field.name" :style="{
+                    <ElFormItem v-if="!field.hidden" :label="field.label + ':'" :prop="field.name" :style="{
                         width: field.width
                     }">
                         <slot :name="field.name" :fields="fields" :field="field" :form="form">

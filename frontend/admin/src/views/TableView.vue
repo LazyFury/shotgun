@@ -70,7 +70,7 @@
                     <span>导出</span>
                 </ElButton>
             </div>
-            <ElTable ref="tableRef" v-loading="loading" :data="tableData" :border="true" stripe
+            <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
                 :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"
                 @sort-change="handleSortChange">
                 <!-- selection  -->
@@ -98,7 +98,7 @@
                                 :value="option.value"></ElOption>
                         </ElSelect>
                         <!-- icon  -->
-                        <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :style="column.style"></Icon>
+                        <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :class="[column.className]"></Icon>
                         <!-- image  -->
                         <ElImage v-if="column.type == 'image'" :src="$img(row[column.key])" fit="cover"
                             :preview-teleported="true"

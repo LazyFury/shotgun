@@ -21,7 +21,7 @@ def menus(request: HttpRequest):
                     "parent": "layout",
                 },
             ]
-            + [m.to_json() for m in Menu.objects.filter(pid=0)]
+            + [m.to_json() for m in Menu.objects.filter(pid__isnull=True)]
             + [
                 {
                     "title": "开发人员维护",
@@ -65,6 +65,12 @@ def menus(request: HttpRequest):
                                                 "required": True,
                                                 "width": "480px",
                                             },
+                                            {
+                                                "label": "支持删除",
+                                                "name": "enable_delete",
+                                                "type": "switch",
+                                                "placeholder": "支持删除",
+                                            }
                                         ],
                                         [
                                             {
@@ -119,7 +125,7 @@ def menus(request: HttpRequest):
                                                 "placeholder": "请输入添加表单字段",
                                                 "width":"100%"
                                             }
-                                        ]
+                                        ],
                                     ],
                                 "table": {
                                     "columns": [

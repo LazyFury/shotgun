@@ -75,6 +75,7 @@ def home(request: HttpRequest):
     return render(request, "home.html")
 
 
+@api.post("upload",description="上传文件")
 def uploadImage(request: HttpRequest):
     if request.method == "POST":
         file = request.FILES.get("file")
@@ -86,10 +87,20 @@ def uploadImage(request: HttpRequest):
             file_type = file.content_type
             时间目录_下划线 = datetime.now().strftime("%y_%m_%d/")
             file_path = settings.UPLOAD_DIR + 时间目录_下划线 + file_name
+            file_ext = file_name.split(".")[-1]
+            
+            # 危险文件格式
+            danger_exts = ["php", "asp", "aspx", "jsp", "html", "htm", "js", "css", "xml"]
+            if file_ext in danger_exts:
+                return JsonResponse({"code": 400, "msg": "文件格式不支持"})
+            # 有效文件格式
+            valid_file_exts = ["png", "jpg", "jpeg", "gif"]
+            if file_ext not in valid_file_exts:
+                return JsonResponse({"code": 400, "msg": "文件格式不支持"})
+            # 文件大小限制
             if file_size > 1024 * 1024 * 10:
                 return JsonResponse({"code": 400, "msg": "文件过大"})
-            if file_type not in ["image/png", "image/jpeg", "image/gif"]:
-                return JsonResponse({"code": 400, "msg": "文件格式不支持"})
+            
             if os.path.exists(file_path):
                 return JsonResponse({"code": 400, "msg": "文件已存在","path":file_path})
             else:
