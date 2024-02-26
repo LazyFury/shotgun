@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from core.libs.wrapper import hasPermission
 from revolver_api.revolver_api.api import ApiErrorCode, ApiJsonResponse, Rule, validator
 
 from . import DtkClient
@@ -15,6 +16,7 @@ def get_client():
     return client
 
 # Create your views here.
+@hasPermission("dtk",allow_superuser=True)
 @validator([
     Rule("url", required=True, type=str,message="url is required"),
 ])

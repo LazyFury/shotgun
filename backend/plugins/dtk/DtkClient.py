@@ -7,6 +7,8 @@ import simple_cache
 from backend import settings
 from core import config
 
+# disable requests  SSL warning
+requests.packages.urllib3.disable_warnings()
 
 class DtkClient():
     def __init__(self):

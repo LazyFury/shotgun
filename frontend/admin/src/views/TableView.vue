@@ -112,7 +112,7 @@
                 </ElTableColumn>
 
                 <!-- actions  -->
-                <ElTableColumn v-if="actions?.length" label="操作">
+                <ElTableColumn fixed="right" v-if="actions?.length" label="操作">
                     <template #default="{ row }">
                         <ElButton v-for="action in actions" link :key="action.key" :type="action.type || 'primary'"
                             @click="action.handler(row)">
@@ -184,7 +184,10 @@ export default {
             let obj = {}
             this.addForm.forEach(arr => {
                 arr.forEach(field => {
-                    obj[field.name] = field.defaultValue || ''
+                    obj[field.name] = field.defaultValue
+                    if(typeof field.defaultValue == null || field.defaultValue == undefined) {
+                        obj[field.name] = ""
+                    }
                 })
             })
             return obj

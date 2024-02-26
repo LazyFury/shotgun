@@ -61,23 +61,23 @@
               <div class="overflow-x-auto">
                 <!-- add table  -->
                 <ElButton type="success" size="small" @click="handleAddAddFormTable(form, field.name)">添加Layout</ElButton>
-                <div class="overflow-x-auto" v-for="(table,i) in form[field.name]">
+                <div class="overflow-x-auto" v-for="(table, i) in form[field.name]">
                   <ElTable :data="table">
                     <ElTableColumn v-for="column in edit_form_fields_attrs" :label="column.label" :prop="column.key"
                       :width="column.width || 'auto'">
                       <template #default="{ row }">
-                        <FormItem :field="handleField(column,row)" v-model="row[column.key]"></FormItem>
+                        <FormItem :field="handleField(column, row)" v-model="row[column.key]"></FormItem>
                       </template>
                     </ElTableColumn>
                     <ElTableColumn label="操作" width="auto">
                       <template #default="{ row }">
-                        <ElButton type="danger" link @click="handleDeleteAddColumn(form, field.name, row,i)">删除</ElButton>
+                        <ElButton type="danger" link @click="handleDeleteAddColumn(form, field.name, row, i)">删除</ElButton>
                       </template>
                     </ElTableColumn>
                   </ElTable>
                   <!-- btn add  -->
                   <div class="mt-2">
-                    <ElButton type="primary" link @click="handleAddAddColumn(form, field.name,i)">添加表格列</ElButton>
+                    <ElButton type="primary" link @click="handleAddAddColumn(form, field.name, i)">添加表格列</ElButton>
                   </div>
                 </div>
               </div>
@@ -106,7 +106,7 @@ export default {
       meta: this.$route.meta,
       search_form_fields_attrs: [
         { key: 'name', label: 'name' },
-        { key: 'label', label: 'label'},
+        { key: 'label', label: 'label' },
         { key: 'type', label: 'type' },
         { key: 'key', label: 'key' },
         { key: 'placeholder', label: 'placeholder', width: '200px' },
@@ -119,11 +119,11 @@ export default {
         { key: 'dataIndex', label: 'dataIndex' },
         { key: 'width', label: 'width' },
         // prefix ,suffix
-        {key:"prefix",label:"prefix"},
-        {key:"suffix",label:"suffix"},
-        {key:"className",label:"className"},
+        { key: "prefix", label: "prefix" },
+        { key: "suffix", label: "suffix" },
+        { key: "className", label: "className" },
         // valueType
-        {key:"valueType",label:"valueType"},
+        { key: "valueType", label: "valueType" },
       ],
       edit_form_fields_attrs: [
         // label,name,type,placeholder,required,disabled,defaultValue,hidden,clearable,showPassword,remoteDataApi,prefix,suffix,epInputType
@@ -132,11 +132,11 @@ export default {
         { key: 'type', label: 'type' },
         { key: 'placeholder', label: 'placeholder' },
         // width 
-        { key: 'width', label: 'width'},
-        { key: 'required', label: 'required',type:'switch' },
-        { key: 'disabled', label: 'disabled',type:'switch' },
+        { key: 'width', label: 'width' },
+        { key: 'required', label: 'required', type: 'switch' },
+        { key: 'disabled', label: 'disabled', type: 'switch' },
         { key: 'defaultValue', label: 'defaultValue' },
-        { key: 'hidden', label: 'hidden',type:'switch' },
+        { key: 'hidden', label: 'hidden', type: 'switch' },
         { key: 'clearable', label: 'clearable' },
         { key: 'showPassword', label: 'showPassword' },
         { key: 'remoteDataApi', label: 'remoteDataApi' },
@@ -147,10 +147,12 @@ export default {
     };
   },
   watch: {},
-  computed: {},
+  computed: {
+
+  },
   methods: {
-    handleField(column,row) {
-      if(column.key == 'defaultValue') {
+    handleField(column, row) {
+      if (column.key == 'defaultValue') {
         return {
           ...column,
           type: row.type
@@ -229,7 +231,7 @@ export default {
         epInputType: '',
       }]);
     },
-    handleAddAddColumn(form, key,i) {
+    handleAddAddColumn(form, key, i) {
       if (!form[key][i]) {
         form[key][i] = [];
       }

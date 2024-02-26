@@ -221,6 +221,17 @@ class JSONField(models.TextField):
         value = self.value_from_object(obj)
         return json.dumps(value)
 
+class DisableDeleteModel(models.Model):
+    enable_delete = models.BooleanField(default=False)
+    
+    def delete(self, *args, **kwargs):
+        if not self.enable_delete:
+            raise Exception("该数据不允许删除")
+        super().delete(*args, **kwargs)
+        
+    class Meta:
+        abstract = True
+
 class Menu(BaseModel):
     title = models.CharField(max_length=100, null=False, blank=False)
     icon = models.CharField(max_length=100, null=True, blank=True)
@@ -281,7 +292,7 @@ class TableManager(BaseModel):
         
 
 
-class Permission(BaseModel):
+class Permission(BaseModel,DisableDeleteModel):
     name = models.CharField(max_length=100, null=False, blank=False)
     code = models.CharField(max_length=100, null=False, blank=False)
     description = models.CharField(max_length=1000, null=True, blank=True)

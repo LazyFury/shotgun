@@ -8,6 +8,7 @@ from django.shortcuts import render
 import psutil
 from core.libs.wrapper import hasPermission
 from core.urls import api
+import plugins
 from plugins.dtk import views as dtk_views
 from revolver_api.revolver_api.response import ApiErrorCode, ApiJsonResponse
 from revolver_api.revolver_api.route import Router
@@ -40,12 +41,6 @@ def allApi(request: HttpRequest):
         {"name": "api", "connect": "success", "routers": Router.routes}
     )
 
-
-@api.get("dtk")
-@hasPermission("dtk_api", allow_superuser=False)
-def dtkHandler(request: HttpRequest):
-    print("dtkHandler")
-    return dtk_views.dataoke(request)
 
 
 @api.get("system-info")
@@ -102,3 +97,26 @@ def corn(request: HttpRequest):
     if platform.system() != "Linux":
         return ApiJsonResponse.error(ApiErrorCode.ERROR, "only support linux")
     return ApiJsonResponse({"corn": system("crontab -l")})
+
+
+@api.get("plugins", description="所有插件")
+def allPlugins(request):
+    all_plugins  = plugins.plugins
+
+    for plugin in all_plugins:
+        # if is serializable(plugin["install"]):
+        for key in plugin:
+            val = plugin[key]
+            if callable(val):
+                plugin[key] = None
+    
+    return ApiJsonResponse.success(
+        {"plugins":all_plugins}
+    )
+    
+
+@api.get("is-ssl", description="是否是ssl")
+def isSsl(request: HttpRequest):
+    return ApiJsonResponse.success(
+        {"isSsl": request.is_secure()}
+    )

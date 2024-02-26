@@ -3,11 +3,11 @@
     <ElInput @change="handleUpdate" v-model="value" v-if="field.type == 'textarea'" type="textarea"
         :placeholder="field.placeholder"></ElInput>
     <!-- password  -->
-    <ElInput @change="handleUpdate" v-model="value" v-else-if="field.type == 'password'" type="password"
+    <ElInput @change="handleUpdate" v-model="value" v-if="field.type == 'password'" type="password"
         :placeholder="field.placeholder">
     </ElInput>
     <!-- select  -->
-    <div v-else-if="field.type == 'select'" class="flex flex-row items-center w-full">
+    <div v-if="field.type == 'select'" class="flex flex-row items-center w-full">
         <ElSelect class="w-full" @change="handleUpdate" v-model="value" :placeholder="field.placeholder">
             <ElOption v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></ElOption>
         </ElSelect>
@@ -18,14 +18,15 @@
         </ElButton>
     </div>
     <!-- switch -->
-    <ElSwitch @change="handleUpdate" v-model="value" v-else-if="field.type == 'switch'"
+    <ElSwitch @change="handleUpdate" v-model="value" v-if="field.type == 'switch'"
         :active-text="field.checkedChildren"></ElSwitch>
     <!-- checkbox only one -->
-    <ElCheckbox @change="handleUpdate" v-model="value" v-else-if="field.type == 'checkbox' && !field.multiple"
-        :label="field.label"></ElCheckbox>
+    <ElCheckbox @change="handleUpdate" v-model="value" v-if="field.type == 'checkbox' && !field.multiple"
+        :label="field.label">
+    </ElCheckbox>
 
     <!-- input  -->
-    <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'" v-else
+    <ElInput v-model="value" @change="handleUpdate" :type="field.epInputType || 'text'" v-if="!field.type || field.type == 'input'"
         :placeholder="field.placeholder">
         <!-- suffix  -->
         <template v-if="field.suffix" #suffix>
