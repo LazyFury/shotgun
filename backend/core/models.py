@@ -241,6 +241,8 @@ class Menu(BaseModel):
     key = models.CharField(max_length=100, null=True, blank=True)
     meta = models.ForeignKey("core.TableManager",null=True,blank=True,on_delete=models.SET_NULL)
     enable_delete = models.BooleanField(default=False)
+    enable = models.BooleanField(default=True)
+    hidden_on_menu = models.BooleanField(default=False)
     
     def children(self):
         return Menu.objects.filter(pid=self.id).all() or []
@@ -343,3 +345,79 @@ class Post(BaseModel):
             "sort_title": self.title[:18] + "..." if len(self.title) > 18 else self.title,
             "sort_desc": self.description[:18] + "..." if len(self.description) > 18 else self.description,
         }
+        
+        
+        
+        
+        
+        
+        
+# 系统设置
+class DictGroup (BaseModel,DisableDeleteModel):
+    name = models.CharField(max_length=100, null=False, blank=False)
+    code = models.CharField(max_length=100, null=False, blank=False)
+    description = models.CharField(max_length=1000, null=True, blank=True)
+    
+    def get_config(self):
+        dicts = DictValue.objects.filter(group=self)
+        config = {}
+        for d in dicts:
+            config[d.code] = d.value
+        return config
+
+    def set_config(self,config):
+        for key in config:
+            value = config[key]
+            d = DictValue.objects.filter(group=self).filter(code=key).first()
+            if d is None:
+                continue
+            d.value = value
+            d.save()
+    class Meta:
+        verbose_name = "字典组"
+        verbose_name_plural = "字典组"
+        
+class DictValueType(models.TextChoices):
+    STRING = "string", "字符串"
+    NUMBER = "number", "数字"
+    BOOLEAN = "boolean", "布尔"
+    JSON = "json", "json"
+class DictValue(BaseModel,DisableDeleteModel):
+    name = models.CharField(max_length=100, null=False, blank=False)
+    code = models.CharField(max_length=100, null=False, blank=False)
+    type = models.CharField(max_length=100, null=False, blank=False,choices=DictValueType.choices,default=DictValueType.STRING)
+    value = models.CharField(max_length=100, null=False, blank=False)
+    group = models.ForeignKey(DictGroup,null=True,blank=True,on_delete=models.SET_NULL)
+
+    @staticmethod
+    def types():
+        return [{
+            "label": t[1],
+            "value": t[0]
+        } for t in DictValueType.choices]
+        
+    def get_type_display(self):
+        return DictValueType(self.type).label
+        
+    def extra_json(self):
+        return {
+            "group_name": self.group.name if self.group is not None else "未知",
+            "type_name": self.get_type_display(),
+        }
+        
+    def save(self, *args, **kwargs):
+        # value 
+        if self.type == DictValueType.NUMBER:
+            self.value = str(self.value)
+        elif self.type == DictValueType.BOOLEAN:
+            self.value = str(self.value).lower() == "true"
+        elif self.type == DictValueType.JSON and not isinstance(self.value, str):
+            try:
+                self.value = json.dumps(self.value)
+            except Exception as e:
+                raise Exception("json 格式错误")
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "字典"
+        verbose_name_plural = "字典"

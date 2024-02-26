@@ -105,6 +105,11 @@
                             :preview-src-list="row[column.key] ? [$img(row[column.key])] : []"
                             style="width: 50px; height: 50px;"></ElImage>
                         <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}</ElTag>
+
+                        <!-- link  -->
+                        <ElLink type="primary" v-if="column.type == 'link'" :underline="false" :href="makeUrl(row,column,column.key)" target="_self">
+                            {{column.prefix}}{{ row[column.key] }}{{ column.suffix }}
+                        </ElLink>
                     </template>
                     <template v-if="column.slot" #default="{ row }">
                         <slot :name="column.slot" :row="row"></slot>
@@ -431,10 +436,23 @@ export default {
                     this.load()
                 }
             })
+        },
+        makeUrl(row, column, key) {
+            let url = column.url_prefix || ""
+            return url + row[key]
+        },
+        handleQueryToSearchForm(query) {
+            for (let key in query) {
+                if (this.searchFormFields.find(v => v.name === key)) {
+                    this.searchForm[key] = query[key]
+                }
+            }
+            this.load()
         }
     },
     created() { },
     mounted() {
+        this.handleQueryToSearchForm(this.$route.query)
         this.load()
     }
 };

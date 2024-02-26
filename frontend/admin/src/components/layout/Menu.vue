@@ -85,6 +85,8 @@ export default {
             let href = window.location.href
             // path = hash last 
             let path = href.split('#').pop()
+            // remove query
+            path = path.split('?')[0]
             // path with out start / 
             path = path.replace(/^\//, '')
 

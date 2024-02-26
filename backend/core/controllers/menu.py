@@ -21,7 +21,10 @@ def menus(request: HttpRequest):
                     "parent": "layout",
                 },
             ]
-            + [m.to_json() for m in Menu.objects.filter(pid__isnull=True)]
+            + [{
+                **m.to_json(),
+                "children":[c.to_json() for c in Menu.objects.filter(enable=True,pid=m.id)]
+            } for m in Menu.objects.filter(pid__isnull=True,enable=True)]
             + [
                 {
                     "title": "开发人员维护",

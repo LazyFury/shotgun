@@ -22,7 +22,7 @@
         :active-text="field.checkedChildren"></ElSwitch>
     <!-- checkbox only one -->
     <ElCheckbox @change="handleUpdate" v-model="value" v-if="field.type == 'checkbox' && !field.multiple"
-        :label="field.label">
+        :label="field.placeholder">
     </ElCheckbox>
 
     <!-- input  -->
@@ -84,10 +84,42 @@ export default {
         },
         getOptions() {
             if (this.field.remoteDataApi) request.get(this.field.remoteDataApi).then(res => {
-                this.options = (res.data?.data?.list || []).map(v => ({
-                    label: v[this.field.props?.label || 'name'] || v[this.field.props?.value || 'title'],
-                    value: v[this.field.props?.value || 'id']
-                }))
+                this.options = (res.data?.data?.list || []).map(v => {
+                    let label_name = this.field.props?.label || 'name'
+                    let backend_label_names = ['name', 'title','label']
+                    let value_name = this.field.props?.value || 'id'
+                    let backend_value_names = ['id', 'value']
+
+                    let label = ""
+                    let value = ""
+
+                    if(v[label_name]){
+                        label = v[label_name]
+                    }
+
+                    if(v[value_name]){
+                        value = v[value_name]
+                    }
+
+                    for (let i = 0; i < backend_label_names.length; i++) {
+                        if (v[backend_label_names[i]]) {
+                            label = v[backend_label_names[i]]
+                            break
+                        }
+                    }
+
+                    for (let i = 0; i < backend_value_names.length; i++) {
+                        if (v[backend_value_names[i]]) {
+                            value = v[backend_value_names[i]]
+                            break
+                        }
+                    }
+                    
+                    return {
+                        label,
+                        value
+                    }
+                })
             })
         }
     },
