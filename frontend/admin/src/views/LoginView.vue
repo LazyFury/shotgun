@@ -6,11 +6,11 @@
                 <h1 class="text-center text-2xl font-bold">Admin Login</h1>
             </div>
 
-            <ElForm size="large" :model="loginForm" :rules="loginFormRules" ref="loginFormRef" label-position="top" class="mt-4">
-                <ElFormItem label="Username" prop="username">
-                    <ElInput v-model="loginForm.username" placeholder="Username"></ElInput>
+            <ElForm size="large" @submit.native.prevent="handleSubmit" :model="loginForm" :rules="loginFormRules" ref="loginFormRef" label-position="top" class="mt-4">
+                <ElFormItem label="Username" prop="username" key="username">
+                    <ElInput v-model="loginForm.username" type="text" placeholder="Username"></ElInput>
                 </ElFormItem>
-                <ElFormItem label="Password" prop="password">
+                <ElFormItem label="Password" prop="password" key="password">
                     <ElInput v-model="loginForm.password" type="password" placeholder="Password"></ElInput>
                 </ElFormItem>
                 <ElFormItem>
@@ -84,6 +84,10 @@ export default {
                 })
             }
         })
+    },
+    handleSubmit(e){
+        e.preventDefault()
+        this.submitLogin()
     }
   },
   created() {},

@@ -15,18 +15,10 @@
             </div>
             <ElDivider class="!mb-4 !mt-2"></ElDivider>
             <div v-if="searchFormFields && searchFormFields.length > 0">
-                <ElForm :inline="true" :model="searchForm" class="mb-2">
+                <ElForm :inline="true" :model="searchForm" @submit.prevent.native="e=>{}" class="mb-2">
                     <ElFormItem v-for="field in searchFormFields" :key="field.name" :label="field.label" :prop="field.name"
                         :class="[]" :style="{ 'min-width': field.width || '100px' }">
-                        <!-- select  -->
-                        <ElSelect v-if="field.type === 'select'" v-model="searchForm[field.name]"
-                            :placeholder="field.placeholder" clearable>
-                            <ElOption v-for="option in field.options" :key="option.value" :label="option.label"
-                                :value="option.value"></ElOption>
-                        </ElSelect>
-
-                        <ElInput v-else v-model="searchForm[field.name]" :placeholder="field.placeholder"></ElInput>
-
+                        <FormItem :field="field" v-model="searchForm[field.name]"></FormItem>
                     </ElFormItem>
                     <ElFormItem>
                         <ElButton type="primary" @click="submitSearch">
@@ -70,63 +62,66 @@
                     <span>导出</span>
                 </ElButton>
             </div>
-            <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
-                :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"
-                @sort-change="handleSortChange">
-                <!-- selection  -->
-                <ElTableColumn type="selection" width="55"></ElTableColumn>
+            <div class=" overflow-x-auto" style="width:calc(100vw - 300px)">
+                <ElTable ref="tableRef" size="default" v-loading="loading" :data="tableData" :border="true" stripe
+                    :tree-props="{ hasChildren: 'hasChildren', children: 'children' }" row-key="id"
+                    @sort-change="handleSortChange">
+                    <!-- selection  -->
+                    <ElTableColumn type="selection" width="55"></ElTableColumn>
 
-                <!-- id  -->
-                <ElTableColumn label="ID" width="80" prop="id"></ElTableColumn>
+                    <!-- id  -->
+                    <ElTableColumn label="ID" width="80" prop="id"></ElTableColumn>
 
-                <ElTableColumn v-for="column in columns" :key="column.key" :sortable="column.sortable ? 'custom' : false"
-                    :label="column.title" :width="column.width">
-                    <template #default="{ row }" v-if="!column.slot">
-                        <div :class="[column.className]" v-if="column.type == 'render'">
-                            {{ column.render(row) }}
-                        </div>
-                        <!-- switch  -->
-                        <ElSwitch v-if="column.type == 'switch'" v-model="row[column.key]"
-                            inactive-color="#ff4949" active-text="" inactive-text="" disabled></ElSwitch>
-                        <!-- checkbox  -->
-                        <ElCheckbox v-if="column.type == 'checkbox'" v-model="row[column.key]" disabled></ElCheckbox>
+                    <ElTableColumn v-for="column in columns" :key="column.key"
+                        :sortable="column.sortable ? 'custom' : false" :label="column.title" :width="column.width">
+                        <template #default="{ row }" v-if="!column.slot">
+                            <div :class="[column.className]" v-if="column.type == 'render'">
+                                {{ column.render(row) }}
+                            </div>
+                            <!-- switch  -->
+                            <ElSwitch v-if="column.type == 'switch'" v-model="row[column.key]" inactive-color="#ff4949"
+                                active-text="" inactive-text="" disabled></ElSwitch>
+                            <!-- checkbox  -->
+                            <ElCheckbox v-if="column.type == 'checkbox'" v-model="row[column.key]" disabled></ElCheckbox>
 
-                        <!-- select  -->
-                        <ElSelect v-if="column.type == 'select'" v-model="row[column.key]" :placeholder="column.placeholder"
-                            clearable>
-                            <ElOption v-for="option in column.options" :key="option.value" :label="option.label"
-                                :value="option.value"></ElOption>
-                        </ElSelect>
-                        <!-- icon  -->
-                        <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :class="[column.className]"></Icon>
-                        <!-- image  -->
-                        <ElImage v-if="column.type == 'image'" :src="$img(row[column.key])" fit="cover"
-                            :preview-teleported="true"
-                            :preview-src-list="row[column.key] ? [$img(row[column.key])] : []"
-                            style="width: 50px; height: 50px;"></ElImage>
-                        <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}</ElTag>
+                            <!-- select  -->
+                            <ElSelect v-if="column.type == 'select'" v-model="row[column.key]"
+                                :placeholder="column.placeholder" clearable>
+                                <ElOption v-for="option in column.options" :key="option.value" :label="option.label"
+                                    :value="option.value"></ElOption>
+                            </ElSelect>
+                            <!-- icon  -->
+                            <Icon v-if="column.type == 'icon'" :icon="row[column.key]" :class="[column.className]"></Icon>
+                            <!-- image  -->
+                            <ElImage v-if="column.type == 'image'" :src="$img(row[column.key])" fit="cover"
+                                :preview-teleported="true"
+                                :preview-src-list="row[column.key] ? [$img(row[column.key])] : []"
+                                style="width: 50px; height: 50px;"></ElImage>
+                            <ElTag v-if="column.type == 'tag'" :type="column.epType || 'success'">{{ row[column.key] }}
+                            </ElTag>
 
-                        <!-- link  -->
-                        <ElLink type="primary" v-if="column.type == 'link'" :underline="false" :href="makeUrl(row,column,column.key)" target="_self">
-                            {{column.prefix}}{{ row[column.key] }}{{ column.suffix }}
-                        </ElLink>
-                    </template>
-                    <template v-if="column.slot" #default="{ row }">
-                        <slot :name="column.slot" :row="row"></slot>
-                    </template>
-                </ElTableColumn>
+                            <!-- link  -->
+                            <ElLink type="primary" v-if="column.type == 'link'" :underline="false"
+                                :href="makeUrl(row, column, column.key)" :target="column.url_target || '_self'">
+                                {{ column.prefix }}{{ row[column.key] }}{{ column.suffix }}
+                            </ElLink>
+                        </template>
+                        <template v-if="column.slot" #default="{ row }">
+                            <slot :name="column.slot" :row="row"></slot>
+                        </template>
+                    </ElTableColumn>
 
-                <!-- actions  -->
-                <ElTableColumn fixed="right" v-if="actions?.length" label="操作">
-                    <template #default="{ row }">
-                        <ElButton v-for="action in actions" link :key="action.key" :type="action.type || 'primary'"
-                            @click="action.handler(row)">
-                            {{ action.title }}
-                        </ElButton>
-                    </template>
-                </ElTableColumn>
-            </ElTable>
-
+                    <!-- actions  -->
+                    <ElTableColumn fixed="right" v-if="actions?.length" label="操作" min-width="150px">
+                        <template #default="{ row }">
+                            <ElButton v-for="action in actions" link :key="action.key" :type="action.type || 'primary'"
+                                @click="action.handler(row)">
+                                {{ action.title }}
+                            </ElButton>
+                        </template>
+                    </ElTableColumn>
+                </ElTable>
+            </div>
             <!-- pagination  -->
             <div class="flex mt-2">
                 <ElPagination small layout="total,sizes, prev, pager, next, jumper" background :hide-on-single-page="false"
@@ -142,7 +137,8 @@
                     <div></div>
                 </template>
                 <slot name="addForm">
-                    <Form ref="formRef" :title="meta.title" :defaultForm="addFormDefault" :fields="addForm" @submit="handleAddSubmit">
+                    <Form ref="formRef" :title="meta.title" :defaultForm="addFormDefault" :fields="addForm"
+                        @submit="handleAddSubmit">
                     </Form>
                 </slot>
             </ElDialog>
@@ -153,9 +149,10 @@
 import { ElPagination } from 'element-plus';
 import { request } from '@/api/request';
 import Form from '@/views/components/Form.vue'
+import FormItem from './components/FormItem.vue';
 
 export default {
-    components: { ElPagination, Form },
+    components: { ElPagination, Form,FormItem },
     props: {},
     data() {
         return {
@@ -190,7 +187,7 @@ export default {
             this.addForm.forEach(arr => {
                 arr.forEach(field => {
                     obj[field.name] = field.defaultValue
-                    if(typeof field.defaultValue == null || field.defaultValue == undefined) {
+                    if (typeof field.defaultValue == null || field.defaultValue == undefined) {
                         obj[field.name] = ""
                     }
                 })
@@ -217,7 +214,7 @@ export default {
                     render: (row) => {
                         if (column.slot) return ""
                         if (column.type === '' || column.type === 'render') {
-                            let { valueType:type, key, mapping_key, data = [], def, formatStr = "", prefix = "", suffix = "" } = column || {}
+                            let { valueType: type, key, mapping_key, data = [], def, formatStr = "", prefix = "", suffix = "" } = column || {}
                             let formatConfig = column.formatter
                             if (type === 'mapping') {
                                 console.log(data)
@@ -409,7 +406,8 @@ export default {
                 let link = document.createElement('a')
                 link.style.display = 'none'
                 link.href = url
-                link.setAttribute('download', `${this.meta.title}-导出-${this.$dayjs().format('YYYYMMDDHHmmss')}.xlsx`)
+                let filename = `${this.meta.title}-导出-${this.$dayjs().format('YYYYMMDDHHmmss')}`
+                link.setAttribute('download', `${filename}.csv`)
                 document.body.appendChild(link)
                 link.click()
                 document.body.removeChild(link)

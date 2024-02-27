@@ -1,5 +1,5 @@
 from django.http import HttpRequest
-from core.models import Menu, TableManager
+from core.models import Menu, TableManager, UserModel
 from revolver_api.revolver_api.response import ApiJsonResponse
 from core.urls import api
 
@@ -9,6 +9,8 @@ def get_menu_meta(key=""):
 
 @api.get("menus")
 def menus(request: HttpRequest):
+    user:UserModel = request.user
+    user_permissions = user.permissions()
     return ApiJsonResponse(
         {
             "menus": [
@@ -23,8 +25,8 @@ def menus(request: HttpRequest):
             ]
             + [{
                 **m.to_json(),
-                "children":[c.to_json() for c in Menu.objects.filter(enable=True,pid=m.id)]
-            } for m in Menu.objects.filter(pid__isnull=True,enable=True)]
+                "children":[c.to_json() for c in Menu.objects.filter(enable=True,pid=m.id,permission_code__in=user_permissions)]
+            } for m in Menu.objects.filter(pid__isnull=True,enable=True,permission_code__in=user_permissions)]
             + [
                 {
                     "title": "开发人员维护",

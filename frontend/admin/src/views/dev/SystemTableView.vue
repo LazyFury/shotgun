@@ -126,6 +126,8 @@ export default {
         { key: "valueType", label: "valueType" },
         // url_prefix 
         { key: "url_prefix", label: "url_prefix" },
+        // url_target
+        { key: "url_target", label: "url_target" },
       ],
       edit_form_fields_attrs: [
         // label,name,type,placeholder,required,disabled,defaultValue,hidden,clearable,showPassword,remoteDataApi,prefix,suffix,epInputType

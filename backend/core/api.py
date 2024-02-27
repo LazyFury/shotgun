@@ -1,7 +1,7 @@
 
 import json
 from django.http import HttpRequest
-from core.models import DictGroup, Group, Menu, Permission, Post, TableManager, UserModel,DictValue
+from core.models import DictGroup, Group, Menu, Permission, Post, TableManager, UserModel,DictValue, UserPermission
 from core.urls import api
 from revolver_api.revolver_api.api import Api, Rule
 from revolver_api.revolver_api.response import ApiJsonResponse
@@ -49,6 +49,10 @@ class UserApi(Api):
     def pageApi(self, request: HttpRequest, **kwargs):
         return super().pageApi(request, **kwargs)
     
+# user-permission 
+@api.resource("user-permissions")
+class UserPremissions(Api):
+    model = UserPermission
     
 @api.resource("dict_group")
 class DictGroupApi(Api):
@@ -62,7 +66,9 @@ class DictGroupApi(Api):
     def get_config(self, request: HttpRequest):
         code = request.GET.get("code")
         group = DictGroup.objects.filter(code=code).first()
-        return group.get_config() if group else {}
+        return ApiJsonResponse.success({
+            "config":group.get_config() if group else {}
+        })
     
     def set_config(self, request: HttpRequest):
         code = request.GET.get("code")

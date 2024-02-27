@@ -18,7 +18,8 @@ authMiddleware = APIAuthMiddleware("/api", exclude=[
     "/api/system-monitor",
     "/api/corn",
     "/api/dataoke",
-    "/api/plugins"
+    "/api/plugins",
+    "/api/dict_group.get_config"
     ])
 
 # 注册插件

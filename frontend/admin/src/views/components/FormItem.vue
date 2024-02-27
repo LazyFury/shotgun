@@ -86,7 +86,7 @@ export default {
             if (this.field.remoteDataApi) request.get(this.field.remoteDataApi).then(res => {
                 this.options = (res.data?.data?.list || []).map(v => {
                     let label_name = this.field.props?.label || 'name'
-                    let backend_label_names = ['name', 'title','label']
+                    let backend_label_names = ['name', 'title','label','username']
                     let value_name = this.field.props?.value || 'id'
                     let backend_value_names = ['id', 'value']
 

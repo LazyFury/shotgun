@@ -1,4 +1,5 @@
 import datetime
+from email.policy import default
 import json
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -19,7 +20,7 @@ class BaseModel(SerializerModel):
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False, editable=False)
 
-    def convert(self, obj):
+    def convert(self, obj, *args, **kwargs):
         if isinstance(obj, uuid.UUID):
             return str(obj)
         if isinstance(obj,datetime.datetime):
@@ -47,7 +48,13 @@ class UserModel(AbstractUser, BaseModel):
     def fillable(self):
         exclude = ["is_superuser","password"]
         super_fill = super().fillable()
-        return [f for f in super_fill if f not in exclude]
+        return [f for f in super_fill if f not in exclude]\
+        
+    def permissions(self):
+        permissions = UserPermission.objects.filter(user=self,enable=True).all()
+        return [p.permission.code for p in permissions] + [
+            "#","sys"
+        ]
 
     class Meta:
         verbose_name = "User"
@@ -148,6 +155,7 @@ class UserToken(BaseModel):
 
     def __str__(self):
         return self.user.username + " -> " + self.token
+
     
     @staticmethod
     def get_token(username,password,ip="",device="",location="",browser="",platform="",is_mobile=False,ua=""):
@@ -243,6 +251,7 @@ class Menu(BaseModel):
     enable_delete = models.BooleanField(default=False)
     enable = models.BooleanField(default=True)
     hidden_on_menu = models.BooleanField(default=False)
+    permission_code = models.CharField(max_length=100,null=False,blank=False,default="#")
     
     def children(self):
         return Menu.objects.filter(pid=self.id).all() or []
@@ -322,6 +331,15 @@ class Permission(BaseModel,DisableDeleteModel):
 class UserPermission(BaseModel):
     user = models.ForeignKey(UserModel,null=False,blank=False,on_delete=models.DO_NOTHING)
     permission = models.ForeignKey(Permission,null=False,blank=False,on_delete=models.DO_NOTHING)
+    enable = models.BooleanField(default=True)
+    
+        
+    def extra_json(self):
+        return {
+            "user_name": self.user.username if self.user is not None else "未知",
+            "permission_code": self.permission.code if self.permission is not None else "未知",
+            "permission_name": self.permission.name if self.permission is not None else "未知",
+        }
 
 class Group(BaseModel):
     name = models.CharField(max_length=100, null=False, blank=False)
@@ -362,7 +380,17 @@ class DictGroup (BaseModel,DisableDeleteModel):
         dicts = DictValue.objects.filter(group=self)
         config = {}
         for d in dicts:
-            config[d.code] = d.value
+            if d.type == DictValueType.NUMBER:
+                config[d.code] = float(d.value)
+            elif d.type == DictValueType.BOOLEAN:
+                config[d.code] = str(d.value).lower() != "false" and str(d.value).lower() != "0"
+            elif d.type == DictValueType.JSON:
+                try:
+                    config[d.code] = json.loads(d.value)
+                except Exception as e:
+                    raise Exception("json 格式错误")
+            else:
+                config[d.code] = d.value
         return config
 
     def set_config(self,config):
@@ -404,6 +432,20 @@ class DictValue(BaseModel,DisableDeleteModel):
             "group_name": self.group.name if self.group is not None else "未知",
             "type_name": self.get_type_display(),
         }
+    
+    def convert(self, obj,key=None):
+        if key == "value":
+            # try dict value type 
+            if self.type == DictValueType.NUMBER:
+                return float(obj)
+            elif self.type == DictValueType.BOOLEAN:
+                return str(obj).lower() != "false" and str(obj).lower() != "0"
+            elif self.type == DictValueType.JSON:
+                try:
+                    return json.loads(obj)
+                except Exception as e:
+                    raise Exception("json 格式错误")
+        return super().convert(obj)
         
     def save(self, *args, **kwargs):
         # value 
